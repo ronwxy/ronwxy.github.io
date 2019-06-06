@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.jboost.cn/"/>
-  <updated>2019-06-06T06:34:57.196Z</updated>
+  <updated>2019-06-06T06:39:09.929Z</updated>
   <id>http://blog.jboost.cn/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>springboot-overview</title>
+    <title>SpringBoot从入门到实战：SpringBoot简介</title>
     <link href="http://blog.jboost.cn/2019/06/06/springboot-overview.html"/>
     <id>http://blog.jboost.cn/2019/06/06/springboot-overview.html</id>
     <published>2019-06-06T06:29:02.000Z</published>
-    <updated>2019-06-06T06:34:57.196Z</updated>
+    <updated>2019-06-06T06:39:09.929Z</updated>
     
     <content type="html"><![CDATA[<p>Spring Boot这几年非常流行，差不多是基于Spring框架应用开发的首选，同时在微服务架构领域，如Spring Cloud 框架中，Spring Boot也是基础，因此掌握Spring Boot，应成为Java开发人员必不可少的技能。<br><a id="more"></a></p><h3 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h3><p>传统的基于Spring的Java Web应用，需要配置 <code>web.xml</code>, <code>applicationContext.xml</code> 等大量xml配置信息，然后将应用打成war包放入web应用服务器(如Tomcat, Jetty等)中运行。有过实践经验的开发者应能体会到这个过程繁杂且重复。Spring Boot将这种繁杂且重复的工作通过<strong>自动化配置</strong>等手段实现，从而将开发者从复杂的配置工作中解放出来，能够更专注于业务逻辑的开发。因此，Spring Boot并不是Spring的替代解决方案，它本身并不提供Spring框架的核心特性以及扩展功能，而是和Spring框架紧密结合用于提升Spring开发者体验，提高开发效率的的工具框架。截至本文，Spring Boot最新GA版本为2.1.5。</p><h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><p>Spring Boot框架大致包括如下特性：</p><ul><li>自动化配置。Spring Boot 通过autoconfiguration的方式（后面会详细讨论何为autoconfiguration）来简化配置管理。比如如果需要访问数据库，则只需要引入相应的starter依赖包，Spring Boot便会自动为你配置访问数据库所需要的Bean，如 DataSource， JdbcTemplate等。使用Spring Boot，项目中几乎不需要任何 xml 配置文件。</li><li>内嵌的Web服务容器。Spring Boot内嵌了Tomcat、Jetty、Undertow。因此，Spring Boot应用可以像普通java应用一样打成jar包直接通过 <code>java -jar</code> 执行，而不需传统web应用一样需要打成war包部署到独立的web服务容器中。</li><li>简化依赖管理。Spring Boot官方提供了大量的starter依赖包，帮你管理了使用某个功能所需要的依赖，开发者只需要引入starter依赖，即可使用对应的功能。如spring-boot-starter-web，spring-boot-starter-jdbc等。同时自己也可以自定义starter，为某些通用功能提供模块化共享支持。</li><li>提供生产环境级的应用配置、度量指标、操作控制接口。Spring Boot的spring-boot-starter-actuator提供了查看应用配置信息，获取应用运行指标，以及控制应用（如关闭应用）三种类型的接口。通过这些接口，可以排查问题，监控服务运行情况等。   </li></ul><p>Spring Boot的这些特性，使得应用Spring Boot开发Web应用非常便捷、高效，因此在快速应用开发（Rapid Application Development）领域以及微服务架构方面，Spring Boot都是比较好的选择。</p><h3 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h3><p>该序列涉及的开发工具包括但不限于：</p><ul><li>JDK 1.8+ , 一般用的是1.8</li><li>Maven 3.3+ , 我们用的是Maven3.6.0</li><li>IntelliJ IDEA Ultimate Edition， 需要激活，<a href="http://idea.lanyus.com/" target="_blank" rel="noopener">参考这里</a></li><li>MySQL，可选，数据库访问示例需要 </li><li>Redis， 可选，缓存示例需要</li></ul>]]></content>
     
