@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.jboost.cn/"/>
-  <updated>2019-06-06T00:36:23.880Z</updated>
+  <updated>2019-06-06T06:34:57.196Z</updated>
   <id>http://blog.jboost.cn/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>springboot-overview</title>
+    <link href="http://blog.jboost.cn/2019/06/06/springboot-overview.html"/>
+    <id>http://blog.jboost.cn/2019/06/06/springboot-overview.html</id>
+    <published>2019-06-06T06:29:02.000Z</published>
+    <updated>2019-06-06T06:34:57.196Z</updated>
+    
+    <content type="html"><![CDATA[<p>Spring Boot这几年非常流行，差不多是基于Spring框架应用开发的首选，同时在微服务架构领域，如Spring Cloud 框架中，Spring Boot也是基础，因此掌握Spring Boot，应成为Java开发人员必不可少的技能。<br><a id="more"></a></p><h3 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h3><p>传统的基于Spring的Java Web应用，需要配置 <code>web.xml</code>, <code>applicationContext.xml</code> 等大量xml配置信息，然后将应用打成war包放入web应用服务器(如Tomcat, Jetty等)中运行。有过实践经验的开发者应能体会到这个过程繁杂且重复。Spring Boot将这种繁杂且重复的工作通过<strong>自动化配置</strong>等手段实现，从而将开发者从复杂的配置工作中解放出来，能够更专注于业务逻辑的开发。因此，Spring Boot并不是Spring的替代解决方案，它本身并不提供Spring框架的核心特性以及扩展功能，而是和Spring框架紧密结合用于提升Spring开发者体验，提高开发效率的的工具框架。截至本文，Spring Boot最新GA版本为2.1.5。</p><h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><p>Spring Boot框架大致包括如下特性：</p><ul><li>自动化配置。Spring Boot 通过autoconfiguration的方式（后面会详细讨论何为autoconfiguration）来简化配置管理。比如如果需要访问数据库，则只需要引入相应的starter依赖包，Spring Boot便会自动为你配置访问数据库所需要的Bean，如 DataSource， JdbcTemplate等。使用Spring Boot，项目中几乎不需要任何 xml 配置文件。</li><li>内嵌的Web服务容器。Spring Boot内嵌了Tomcat、Jetty、Undertow。因此，Spring Boot应用可以像普通java应用一样打成jar包直接通过 <code>java -jar</code> 执行，而不需传统web应用一样需要打成war包部署到独立的web服务容器中。</li><li>简化依赖管理。Spring Boot官方提供了大量的starter依赖包，帮你管理了使用某个功能所需要的依赖，开发者只需要引入starter依赖，即可使用对应的功能。如spring-boot-starter-web，spring-boot-starter-jdbc等。同时自己也可以自定义starter，为某些通用功能提供模块化共享支持。</li><li>提供生产环境级的应用配置、度量指标、操作控制接口。Spring Boot的spring-boot-starter-actuator提供了查看应用配置信息，获取应用运行指标，以及控制应用（如关闭应用）三种类型的接口。通过这些接口，可以排查问题，监控服务运行情况等。   </li></ul><p>Spring Boot的这些特性，使得应用Spring Boot开发Web应用非常便捷、高效，因此在快速应用开发（Rapid Application Development）领域以及微服务架构方面，Spring Boot都是比较好的选择。</p><h3 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h3><p>该序列涉及的开发工具包括但不限于：</p><ul><li>JDK 1.8+ , 一般用的是1.8</li><li>Maven 3.3+ , 我们用的是Maven3.6.0</li><li>IntelliJ IDEA Ultimate Edition， 需要激活，<a href="http://idea.lanyus.com/" target="_blank" rel="noopener">参考这里</a></li><li>MySQL，可选，数据库访问示例需要 </li><li>Redis， 可选，缓存示例需要</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Spring Boot这几年非常流行，差不多是基于Spring框架应用开发的首选，同时在微服务架构领域，如Spring Cloud 框架中，Spring Boot也是基础，因此掌握Spring Boot，应成为Java开发人员必不可少的技能。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="SpringBoot" scheme="http://blog.jboost.cn/categories/SpringBoot/"/>
+    
+    
+      <category term="java, springboot" scheme="http://blog.jboost.cn/tags/java-springboot/"/>
+    
+  </entry>
+  
+  <entry>
     <title>写在前面</title>
     <link href="http://blog.jboost.cn/2019/06/05/ahead.html"/>
     <id>http://blog.jboost.cn/2019/06/05/ahead.html</id>
     <published>2019-06-05T08:48:37.000Z</published>
-    <updated>2019-06-06T00:36:23.880Z</updated>
+    <updated>2019-06-06T00:40:10.921Z</updated>
     
     <content type="html"><![CDATA[<h3 id="一点感悟"><a href="#一点感悟" class="headerlink" title="一点感悟"></a>一点感悟</h3><p>在软件与互联网技术领域从业多年，从一个一知半解的职场菜鸟成长为行业“老司机”也从一个邯郸学步的技术新手晋升成为能带领团队披荆斩棘，在技术范畴能掌握话语权的企业高管。其间也与大多数同行一样，踩过不少坑，加过不少班，背过不少锅……，但同时，也为自己不断成长、进步——包括技术、能力层面，也包括薪酬、职位层面，而感到欣慰。但技术领域日新月异，接触的越多，越发现自己的无知，因此 <code>Stay hungry，Stay foolish</code>，保持持续学习的热情，永远不要满足于现状，才能保持自身竞争力，不至于在年龄增长时，出现所谓的“中年危机”。</p><h3 id="一点初衷"><a href="#一点初衷" class="headerlink" title="一点初衷"></a>一点初衷</h3><p>大学期间也曾玩过新浪博客，写过一些心路历程与人生感悟（^_^），随着年龄的增长，逐渐失去了用文字来抒发情感的激情。工作后，开始接触技术博客，也断断续续写过一些分享，但终因阶段性忙或懒惰，没能坚持下来。与之前抒发情感与感悟不同，技术博客更多的是一种经验的自我梳理总结与分享。一方面为那些踏入职场不久实践经验较缺乏的同行提供参考，另一方面也是对自我日常技术工作的整理，以达到“好记性不如烂笔头”的效果。<br>因此，虽然现今从事一线编码工作相对较少，心中一直还是有一个将以往及现在所接触的实践经验记录与分享出来的想法。于是，花了点时间整了这个博客，希望能坚持下去。</p><h3 id="一点期望"><a href="#一点期望" class="headerlink" title="一点期望"></a>一点期望</h3><p>凡事做了，总希望有所回报。整理文章其实需要花费不少时间与精力，因此也希望发出来的分享能为大家带来切实的收获，获得大家的肯定与良性反馈。有更好建议，也欢迎大家通过留言或其它方式与我交流。希望这是一个好的开始，加油！</p>]]></content>
     
