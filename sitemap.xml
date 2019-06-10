@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/2019/06/10/springboot-properties.html</loc>
+    
+    <lastmod>2019-06-10T11:56:56.303Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/2019/06/06/springboot-firstapp.html</loc>
+    
+    <lastmod>2019-06-10T11:28:58.322Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/about/index.html</loc>
     
     <lastmod>2019-06-10T07:36:24.249Z</lastmod>
@@ -12,13 +26,6 @@
     <loc>http://blog.jboost.cn/2019/06/06/springboot-overview.html</loc>
     
     <lastmod>2019-06-10T07:36:24.247Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/2019/06/06/springboot-firtApp.html</loc>
-    
-    <lastmod>2019-06-10T07:36:24.245Z</lastmod>
     
   </url>
   
