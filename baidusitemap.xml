@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://blog.jboost.cn/2019/06/14/springboot-starter.html</loc>
+    <lastmod>2019-06-14</lastmod>
+  </url>  <url>
     <loc>http://blog.jboost.cn/2019/06/11/springboot-config.html</loc>
     <lastmod>2019-06-14</lastmod>
   </url>  <url>
@@ -11,9 +14,6 @@
     <lastmod>2019-06-14</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/2019/06/10/springboot-properties.html</loc>
-    <lastmod>2019-06-14</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/2019/06/12/springboot-starter.html</loc>
     <lastmod>2019-06-14</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/2019/06/05/ahead.html</loc>
