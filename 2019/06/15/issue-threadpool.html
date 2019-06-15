@@ -1,0 +1,160 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="1rM0trSBuLi6Hq5BATX1fvbMc8g1T4bUmsUTuwu0bkQ"><title> 案例解析：线程池使用不当导致系统崩溃 · 空山新雨</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="案例解析：线程池使用不当导致系统崩溃 - ronwxy"><meta name="keywords"><meta name="author" content="ronwxy"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">案例解析：线程池使用不当导致系统崩溃</h1><div class="post-info">2019-06-15<p class="visit"><i data-identity="2019/06/15/issue-threadpool.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>前几天，发现一台阿里云服务器上的Web服务不可用。远程SSH登录不上，尝试几次登录上去之后，执行命令都显示<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-bash: fork: Cannot allocate memory</span><br></pre></td></tr></table></figure></p>
+<p>一看以为是内存泄漏导致溢出。因为执行不了任何命令， 只能通过控制台重启服务器恢复服务。<br><a id="more"></a></p>
+<h3 id="初步排查"><a href="#初步排查" class="headerlink" title="初步排查"></a>初步排查</h3><p>服务恢复后，查看系统日志，linux系统日志路径<code>/var/log/messages</code>，可通过<code>journalctl</code>命令查看，如<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">journalctl --since="2019-06-12 06:00:00" --until="2019-06-12 10:00:00"</span><br><span class="line">`</span><br></pre></td></tr></table></figure></p>
+<p>可查看since之后，until之前时间段的日志。除了发现<code>crond[14954]: (CRON) CAN&#39;T FORK (do_command): Cannot allocate memory</code> 这个错误日志，未见其它异常（下面的<code>sshd[10764]: error: fork: Cannot allocate memory</code>应是ssh登录执行命名失败的日志）</p>
+<p><img src="http://pso1tuwfq.bkt.clouddn.com/linux-log.png" alt="linux-log"></p>
+<p>通过阿里云-云监控-主机监控查看内存使用率指标，这段时间内，内存使用率一直在40%以下，基本可排除内存溢出的可能。</p>
+<p>通过搜索查阅到进程数超过操作系统限制可能导致<code>bash: fork: Cannot allocate memory</code>的报错(参考： <a href="https://blog.csdn.net/wangshuminjava/article/details/80603847" target="_blank" rel="noopener">https://blog.csdn.net/wangshuminjava/article/details/80603847</a> ）。通过<code>ps -eLf|wc -l</code>查看当前进程线程数(<code>ps -ef</code>只打印进程，<code>ps -eLf</code>会打印所有的线程), 只有1000多个，故障时刻系统到底运行了多少线程已无从得知，只能持续跟进监测。</p>
+<h3 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h3><p>几天后，再次通过<code>ps -eLf|wc -l</code>查看，发现线程数已达16000多个。直接执行<code>ps -eLf</code>可看到大量tomcat进程所产生的线程，猜测是不是线程死锁导致大量线程未完成一直hung在那里。</p>
+<p>执行 <code>jstack 进程号 &gt; ~/jstack.txt</code> 命令将进程所运行线程情况打印出来分析，发现大量的<code>WAITING</code>状态的线程，如下<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">"pool-19-thread-1" #254 prio=5 os_prio=0 tid=0x00007f0b700a6000 nid=0x29a9 waiting on condition [0x00007f0b274df000]</span><br><span class="line">   java.lang.Thread.State: WAITING (parking)</span><br><span class="line">	at sun.misc.Unsafe.park(Native Method)</span><br><span class="line">	- parking to wait for  <span class="tag">&lt;<span class="name">0x00000006ce3d8790</span>&gt;</span> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)</span><br><span class="line">	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)</span><br><span class="line">	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)</span><br><span class="line">	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)</span><br><span class="line">	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)</span><br><span class="line">	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)</span><br><span class="line">	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)</span><br><span class="line">	at java.lang.Thread.run(Thread.java:748)</span><br></pre></td></tr></table></figure></p>
+<p>根据上述内容可看出线程在等一个条件，并且是在执行<code>LinkedBlockingQueue.take</code>方法的时候，查看该方法的java doc，当队列为空时，该方法将会一直等待直到有元素可用。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Retrieves and removes the head of this queue, waiting if necessary</span></span><br><span class="line"><span class="comment"> * until an element becomes available.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> the head of this queue</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> InterruptedException if interrupted while waiting</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">E <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br></pre></td></tr></table></figure></p>
+<p>询问同事在哪里用到了LinkedBlockingQueue，同事回忆起不久前用线程池实现往阿里云OSS服务通过追加的方式上传文件功能，查看代码后发现问题——线程池没有关闭。为了使文件片段保存不存在错乱，每次保存文件时，都new了一个线程池对象，<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ThreadPoolExecutor saveImgThreadPool = <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, TimeUnit.SECONDS, <span class="keyword">new</span> LinkedBlockingQueue&lt;&gt;());</span><br></pre></td></tr></table></figure></p>
+<p>但处理完后， 没有关闭这个线程池对象，这样线程池仍会通过take方法去取等待队列中是否还有未完成的线程任务，等待队列为空时将会一直等待，这样就导致大量的线程hung在这里了（基本是只要方法被调一次，就会产生一个hung住的线程）。</p>
+<h3 id="延伸"><a href="#延伸" class="headerlink" title="延伸"></a>延伸</h3><ol>
+<li><p>线程状态为“waiting for monitor entry”：<br>意味着它 在等待进入一个临界区 ，所以它在”Entry Set“队列中等待。此时线程状态一般都是 Blocked：<br>java.lang.Thread.State: BLOCKED (on object monitor)</p>
+</li>
+<li><p>线程状态为“waiting on condition”：<br>说明它在等待另一个条件的发生，来把自己唤醒，或者干脆它是调用了 sleep(N)。此时线程状态大致为以下几种：<br>java.lang.Thread.State: WAITING (parking)：一直等那个条件发生（本文案例即为此种场景）；java.lang.Thread.State: TIMED_WAITING (parking或sleeping)：定时的，那个条件不到来，也将定时唤醒自己。</p>
+</li>
+<li><p>如果大量线程在“waiting for monitor entry”：可能是一个全局锁阻塞住了大量线程。如果短时间内打印的thread dump 文件反映，随着时间流逝，waiting for monitor entry 的线程越来越多，没有减少的趋势，可能意味着某些线程在临界区里呆的时间太长了，以至于越来越多新线程迟迟无法进入临界区。</p>
+</li>
+<li><p>如果大量线程在“waiting on condition”：可能是它们又跑去获取第三方资源，尤其是第三方网络资源，迟迟获取不到Response，导致大量线程进入等待状态。所以如果你发现有大量的线程都处在 Wait on condition，从线程堆栈看，正等待网络读写，这可能是一个网络瓶颈的征兆，因为网络阻塞导致线程无法执行。也可能是如本文所提到的，由于程序编写不当所致。</p>
+</li>
+</ol>
+<p>参考： <a href="https://www.cnblogs.com/rainy-shurun/p/5732341.html" target="_blank" rel="noopener">https://www.cnblogs.com/rainy-shurun/p/5732341.html</a></p>
+<p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
+<p>——————————————————————————————————————————————————</p>
+<p><img src="http://pso1tuwfq.bkt.clouddn.com/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/06/14/springboot-starter.html" title="Spring Boot从入门到实战：写一个自己的starter" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">ronwxy</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
