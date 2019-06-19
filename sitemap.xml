@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/2019/06/18/code-review.html</loc>
+    
+    <lastmod>2019-06-19T02:21:39.715Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/2019/06/17/git-branch.html</loc>
+    
+    <lastmod>2019-06-18T12:03:59.043Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/2019/06/16/use-git.html</loc>
     
     <lastmod>2019-06-16T09:33:04.787Z</lastmod>

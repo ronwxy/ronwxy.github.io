@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>研发团队如何借助Gitlab来做代码review</title>
+      <link href="/2019/06/18/code-review.html"/>
+      <url>/2019/06/18/code-review.html</url>
+      
+        <content type="html"><![CDATA[<p>代码review是代码质量保障的手段之一，同时开发成员之间代码review也是一种技术交流的方式，虽然会占用一些时间，但对团队而言，总体是个利大于弊的事情。如何借助现有工具在团队内部形成代码review的流程与规范，是team leader或技术管理者需要考虑的问题。本文分享一种基于Gitlab代码merge流程的code review方法，以供参考与探讨。如有更好的方法，欢迎交流。</p><a id="more"></a><h2 id="1-设置成员角色"><a href="#1-设置成员角色" class="headerlink" title="1. 设置成员角色"></a>1. 设置成员角色</h2><p>首先需要对你团队的成员分配角色，在Gitlab groups里选择一个group，然后左边菜单栏点击 Members，可在 Members 页面添加或编辑成员角色，如下图所示。</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/gitmember.png" alt="group成员"></p><p>其中角色包含如下几类：</p><ul><li>Guest：权限最小，基本查看功能</li><li>Reporter：只能查看，不能push</li><li>Developer：能push，也能merge不受限制的分支</li><li>Master：除了项目的迁移、删除等管理权限没有，其它权限基本都有</li><li>Owner：权限最大，包括项目的迁移、删除等管理权限</li></ul><p>详细权限参考： <a href="https://docs.gitlab.com/ee/user/permissions.html" target="_blank" rel="noopener">https://docs.gitlab.com/ee/user/permissions.html</a></p><p>确定团队中技术水平、经验较好的成员为Master，负责代码的review与分支的合并；其他成员为Developer，提交合并请求，接受review意见；Master之间可以互相review。</p><h2 id="2-配置分支保护"><a href="#2-配置分支保护" class="headerlink" title="2. 配置分支保护"></a>2. 配置分支保护</h2><p>在项目页面左侧菜单栏 Settings -&gt; Repository， 进入“Protected Branches”部分配置分支保护，如下图所示。</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/protectedbranch.png" alt="分支保护"></p><p>在这里可以针对每个分支，设置允许什么角色可以merge，允许什么角色可以push，选项包括三个：“Masters”， “Developers + Masters”， “No one”。<br>这里设置成只允许master可以直接push与merge这几个常设分支的代码。（如果更严格一点，可以将“Allowed to push”设置成“No one”）</p><h2 id="3-代码review流程"><a href="#3-代码review流程" class="headerlink" title="3. 代码review流程"></a>3. 代码review流程</h2><h3 id="3-1-开发（开发者负责）"><a href="#3-1-开发（开发者负责）" class="headerlink" title="3.1. 开发（开发者负责）"></a>3.1. 开发（开发者负责）</h3><ol><li>本地切到develop分支， 拉取最新代码（相关命令如下，GUI工具操作自行查相关文档） </li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git branch #查看当前位于哪个分支，前面打星号即为当前分支</span><br><span class="line">git checkout develop   #切换到develop分支</span><br><span class="line">git pull  #拉取最新代码</span><br></pre></td></tr></table></figure><ol start="2"><li>从develop分支切出子分支</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b feature-1101  #从当前分支切出子分支，命名为"feature-1101"</span><br></pre></td></tr></table></figure><ol start="3"><li>编码、本地自测完之后，提交子分支到远程仓库</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add *  #加入暂存区</span><br><span class="line">git commit -m "commit msg" #提交到本地仓库</span><br><span class="line">git push origin feature-1101 #提交到远程仓库</span><br></pre></td></tr></table></figure><h3 id="3-2-发起Merge请求（开发者负责）"><a href="#3-2-发起Merge请求（开发者负责）" class="headerlink" title="3.2 发起Merge请求（开发者负责）"></a>3.2 发起Merge请求（开发者负责）</h3><ol><li>在项目主页面，依次点击左侧“Merge Requests”（下图1），“New merge request”（下图2），打开新建Merge请求页面</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/mergerequest1.png" alt="Merge请求"></p><ol start="2"><li>在新建Merge请求页面，选择merge的源分支，及目标分支，如下图源分支为“feature-1101”，目标分支为“develop”，点击“Compare branches and continue”按钮进入对比与提交页面</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/mergerequest2.png" alt="新建Merge请求"></p><ol start="3"><li>在对比与提交页面，可以点击“Changes” tab查看本次修改（这里我为了演示，只是加了两个换行），确认无误，点击“Submit merge request”按钮，提交merge请求</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/mergesubmit.png" alt="对比修改"></p><ol start="4"><li>提交之后，将结果页面的浏览器地址发到团队即时通讯群（如钉钉），并@相应的同事申请review</li></ol><h3 id="3-3-代码Review（code-reviewer负责）"><a href="#3-3-代码Review（code-reviewer负责）" class="headerlink" title="3.3 代码Review（code reviewer负责）"></a>3.3 代码Review（code reviewer负责）</h3><ol><li>负责代码Review的同事收到申请后，点击merge请求地址，打开页面，查看“Changes”</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/merge.png" alt="对比修改"></p><p>这里可通过“Inline”单边查看，也可以通过“Side-by-side”两个版本对比查看</p><ol start="2"><li>review完成后，若无问题，则可点击”Merge”按钮完成merge，同时可删除对应的子分支“feature-1101”，<br>若有问题，则可点击“Close merge request”按钮关闭该merge请求（也可以不关闭复用该merge请求），同时通知开发者进行相应调整，重新提交代码发起merge请求（如果之前没关闭merge请求，则刷新即可看到调整）。</li></ol><h3 id="3-4-冲突解决（开发者负责）"><a href="#3-4-冲突解决（开发者负责）" class="headerlink" title="3.4 冲突解决（开发者负责）"></a>3.4 冲突解决（开发者负责）</h3><ol><li>merge的时候，可能存在代码冲突，这时，开发者可从develop分支重新拉取最新代码进行本地merge， 解决冲突后重新提交代码进行review</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">git pull origin develop #在当前子分支拉取develop分支的最新代码进行本地merge</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 解决冲突代码</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">git add *</span><br><span class="line">git commit -m "fix merge conflict"</span><br><span class="line">git push origin feature-1101</span><br></pre></td></tr></table></figure><ol start="2"><li>自行解决不了时，寻求协助</li></ol><h2 id="4-借助阿里钉钉机器人来改善体验"><a href="#4-借助阿里钉钉机器人来改善体验" class="headerlink" title="4. 借助阿里钉钉机器人来改善体验"></a>4. 借助阿里钉钉机器人来改善体验</h2><p>前面流程中提醒code reviewer是需要开发者自己来发消息通知的，可不可以把这个流程自动化。我们可以借助Gitlab的webhook与钉钉机器人来实现。</p><ol><li>在钉钉群右上角点击“…”，打开群设置，群机器人中点击添加机器人，会显示可以添加的机器人类型，如下图所示</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/dingdingmachine.png" alt="钉钉机器人"></p><ol start="2"><li>选择Gitlab，点击添加，输入机器人名称，如“Gitlab”，点击完成即创建了一个Gitlab的钉钉机器人。回到“群机器人”窗口，将能看到刚刚创建的Gitlab机器人，如图</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/dingdingmachinelist.png" alt="钉钉机器人列表"></p><p>点击齿轮按钮，进入设置页，可看到webhook地址，点击复制，复制该机器人的webhook地址。如图</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/dingdingwebhook.png" alt="钉钉机器人webhook"></p><ol start="3"><li>在Gitlab项目主页进入 Settings -&gt; Integrations， 将前面复制的webhook地址填入URL中，Trigger 部分选择“Merge request events”（不要勾太多，不然提醒太多就有点骚扰了），然后点击“Add webhook”就完成了。如图</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/gitlabwebhook.png" alt="GitlabWebhook"></p><ol start="4"><li>当有开发人员提交merge请求时，钉钉机器人将在钉钉群里发出通知，code reviewer点击消息里的链接即可进入页面进行code review， review完成，将分支merge之后，钉钉机器人也会发出消息（所有merge相关的事件都会发出消息）。如图</li></ol><p><img src="http://pso1tuwfq.bkt.clouddn.com/dingdingmachinechat.png" alt="钉钉机器人通知"></p><h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>团队协作，流程、规范很重要，不同的团队可能有不同的适用流程与规范。此文分享了基于Gitlab与阿里钉钉群机器人的代码review流程，希望对团队研发协作有一定参考价值，也欢迎一起探讨、交流。</p><p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p><p>————————————————————————————————————————</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> teamwork </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> git </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>团队项目的Git分支如何管理</title>
+      <link href="/2019/06/17/git-branch.html"/>
+      <url>/2019/06/17/git-branch.html</url>
+      
+        <content type="html"><![CDATA[<p>许多公司的开发团队都采用Git来做代码版本控制。如何有效地协同开发人员之间，以及开发、测试、上线各环节的工作，可能都有各自的流程与规范。本文分享的是作者一直沿用的团队项目Git分支管理规范，希望给有缘阅读的人以参考，如果有更好的实践，也欢迎指教、讨论。<br><a id="more"></a></p><h2 id="分支管理"><a href="#分支管理" class="headerlink" title="分支管理"></a>分支管理</h2><p>创建项目时（一般是服务型项目，工具型或辅助型项目可以简单一些），会针对不同环境创建三个常设分支：</p><ol><li>develop：开发环境的稳定分支，公共开发环境基于该分支构建。</li><li>pre-release：测试环境的稳定分支，测试环境基于该分支构建。</li><li>master：生产环境的稳定分支，生产环境基于该分支构建。仅用来发布新版本，除了从pre-release或生产环境Bug修复分支进行merge，不接受任何其它修改</li></ol><p>平时开发工作中，会根据需要由开发人员创建两类临时分支：</p><ol><li>功能（feature）分支：为了开发某个特定功能，从develop分支上面分出来的。开发完成后，要merge到develop分支。功能分支的命名，可以采用feature-*的形式命名(*为任务单号)</li><li>Bug修复（fixbug）分支：为了修复某个bug，从常设分支上面分出来的。修复完成后，再merge到对应的分支。Bug修复分支的命名，可以采用fixbug-*的形式命名（*为bug单号）</li></ol><h2 id="流程规范"><a href="#流程规范" class="headerlink" title="流程规范"></a>流程规范</h2><h3 id="正常开发流程"><a href="#正常开发流程" class="headerlink" title="正常开发流程"></a>正常开发流程</h3><ol><li>从develop分支切出一个新分支，根据是功能还是bug，命名为feature-* 或 fixbug-*。</li><li>开发者完成开发，提交分支到远程仓库。</li><li>开发者发起merge请求（可在gitlab页面“New merge request”），将新分支请求merge到develop分支，并提醒code reviewer进行review</li><li>code reviewer对代码review之后，若无问题，则接受merge请求，新分支merge到develop分支，同时可删除新建分支；若有问题，则不能进行merge，可close该请求，同时通知开发者在新分支上进行相应调整。调整完后提交代码重复review流程。</li><li>转测时，直接从当前develop分支merge到pre-release分支，重新构建测试环境完成转测。</li><li>测试完成后，从pre-release分支merge到master分支，基于master分支构建生产环境完成上线。并对master分支打tag，tag名可为v1.0.0_2019032115（即版本号_上线时间）</li></ol><p>流程示意图如下所示</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/gitbranch1.png" alt="正常开发流程"></p><h3 id="并行开发测试环境Bug修复流程"><a href="#并行开发测试环境Bug修复流程" class="headerlink" title="并行开发测试环境Bug修复流程"></a>并行开发测试环境Bug修复流程</h3><p>并行开发（即前一个版本已经转测但未上线，后一个版本又已在开发中并部分合并到了develop分支）过程中，转测后测试环境发现的bug需要修复，但是develop分支此时又有新内容且该部分内容目前不计划转测，可以pre-release切出一个bug修复分支。完成之后需要同时merge到pre-release分支与develop分支。merge时参考“正常开发流程”。流程示意图如下</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/gitbranch2.png" alt="并行开发测试环境Bug修复流程"></p><h3 id="生产环境Bug修复流程"><a href="#生产环境Bug修复流程" class="headerlink" title="生产环境Bug修复流程"></a>生产环境Bug修复流程</h3><p>生产环境的Bug分两种情况：</p><ol><li>紧急Bug：严重影响用户使用的为紧急Bug，需立即进行修复。如关键业务流程存在问题，影响用户正常的业务行为。</li><li>非紧急Bug或优化：非关键业务流程问题，仅影响用户使用体验，或出现频率较小等，为非紧急Bug，可规划到后续版本进行修复。</li></ol><p>非紧急Bug修复参考“正常开发流程”。</p><p>紧急Bug修复，需要从master分支切出一个bug修复分支，完成之后需要同时merge到master分支与develop分支（如果需要测试介入验证，则可先merge到pre-release分支，验证通过后再merge到master分支上线）。merge时参考“正常开发流程”。流程示意图如下</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/gitbranch3.png" alt="生产环境Bug修复流程"></p><p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p><p>————————————————————————————————————————</p><p><img src="http://pso1tuwfq.bkt.clouddn.com/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> teamwork </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> git </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>命令行高效操作Git，看这篇就够了</title>
       <link href="/2019/06/16/use-git.html"/>
       <url>/2019/06/16/use-git.html</url>
