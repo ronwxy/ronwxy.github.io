@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/2019/06/28/swagger-register.html</loc>
+    
+    <lastmod>2019-06-28T11:09:53.498Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/2019/06/16/use-git.html</loc>
+    
+    <lastmod>2019-06-28T09:00:07.774Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/2019/06/27/springboot-aoplog.html</loc>
     
     <lastmod>2019-06-27T07:06:00.409Z</lastmod>
@@ -47,13 +61,6 @@
     <loc>http://blog.jboost.cn/2019/06/17/git-branch.html</loc>
     
     <lastmod>2019-06-18T12:03:59.043Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/2019/06/16/use-git.html</loc>
-    
-    <lastmod>2019-06-16T09:33:04.787Z</lastmod>
     
   </url>
   
