@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/2019/07/02/use-nvm.html</loc>
+    
+    <lastmod>2019-07-02T07:58:47.192Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/2019/06/29/session-redis.html</loc>
     
     <lastmod>2019-06-29T02:21:26.547Z</lastmod>
