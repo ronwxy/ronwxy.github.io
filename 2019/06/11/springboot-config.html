@@ -28,7 +28,7 @@
 <p>在该方法中，会从所有的META-INF目录下加载spring.factories文件里配置的各类型的类名称（包括初始化器，监听器，自动配置类等）。然后上层方法中通过反射机制实例化这些初始化器、监听器，自动配置等，从而完成相应Bean的自动化配置与注入。</p>
 <p><strong>spring-boot-autoconfigure</strong></p>
 <p>官方提供的starter，如spring-boot-starter-web， 都依赖了spring-boot-starter， 而spring-boot-starter又依赖了spring-boot-autoconfigure。 在spring-boot-autoconfigure中提供了大量官方提供的自动配置类，并且包含META-INF/spring.factories文件，如下图</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/config1.png" alt="spring-boot-autoconfigure"></p>
+<p><img src="/assets/config1.png" alt="spring-boot-autoconfigure"></p>
 <p><strong>spring.factories</strong></p>
 <p>由上图可看出，spring.factories包含了   </p>
 <ul>
@@ -66,7 +66,7 @@
 <p>其中XXAutoConfiguration为某个自动配置类，如果该类不在应用的类路径中，则可以通过属性excludeName指定完整类路径来排除。@SpringBootApplicationz注解同样支持<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span>(exclude = &#123;XXAutoConfiguration.class&#125;)</span><br></pre></td></tr></table></figure></p>
 <p>本文示例项目源码地址：<a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-config" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-config</a><br><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
 <p>——————————————————————————————————————————————————</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
 </div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/06/14/springboot-starter.html" title="Spring Boot从入门到实战：写一个自己的starter" class="prev">PREV</a><a href="/2019/06/10/springboot-properties.html" title="Spring Boot从入门到实战：Spring Boot自定义属性" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
     el: "#vcomments",
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",

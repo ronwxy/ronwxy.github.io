@@ -20,9 +20,9 @@
 <li>测试完成后，从pre-release分支merge到master分支，基于master分支构建生产环境完成上线。并对master分支打tag，tag名可为v1.0.0_2019032115（即版本号_上线时间）</li>
 </ol>
 <p>流程示意图如下所示</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/gitbranch1.png" alt="正常开发流程"></p>
+<p><img src="/assets/gitbranch1.png" alt="正常开发流程"></p>
 <h3 id="并行开发测试环境Bug修复流程"><a href="#并行开发测试环境Bug修复流程" class="headerlink" title="并行开发测试环境Bug修复流程"></a>并行开发测试环境Bug修复流程</h3><p>并行开发（即前一个版本已经转测但未上线，后一个版本又已在开发中并部分合并到了develop分支）过程中，转测后测试环境发现的bug需要修复，但是develop分支此时又有新内容且该部分内容目前不计划转测，可以pre-release切出一个bug修复分支。完成之后需要同时merge到pre-release分支与develop分支。merge时参考“正常开发流程”。流程示意图如下</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/gitbranch2.png" alt="并行开发测试环境Bug修复流程"></p>
+<p><img src="/assets/gitbranch2.png" alt="并行开发测试环境Bug修复流程"></p>
 <h3 id="生产环境Bug修复流程"><a href="#生产环境Bug修复流程" class="headerlink" title="生产环境Bug修复流程"></a>生产环境Bug修复流程</h3><p>生产环境的Bug分两种情况：</p>
 <ol>
 <li>紧急Bug：严重影响用户使用的为紧急Bug，需立即进行修复。如关键业务流程存在问题，影响用户正常的业务行为。</li>
@@ -30,10 +30,10 @@
 </ol>
 <p>非紧急Bug修复参考“正常开发流程”。</p>
 <p>紧急Bug修复，需要从master分支切出一个bug修复分支，完成之后需要同时merge到master分支与develop分支（如果需要测试介入验证，则可先merge到pre-release分支，验证通过后再merge到master分支上线）。merge时参考“正常开发流程”。流程示意图如下</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/gitbranch3.png" alt="生产环境Bug修复流程"></p>
+<p><img src="/assets/gitbranch3.png" alt="生产环境Bug修复流程"></p>
 <p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
 <p>————————————————————————————————————————</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
 </div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/06/18/code-review.html" title="研发团队如何借助Gitlab来做代码review" class="prev">PREV</a><a href="/2019/06/16/use-git.html" title="命令行高效操作Git，看这篇就够了" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
     el: "#vcomments",
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",

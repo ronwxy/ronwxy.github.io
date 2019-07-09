@@ -3,7 +3,7 @@
 <p>一看以为是内存泄漏导致溢出。因为执行不了任何命令， 只能通过控制台重启服务器恢复服务。<br><a id="more"></a></p>
 <h3 id="初步排查"><a href="#初步排查" class="headerlink" title="初步排查"></a>初步排查</h3><p>服务恢复后，查看系统日志，linux系统日志路径<code>/var/log/messages</code>，可通过<code>journalctl</code>命令查看，如<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">journalctl --since="2019-06-12 06:00:00" --until="2019-06-12 10:00:00"</span><br><span class="line">`</span><br></pre></td></tr></table></figure></p>
 <p>可查看since之后，until之前时间段的日志。除了发现<code>crond[14954]: (CRON) CAN&#39;T FORK (do_command): Cannot allocate memory</code> 这个错误日志，未见其它异常（下面的<code>sshd[10764]: error: fork: Cannot allocate memory</code>应是ssh登录执行命名失败的日志）</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/linux-log.png" alt="linux-log"></p>
+<p><img src="/assets/linux-log.png" alt="linux-log"></p>
 <p>通过阿里云-云监控-主机监控查看内存使用率指标，这段时间内，内存使用率一直在40%以下，基本可排除内存溢出的可能。</p>
 <p>通过搜索查阅到进程数超过操作系统限制可能导致<code>bash: fork: Cannot allocate memory</code>的报错(参考： <a href="https://blog.csdn.net/wangshuminjava/article/details/80603847" target="_blank" rel="noopener">https://blog.csdn.net/wangshuminjava/article/details/80603847</a> ）。通过<code>ps -eLf|wc -l</code>查看当前进程线程数(<code>ps -ef</code>只打印进程，<code>ps -eLf</code>会打印所有的线程), 只有1000多个，故障时刻系统到底运行了多少线程已无从得知，只能持续跟进监测。</p>
 <h3 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h3><p>几天后，再次通过<code>ps -eLf|wc -l</code>查看，发现线程数已达16000多个。直接执行<code>ps -eLf</code>可看到大量tomcat进程所产生的线程，猜测是不是线程死锁导致大量线程未完成一直hung在那里。</p>
@@ -24,7 +24,7 @@
 <p>参考： <a href="https://www.cnblogs.com/rainy-shurun/p/5732341.html" target="_blank" rel="noopener">https://www.cnblogs.com/rainy-shurun/p/5732341.html</a></p>
 <p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
 <p>——————————————————————————————————————————————————</p>
-<p><img src="http://pso1tuwfq.bkt.clouddn.com/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
 </div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/06/16/use-git.html" title="命令行高效操作Git，看这篇就够了" class="prev">PREV</a><a href="/2019/06/14/springboot-starter.html" title="Spring Boot从入门到实战：写一个自己的starter" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
     el: "#vcomments",
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
