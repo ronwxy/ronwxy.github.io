@@ -1,0 +1,177 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="1rM0trSBuLi6Hq5BATX1fvbMc8g1T4bUmsUTuwu0bkQ"><title> Docker笔记（五）：整一个自己的镜像 · 空山新雨</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Docker笔记（五）：整一个自己的镜像 - ronwxy"><meta name="keywords"><meta name="author" content="ronwxy"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Docker笔记（五）：整一个自己的镜像</h1><div class="post-info">2019-07-17<p class="visit"><i data-identity="2019/07/17/docerk-5.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>获取镜像的途径有两个，一是从镜像仓库获取，如官方的Docker Hub，二是自定义。上文已经介绍如何从镜像仓库获取镜像，本文基于一个Springboot项目，来介绍自定义一个镜像的基本流程。<br><a id="more"></a></p>
+<h2 id="1-定制镜像的本质"><a href="#1-定制镜像的本质" class="headerlink" title="1. 定制镜像的本质"></a>1. 定制镜像的本质</h2><p>我们知道镜像是分层存储的，镜像的构建也是一层一层进行的，一层构建完后，就变为只读，在其上再构建下一层。因此定制镜像，实际上就是定义每一层要干的事，比如执行某个命令，设置一个环境变量，声明一个暴露端口等等。然后在构建时，按照各层的定义，一层一层地完成构建，最终形成一个包含这些层的镜像。</p>
+<h2 id="2-Dockerfile文件"><a href="#2-Dockerfile文件" class="headerlink" title="2. Dockerfile文件"></a>2. Dockerfile文件</h2><p>Docker中定义各层要干的事的文件叫Dockerfile，它是一个文本文件，包含了一条条的指令，每一条指令对应一层镜像，指令的内容就描述了这一层该如何构建。如下示例了一个非常简单的Dockerfile，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line">RUN echo &apos;&lt;h1&gt;Hello jboost!&lt;/h1&gt;&apos; &gt; /usr/share/nginx/html/index.html</span><br></pre></td></tr></table></figure></p>
+<p>我们定制镜像，必须要以某一个镜像为基础，在其上构建自己需要的层，如上示例中，我们是以nginx镜像为基础，然后在第二层定制了我们自己的内容——修改index.html的内容为<code>&lt;h1&gt;Hello jboost!&lt;/h1&gt;</code>，这样运行容器打开nginx主页时就不会显示默认的页面内容了。</p>
+<p>上面示例中接触了Dockerfile的两个指令</p>
+<ul>
+<li>FROM：FROM指令指定基础镜像，每一个定制镜像必须要有一个基础镜像，所以必须要有一条FROM指令，并且是Dockerfile的第一条指令</li>
+<li>RUN：RUN指令指定需要执行的命令，后面接的命令就像是shell脚本一样可执行</li>
+</ul>
+<p>Dockerfile还提供了许多其它指令，后续我们再集中介绍，本文只对接触到的指令做简单说明。</p>
+<h2 id="3-自定义一个镜像"><a href="#3-自定义一个镜像" class="headerlink" title="3. 自定义一个镜像"></a>3. 自定义一个镜像</h2><p>这部分以一个Springboot项目为基础，介绍自定义一个镜像涉及的基本环节。项目地址为：<a href="https://github.com/ronwxy/swagger-register" target="_blank" rel="noopener">https://github.com/ronwxy/swagger-register</a> ，该项目是一个Swagger API文档注册服务，其它项目可将Swagger API信息注册到该服务，进行统一查看与管理。</p>
+<h3 id="3-1-定义Dockerfile文件"><a href="#3-1-定义Dockerfile文件" class="headerlink" title="3.1 定义Dockerfile文件"></a>3.1 定义Dockerfile文件</h3><p>首先，我们在项目的根目录下创建一个Dockerfile文件（文件名就叫Dockerfile），其内容为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">FROM openjdk:8-jdk-alpine</span><br><span class="line">ENV PROFILE=dev</span><br><span class="line">RUN mkdir /app /logs</span><br><span class="line">COPY ./target/swagger-register-1.0.0-SNAPSHOT.jar /app/app.jar</span><br><span class="line">WORKDIR /app</span><br><span class="line">VOLUME /register-data</span><br><span class="line">EXPOSE 11090</span><br><span class="line">CMD [&quot;java&quot;, &quot;-Dspring.profiles.active=$&#123;PROFILE&#125;&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]</span><br></pre></td></tr></table></figure></p>
+<p>从上往下依次介绍如下</p>
+<ul>
+<li>第一行：FORM openjdk:8-jdk-alpine， 表示以<code>openjdk:8-jdk-alpine</code>这个镜像为基础镜像，因为这是一个Springboot项目所以必须要有jdk支持，我们在定制镜像时，可以找一个最适合的镜像作为基础镜像。</li>
+<li>第二行：ENV PROFILE=dev， 定义了一个环境变量，这个环境变量可以在后面被引用</li>
+<li>第三行：RUN mkdir /app /logs，通过mkdir命令创建了两个目录，用来保存jar执行文件及日志</li>
+<li>第四行：COPY ./target/swagger-register-1.0.0-SNAPSHOT.jar /app/app.jar 将target目录下的jar包复制到/app目录下，并且进行重命名</li>
+<li>第五行：WORKDIR /app， 指定工作目录为/app，后面各层的当前目录就是指定的工作目录</li>
+<li>第六行：VOLUME /register-data， 定义一个匿名数据卷，前面说过写操作不要直接在容器内进行，而要改为写挂载的数据卷目录，这个定义可在运行容器时通过 -v 来覆盖。</li>
+<li>第七行：EXPOSE 11090， 声明了运行容器时提供的服务端口，也仅仅是个声明而已，只是告诉使用的人要映射这个端口，通过 -p 可映射端口。</li>
+<li>第八行：CMD [“java”, “-Dspring.profiles.active=${PROFILE}”, “-jar”, “app.jar”]， 指定了容器启动命令，因为是一个Springboot项目，所以就是一个java -jar的执行命令，容器启动的时候就会执行该命令来运行Springboot服务，这里引用了第二行定义的环境变量PROFILE</li>
+</ul>
+<h3 id="3-2-配置maven插件"><a href="#3-2-配置maven插件" class="headerlink" title="3.2 配置maven插件"></a>3.2 配置maven插件</h3><p>定义好Dockerfile后，为了方便构建镜像，我们可以借助maven的dockerfile插件<code>dockerfile-maven-plugin</code>，在pom.xml的build部分加入配置如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Docker maven plugin --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.spotify<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dockerfile-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.10<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">repository</span>&gt;</span>$&#123;docker.image.prefix&#125;/$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">buildArgs</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">JAR_FILE</span>&gt;</span>target/$&#123;project.build.finalName&#125;.jar<span class="tag">&lt;/<span class="name">JAR_FILE</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">buildArgs</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Docker maven plugin --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>repository指定了镜像的名称，<code>docker.image.prefix</code>需要properties部分进行定义，我这里是<code>springboot</code>。</p>
+<h3 id="3-3-构建镜像"><a href="#3-3-构建镜像" class="headerlink" title="3.3 构建镜像"></a>3.3 构建镜像</h3><p>下载源码：<a href="https://github.com/ronwxy/swagger-register.git" target="_blank" rel="noopener">https://github.com/ronwxy/swagger-register.git</a> ，然后在项目的根目录下执行如下命令(前提是本地已经装好了docker与maven及jdk)<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean package -Dmaven.test.skip=true dockerfile:build</span><br></pre></td></tr></table></figure></p>
+<p>该命令首先会执行<code>mvn clean package -Dmaven.test.skip=true</code>对项目进行打包，生成./target/swagger-register-1.0.0-SNAPSHOT.jar文件，然后基于当前目录下的Dockerfile文件进行构建，如下图所示<br><img src="/assets/docker-build.png" alt="docker-build"></p>
+<p>由上图可看出，该镜像构建分八步(对应Dockerfile的八行指令)，每一步生成一个镜像层，每一层都有唯一的ID。由图中也可以看出，除了COPY之类的命令外，每一层的构建实际上是先基于上一层启动一个容器，然后执行该层定义的操作，再移除这个容器来实现的，如第八步中<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Step 8/8 : CMD ["java", "-Dspring.profiles.active=$&#123;PROFILE&#125;", "-jar", "app.jar"]</span><br><span class="line">[INFO] </span><br><span class="line">[INFO]  ---&gt; Running in f4acd0b53bca</span><br><span class="line">[INFO] Removing intermediate container f4acd0b53bca</span><br><span class="line">[INFO]  ---&gt; a9ee579f2d62</span><br></pre></td></tr></table></figure></p>
+<p>先启动一个ID为f4acd0b53bca的容器，在其中执行CMD所定义的命令，然后再移除容器f4acd0b53bca，最后生成ID为a9ee579f2d62的镜像。</p>
+<p>构建完后，我们就可以在本地镜像中通过<code>docker iamges</code>看到我们定制的镜像了，如图<br><img src="/assets/docker-image.png" alt="docker-image"></p>
+<p>图中springboot/swagger-register镜像即为我们刚刚构建好的定制镜像。</p>
+<h3 id="3-4-启动容器"><a href="#3-4-启动容器" class="headerlink" title="3.4 启动容器"></a>3.4 启动容器</h3><p>我们可以通过以下命令来启动一个刚才定制镜像的容器<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name swagger-register -p 11090:11090 -v /home/jenkins/swagger-register/register-data:/register-data -v /home/jenkins/swagger-register/logs:/logs --restart=always springboot/swagger-register:latest</span><br></pre></td></tr></table></figure></p>
+<p>其中：</p>
+<ul>
+<li>-d 表示以后台进程方式运行</li>
+<li>–name 指定容器名称</li>
+<li>-p 指定端口映射，左边为宿主机端口，右边为容器服务端口</li>
+<li>-v 指定数据卷挂载，左边为宿主机目录，右边为容器目录</li>
+<li>–restart=always 表示在docker启动时自动启动该容器</li>
+</ul>
+<p>关于容器相关的内容后面详细介绍，这里不展开说明了。启动容器后， 我们就可以浏览器打开地址 http://宿主机ip:11090/doc.html 来访问服务了（打开页面后内容是空的，因为没有任何服务注册Swagger API， 相关内容可参考 <a href="/2019/06/28/swagger-register.html">swagger api文档集中化注册管理</a>）</p>
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><p>本文介绍了一个基于Springboot项目的Docker镜像定制及使用过程，对镜像的构建过程，及Dockerfile的基本指令以及容器的运行做了基本介绍。后续会对Dockerfile的其它指令及Dockerfile的一些最佳实践进行更为详细的介绍，欢迎关注。<br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号">  </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/07/16/docker-4.html" title="Docker笔记（四）：Docker镜像管理" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">ronwxy</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
