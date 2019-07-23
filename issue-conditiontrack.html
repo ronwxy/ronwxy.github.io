@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> 案例解析：springboot自动配置未生效问题定位（条件断点） · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="案例解析：springboot自动配置未生效问题定位（条件断点） - 空山新雨"><meta name="keywords" content="Spring, DevOps, 技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">案例解析：springboot自动配置未生效问题定位（条件断点）</h1><div class="post-info">2019-06-25<p class="visit"><i data-identity="issue-conditiontrack.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>Spring Boot在为开发人员提供更高层次的封装，进而提高开发效率的同时，也为出现问题时如何进行定位带来了一定复杂性与难度。但Spring Boot同时又提供了一些诊断工具来辅助开发与分析，如spring-boot-starter-actuator。本文分享一个基于actuator与IDEA条件断点来定位自动配置未生效的案例。望对类似问题分析与处理提供参考。<br><a id="more"></a></p>
+<h3 id="问题确认"><a href="#问题确认" class="headerlink" title="问题确认"></a>问题确认</h3><p>在前文介绍的 <a href="http://blog.jboost.cn/2019/06/24/springboot-tkmapper.html">Spring Boot从入门到实战：整合通用Mapper简化单表操作</a> 中，我们对druid连接池做了自动配置，并且注入了druid的监控统计功能，如下</p>
+<p><img src="/assets/statviewservlet.png" alt="druidstat"></p>
+<p>但本地运行后通过 <a href="http://localhost:8080/druid/index.html" target="_blank" rel="noopener">http://localhost:8080/druid/index.html</a> 访问时却出现错误，通过浏览器的开发者工具查看该请求返回404，推测上述代码中定义的<code>StatViewServlet</code>未注入成功。我们用actuator来确认下是否如此。在项目中加入spring-boot-starter-actuator，并且application.yml中添加如下配置<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">management:</span></span><br><span class="line"><span class="attr">    endpoints:</span></span><br><span class="line"><span class="attr">        web:</span></span><br><span class="line"><span class="attr">            exposure:</span></span><br><span class="line"><span class="attr">                include:</span> <span class="string">"*"</span></span><br><span class="line"><span class="attr">                exclude:</span> <span class="string">beans,trace</span></span><br><span class="line"><span class="attr">    endpoint:</span></span><br><span class="line"><span class="attr">        health:</span></span><br><span class="line"><span class="attr">            show-details:</span> <span class="string">always</span></span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>在spring-boot 2.x 版本当中，作为安全性考虑，将actuator 控件中的端口，只默认开放/health 和/info 两个端口，其他端口默认关闭， 因此需要添加如上配置。注意include的值 <code>*</code> 必须加引号，否则无法启动。</p>
+</blockquote>
+<p>重启程序后访问 <a href="http://localhost:8080/actuator/conditions" target="_blank" rel="noopener">http://localhost:8080/actuator/conditions</a> 确认上述两个实例化方法未满足<code>@ConditionalOnProperty</code>的条件，从而未执行生效，如图</p>
+<p><img src="/assets/actuatorconditions.png" alt="actuator"></p>
+<h3 id="条件断点"><a href="#条件断点" class="headerlink" title="条件断点"></a>条件断点</h3><p>从上面分析确认是因为条件注解 <code>@ConditionalOnProperty(prefix = &quot;spring.datasource.druid&quot;, name = &quot;druidServletSettings&quot;)</code> 未满足使方法未执行导致。那这个条件为什么没有满足呢，查看application.yml中也做了 spring.datasource.druid.druidServletSettings属性的配置。</p>
+<p>当你无法理清头绪，确定问题原因时，那就Debug吧。查看注解<code>@ConditionalOnProperty</code>源码，找到其实现支持类<code>OnPropertyCondition</code>，如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="meta">@Target</span>(&#123;ElementType.TYPE, ElementType.METHOD&#125;)</span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Conditional</span>(&#123;OnPropertyCondition.class&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> ConditionalOnProperty &#123;</span><br><span class="line">    String[] value() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function">String <span class="title">prefix</span><span class="params">()</span> <span class="keyword">default</span> ""</span>;</span><br><span class="line"></span><br><span class="line">    String[] name() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function">String <span class="title">havingValue</span><span class="params">()</span> <span class="keyword">default</span> ""</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">matchIfMissing</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">false</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>查看<code>OnPropertyCondition</code>源码，了解它是通过<code>getMatchOutcome</code>方法来判断是否满足注解参数所指定的条件的，如下所示<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ConditionOutcome <span class="title">getMatchOutcome</span><span class="params">(ConditionContext context,</span></span></span><br><span class="line"><span class="function"><span class="params">		AnnotatedTypeMetadata metadata)</span> </span>&#123;</span><br><span class="line">	List&lt;AnnotationAttributes&gt; allAnnotationAttributes = annotationAttributesFromMultiValueMap(</span><br><span class="line">			metadata.getAllAnnotationAttributes(</span><br><span class="line">					ConditionalOnProperty.class.getName()));</span><br><span class="line">	List&lt;ConditionMessage&gt; noMatch = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">	List&lt;ConditionMessage&gt; match = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">	<span class="keyword">for</span> (AnnotationAttributes annotationAttributes : allAnnotationAttributes) &#123;</span><br><span class="line">		ConditionOutcome outcome = determineOutcome(annotationAttributes,</span><br><span class="line">				context.getEnvironment());</span><br><span class="line">		(outcome.isMatch() ? match : noMatch).add(outcome.getConditionMessage());</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (!noMatch.isEmpty()) &#123;</span><br><span class="line">		<span class="keyword">return</span> ConditionOutcome.noMatch(ConditionMessage.of(noMatch));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ConditionOutcome.match(ConditionMessage.of(match));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在调用<code>determineOutcome</code>处打断点，调试什么原因导致条件未满足，但是这里是一个for循环，如果for元素过多的话，将可能需要断点阻断很多次才能找到你想要查看的那个元素。所幸IDEA提供了不同类型的断点来处理这类问题，前面 <a href="http://blog.jboost.cn/2019/06/21/issue-errortrack.html">案例解析：使用IDEA异常断点来定位java.lang.ArrayStoreException的问题</a> 我们介绍了异常断点的使用。这里介绍用条件断点来处理这类循环块中的debug问题。</p>
+<p>在上述代码for循环中调用<code>determineOutcome</code>行打断点，并在断点上右键，弹出如下窗口</p>
+<p><img src="/assets/conditionbreak.png" alt="条件断点"></p>
+<p>图中Condition框即可输入你要指定的条件，可以直接写java判断表达式代码，并引用该行代码处能访问的变量，如这里我们输入 <code>annotationAttributes.get(&quot;name&quot;).equals(&quot;druidServletSettings&quot;)</code>，然后点击Debug窗口的“Resume Program (F9)”按钮，则在不满足指定条件时，断点处将不会被阻断，直到条件满足，这样就能很容易定位到我们想要查看的元素。（当然这里<code>allAnnotationAttributes</code>变量其实只有一个元素，仅仅是为了演示条件变量的使用，当集合元素很多时，使用条件断点就能体会到它的方便之处）</p>
+<h3 id="问题定位"><a href="#问题定位" class="headerlink" title="问题定位"></a>问题定位</h3><p>通过Debug的方式深入条件注解的判断逻辑（其中循环处可使用条件断点），最终来到如下代码片段</p>
+<p><img src="/assets/conditonbreak3.png" alt="判断条件"></p>
+<p>在这里是判断来自所有属性源配置的属性中，是否包含条件注解指定的属性，即<code>spring.datasource.druid.druidServletSettings</code>，由上图可见，<code>spring.datasource.druid.druidServletSettings</code>只是某些属性的前缀，并不存在完全匹配的属性，因此返回false，导致条件不满足。回看注解@ConditionOnProperty的javadoc，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">* If the property is not contained in the &#123;@link Environment&#125; at all, the</span><br><span class="line"> * &#123;@link #matchIfMissing()&#125; attribute is consulted. By default missing attributes do not</span><br><span class="line"> * match.</span><br><span class="line"> * &lt;p&gt;</span><br><span class="line"> * This condition cannot be reliably used for matching collection properties. For example,</span><br><span class="line"> * in the following configuration, the condition matches if &#123;@code spring.example.values&#125;</span><br><span class="line"> * is present in the &#123;@link Environment&#125; but does not match if</span><br><span class="line"> * &#123;@code spring.example.values[0]&#125; is present.</span><br><span class="line"> *</span><br></pre></td></tr></table></figure></p>
+<p>当Environment中不包含该属性时，则看matchIfMissing的值，该值默认为false，如果包含该属性，则再对比属性值与havingValue的值，相等即满足，不等则不满足。并且该条件注解不能用于匹配集合类型属性。上述<code>spring.datasource.druid.druidServletSettings</code>实际上属于一个Map类型，因此不能想当然地认为该注解是只要属性集中某属性名称包含该值即满足。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>当难以定位到问题原因时，可以进行Debug，跟踪程序运行的各个步骤，当要在循环中Debug定位到某个元素时，可以用条件断点来实现。@ConditionalOnProperty注解不是存在某属性就行，还需要值相等，并且不适用于集合类型属性。<br><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
+<p>———————————————————————————————————————————————————————————————</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springboot-aoplog.html" title="Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志" class="prev">PREV</a><a href="/springboot-tkmapper.html" title="Spring Boot从入门到实战（七）：整合通用Mapper简化单表操作" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>

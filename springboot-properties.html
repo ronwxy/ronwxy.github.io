@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Spring Boot从入门到实战（三）：Spring Boot自定义属性 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Spring Boot从入门到实战（三）：Spring Boot自定义属性 - 空山新雨"><meta name="keywords" content="Spring, DevOps, 技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Spring Boot从入门到实战（三）：Spring Boot自定义属性</h1><div class="post-info">2019-06-10<p class="visit"><i data-identity="springboot-properties.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>Web项目开发中，经常需要自定义一些属性，如数据库连接，第三方服务接口地址，第三方服务的appKey、appSecret等，以及针对不同环境，这些属性的值还需要有相应的调整，如开发环境、测试环境、生产环境所用数据库不同，则针对不同环境的同一属性需要配置不同的值。<br><a id="more"></a></p>
+<h3 id="传统自定义属性配置及访问（参考Github示例测试类）"><a href="#传统自定义属性配置及访问（参考Github示例测试类）" class="headerlink" title="传统自定义属性配置及访问（参考Github示例测试类）"></a>传统自定义属性配置及访问（参考<a href="https://github.com/ronwxy/springboot-demos/blob/master/springboot-properties/src/test/java/cn/jboost/springboot/properties/TraditionalPropertiesHandleTest.java" target="_blank" rel="noopener">Github示例测试类</a>）</h3><p>在传统的Spring Web应用中，自定义属性一般是通过在类路径中（如resources目录）添加一个类似my.properties配置文件（文件名自定义），然后在xml配置中通过</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">util:properties</span> <span class="attr">id</span>=<span class="string">"myProps"</span> <span class="attr">location</span>=<span class="string">"classpath:my.properties"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>引入属性文件。再定义一个Bean来读取这些属性，Bean配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.beans.factory.config.MethodInvokingFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"staticMethod"</span> <span class="attr">value</span>=<span class="string">"cn.jboost.springboot.properties.MyPropertiesUtil.init"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"arguments"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">list</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"myProps"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Bean定义：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyPropertiesUtil</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Properties properties;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Properties props)</span> </span>&#123;</span><br><span class="line">        properties = props;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getValue</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> properties.getProperty(key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在其它需要访问的地方通过 <code>MyPropertiesUtil.getValue()</code> 方法来访问具体某个属性的值。</p>
+<h3 id="Spring-Boot自定义属性配置及优先级"><a href="#Spring-Boot自定义属性配置及优先级" class="headerlink" title="Spring Boot自定义属性配置及优先级"></a>Spring Boot自定义属性配置及优先级</h3><p>在Spring Boot中，可以在多个地方配置属性，包括.properties文件，.yaml文件，环境变量， 系统属性，命令行参数等， 这些属性都会被Spring Boot加载到Environment中，可通过@Value注解，Environment实例，或 @ConfigurationProperties注解的类来访问。</p>
+<p>属性加载优先级顺序：</p>
+<ol>
+<li>如果有使用devtools，devtools 全局设置的属性（用户目录 ~/.spring-bootdevtools.properties）</li>
+<li>测试类的注解@TestPropertySource</li>
+<li>测试类注解 @SpringBootTest#properties 配置的属性</li>
+<li><strong>命令行参数</strong></li>
+<li>SPRING_APPLICATION_JSON里的属性（环境变量或系统属性）</li>
+<li>ServletConfig初始化参数</li>
+<li>ServletContext初始化参数</li>
+<li>JNDI参数   java:comp/env</li>
+<li><strong>Java系统属性  System.getProperties()</strong></li>
+<li><strong>操作系统环境变量</strong></li>
+<li>RandomValuePropertySource 配置的属性 random.*</li>
+<li>jar包外部的applictaion-{profile}.properties，applictaion-{profile}.yml配置文件</li>
+<li><strong>jar包内部的applictaion-{profile}.properties，applictaion-{profile}.yml配置文件</strong></li>
+<li>jar包外部的applictaion.properties，applictaion.yml配置文件</li>
+<li><strong>jar包内部的applictaion.properties，applictaion.yml配置文件</strong></li>
+<li>@Configuration类上的 @PropertySource注解指定的配置文件</li>
+<li>默认属性： SpringApplication.setDefaultProperties</li>
+</ol>
+<blockquote>
+<p>上述属性配置，除了粗体标注的外，其它一般应用较少。序号低的配置优先级高于序号高的配置，即如果存在相同属性配置 ，则序号低的配置会覆盖序号高的配置。applictaion-{profile}.properties 一般用于具体某个环境特有的属性配置，如application-dev.properties用于开发环境，可通过 spring.profiles.active=dev指定加载dev环境配置</p>
+</blockquote>
+<p>常用属性配置方式</p>
+<ol>
+<li>命令行参数<br>启动Spring Boot应用时，可以指定命令行参数，如：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar springboot-properties.jar --my.name=jboost@command_line</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>该参数值将会覆盖应用在其它地方配置的同名属性值。命令行参数放在xx.jar 的后面。</p>
+<blockquote>
+<p>可以通过SpringApplication.setAddCommandLineProperties(false)  禁用命令行参数配置</p>
+</blockquote>
+<ol start="2">
+<li>Java系统属性<br>同样在启动Spring Boot应用时，可以指定Java系统属性，一般见于自定义jvm参数，如：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Dmy.name=jboost@system_properties -jar springboot-properties.jar</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>Java系统属性放在java命令之后。</p>
+<ol start="3">
+<li><p>操作系统环境变量（实际应用其实较少）<br>配置过JAVA_HOME的应该理解何为环境变量。某些操作系统可能不支持.分隔的属性名，可以改为以下划线连接。Spring Boot将myName, my.name, MY_NAME视为等效。</p>
+</li>
+<li><p>应用属性配置文件（.properties文件或 .yml文件）<br>.properties文件属性配置格式：  </p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">my.name=jboost</span><br><span class="line">my.list[0]=aaa  //配置列表</span><br><span class="line">my.list[1]=bbb</span><br></pre></td></tr></table></figure>
+<p>.yml文件属性配置格式：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">my:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">devlink</span></span><br><span class="line"><span class="attr">  list:</span>   <span class="string">//配置列表</span></span><br><span class="line"><span class="bullet">     -</span> <span class="string">aaa</span></span><br><span class="line"><span class="bullet">     -</span> <span class="string">bbb</span></span><br></pre></td></tr></table></figure>
+<p>yml中，属性名与值之间冒号后面必须有空格。</p>
+<p>应用属性配置文件位置：</p>
+<ol>
+<li>jar包所在当前目录下的子目录/config（外置属性文件） </li>
+<li>jar包所在当前目录（外置属性文件） </li>
+<li>classpath根目录下的子目录/config（内置属性文件）</li>
+<li>classpath根目录（内置属性文件）</li>
+</ol>
+<blockquote>
+<p>序号低的优先级高于序号高的优先级，即jar包外的配置优先级高于jar包内的配置。同一目录下，.properties文件的优先级高于.yml文件。application-{profile}.properties的优先级高于application.properties。</p>
+</blockquote>
+<h3 id="Spring-Boot自定义属性访问方式（参考Github示例测试类）"><a href="#Spring-Boot自定义属性访问方式（参考Github示例测试类）" class="headerlink" title="Spring Boot自定义属性访问方式（参考Github示例测试类）"></a>Spring Boot自定义属性访问方式（参考<a href="https://github.com/ronwxy/springboot-demos/blob/master/springboot-properties/src/test/java/cn/jboost/springboot/properties/SpringbootPropertiesHandleTest.java" target="_blank" rel="noopener">Github示例测试类</a>）</h3><ol>
+<li>类中属性上添加 @Value(“${xx}”) 注解方式。如：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value</span>(<span class="string">"$&#123;my.name&#125;"</span>)</span><br><span class="line"><span class="keyword">private</span> String name;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可以指定默认值，如 @Value(“${my.name:jboost}”)， 当my.name未配置时，默认使用值”jboost”</p>
+<ol start="2">
+<li>通过@ConfigurationProperties注解的类来访问。如定义：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"my"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyConfigProperties</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String website;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//省略了getter、setter函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>然后在需要访问的Bean中，通过@Autowired 注入MyConfigProperties实例，通过getName()方法即可访问my.name属性值。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> MyConfigProperties myConfigProperties;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testConfigurationProperties</span><span class="params">()</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"test @ConfigurationProperties =========="</span>);</span><br><span class="line">    System.out.println(myConfigProperties.getName());</span><br><span class="line">    System.out.println(myConfigProperties.getWebsite());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ol start="3">
+<li>通过Environment 实例访问。如：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> Environment env;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testEnvironment</span><span class="params">()</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"test Environment =========="</span>);</span><br><span class="line">    System.out.println(env.getProperty(<span class="string">"my.name"</span>));</span><br><span class="line">    System.out.println(env.getProperty(<span class="string">"my.website"</span>, <span class="string">"default value"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<blockquote>
+<p>另外也可以通过 spring-boot-starter-actuator 的接口来查看项目加载的属性配置，在pom.xml中加入 spring-boot-starter-actuator 依赖，因为 spring-boot-starter-actuator 在2.x版本中，出于安全性考虑，将actuator 控件中的端口，只默认开放/health 和/info 两个端口，其他端口默认关闭，因此需要添加配置management.endpoints.web.exposure.include= *，<br>management.endpoints.web.exposure.exclude=beans,trace，<br>management.endpoint.health.show-details=ALWAYS，启动项目后，访问 <a href="http://localhost:8080/actuator/env" target="_blank" rel="noopener">http://localhost:8080/actuator/env</a> ，返回的 propertySources 即为加载的所有属性源，优先级从上往下依次降低，与上文所述优先级相符</p>
+</blockquote>
+<p>本文示例项目源码地址：<a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-properties" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-properties</a></p>
+<p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
+<p>———————————————————————————————————————————————————————————————</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springboot-config.html" title="Spring Boot从入门到实战（四）：Spring Boot配置" class="prev">PREV</a><a href="/springboot-firstapp.html" title="Spring Boot从入门到实战（二）：第一个Spring Boot应用" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>

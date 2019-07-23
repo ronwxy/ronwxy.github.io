@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> swagger api文档集中化注册管理 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="swagger api文档集中化注册管理 - 空山新雨"><meta name="keywords" content="Spring, DevOps, 技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">swagger api文档集中化注册管理</h1><div class="post-info">2019-06-28<p class="visit"><i data-identity="swagger-register.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>接口文档是前后端开发对接时很重要的一个组件。手动编写接口文档既费时，又存在文档不能随代码及时更新的问题，因此产生了像swagger这样的自动生成接口文档的框架。swagger文档一般是随项目代码生成与更新，访问地址也是基于项目地址，因此对项目数不多的团队还好。如果团队的项目很多，比如采用微服务架构的团队，动则几十甚至上百个服务项目，那就意味着前端开发人员需要记住几十甚至上百个swagger文档地址，那就很不友好了。目前貌似还没有较流行的API文档集中化管理项目（也或者是我没找到），因此花了点时间自己集成了一个，介绍如下。</p>
+<a id="more"></a>
+<h3 id="1-swagger-bootstrap-ui项目"><a href="#1-swagger-bootstrap-ui项目" class="headerlink" title="1. swagger-bootstrap-ui项目"></a>1. swagger-bootstrap-ui项目</h3><p>该项目是github上的一个开源项目（<a href="https://github.com/xiaoymin/swagger-bootstrap-ui" target="_blank" rel="noopener">https://github.com/xiaoymin/swagger-bootstrap-ui</a> ），对swagger ui做了增强，功能整体看起来要丰富一些。来看看效果，</p>
+<p><img src="/assets/swaggerui.png" alt="swagger-bootstrap-ui"></p>
+<p>该项目的调试url地址原本是基于自身服务的，我将它改为了注册服务的url地址，以支持注册服务的接口调试。调整后的源码地址： <a href="https://github.com/ronwxy/swagger-bootstrap-ui" target="_blank" rel="noopener">https://github.com/ronwxy/swagger-bootstrap-ui</a></p>
+<h3 id="2-swagger-api注册服务"><a href="#2-swagger-api注册服务" class="headerlink" title="2. swagger api注册服务"></a>2. swagger api注册服务</h3><p>该项目集成了swagger-bootstrap-ui，并提供了swagger api注册接口，接受所有提供了有效配置的服务项目注册，让注册的服务在一个页面上可统一查看，再也不用记太多文档地址了。</p>
+<p><img src="/assets/swaggerui2.png" alt="swagger-bootstrap-ui2"></p>
+<p>启动注册服务后，访问 <a href="http://localhost:11090/doc.html" target="_blank" rel="noopener">http://localhost:11090/doc.html</a> 打开文档页面。如上图，可通过下拉列表来选择不同项目，加载项目的接口文档查看或调试。<br>项目地址： <a href="https://github.com/ronwxy/swagger-register" target="_blank" rel="noopener">https://github.com/ronwxy/swagger-register</a> （如果觉得有用，不要吝啬你的star，反正又不要钱，O(∩_∩)O）</p>
+<h3 id="3-服务端配置"><a href="#3-服务端配置" class="headerlink" title="3. 服务端配置"></a>3. 服务端配置</h3><p>在业务服务端，需要提供一些配置。<br>首先，需要配置一些Bean，如下提供了一个配置类（这里只列出了主要部分，完整代码参考： <a href="https://github.com/ronwxy/base-spring-boot）" target="_blank" rel="noopener">https://github.com/ronwxy/base-spring-boot）</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Swagger2AutoConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Docket <span class="title">restApi</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ParameterBuilder builder = <span class="keyword">new</span> ParameterBuilder();</span><br><span class="line">        builder.name(<span class="string">"x-auth-token"</span>).description(<span class="string">"授权token"</span>)</span><br><span class="line">                .modelRef(<span class="keyword">new</span> ModelRef(<span class="string">"string"</span>))</span><br><span class="line">                .parameterType(<span class="string">"header"</span>)</span><br><span class="line">                .required(<span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Docket(DocumentationType.SWAGGER_2)</span><br><span class="line">                .groupName(groupName)</span><br><span class="line">                .select()</span><br><span class="line">                .apis(RequestHandlerSelectors.basePackage(apisBasePackage))</span><br><span class="line">                .paths(PathSelectors.any())</span><br><span class="line">                .build()</span><br><span class="line">                .globalOperationParameters(Collections.singletonList(builder.build()))</span><br><span class="line">                .apiInfo(apiInfo());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Profile</span>(&#123;<span class="string">"dev"</span>&#125;)</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CommandLineRunner <span class="title">swaggerRegistar</span><span class="params">(ConfigurableApplicationContext context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SwaggerInfoRegistar(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * use to register swagger api info url to swagger api registry;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@author</span> liubo</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SwaggerInfoRegistar</span> <span class="keyword">implements</span> <span class="title">CommandLineRunner</span> </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">(String... args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            String url = buildLocalSwaggerDocsUrl();</span><br><span class="line">            registerLocalSwaggerUrl(url);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * register the v2/api-docs url</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@param</span> url</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">registerLocalSwaggerUrl</span><span class="params">(String url)</span> </span>&#123;</span><br><span class="line">            RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span><br><span class="line">            restTemplate.getMessageConverters().add(<span class="keyword">new</span> FormHttpMessageConverter());</span><br><span class="line">            MultiValueMap&lt;String, Object&gt; body = <span class="keyword">new</span> LinkedMultiValueMap&lt;&gt;();</span><br><span class="line">            body.add(<span class="string">"project"</span>, getApiTitle());</span><br><span class="line">            body.add(<span class="string">"url"</span>, url);</span><br><span class="line">            ResponseEntity&lt;Map&gt; re = restTemplate.postForEntity(getSwaggerRegisterUrl(), body, Map.class);</span><br><span class="line">            <span class="keyword">if</span> (HttpStatus.OK.equals(re.getStatusCode())) &#123;</span><br><span class="line">                logger.info(<span class="string">"swagger api registered success to &#123;&#125;"</span>, getSwaggerRegisterUrl());</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                logger.warn(<span class="string">"swagger api registered failed [&#123;&#125;]"</span>, re.getBody().get(<span class="string">"msg"</span>));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>该类完成了swagger的基本配置，同时将swagger的/v2/api-docs地址注册到了步骤2中介绍的注册服务。</p>
+<p>然后，因为要从注册服务端调用该业务服务的接口进行调试，存在跨域，因此服务需要做跨域支持，配置文件中添加如下定义，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span>(name = <span class="string">"corsFilterRegistrationBean"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">corsFilterRegistrationBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    UrlBasedCorsConfigurationSource corsConfigurationSource = <span class="keyword">new</span> UrlBasedCorsConfigurationSource();</span><br><span class="line"></span><br><span class="line">    CorsConfiguration corsConfiguration = <span class="keyword">new</span> CorsConfiguration();</span><br><span class="line">    corsConfiguration.applyPermitDefaultValues();</span><br><span class="line">    corsConfiguration.setAllowedMethods(Arrays.asList(CorsConfiguration.ALL));</span><br><span class="line">    corsConfiguration.addExposedHeader(HttpHeaders.DATE);</span><br><span class="line"></span><br><span class="line">    corsConfigurationSource.registerCorsConfiguration(<span class="string">"/**"</span>, corsConfiguration);</span><br><span class="line"></span><br><span class="line">    CorsFilter corsFilter = <span class="keyword">new</span> CorsFilter(corsConfigurationSource);</span><br><span class="line">    FilterRegistrationBean filterRegistrationBean = <span class="keyword">new</span> FilterRegistrationBean();</span><br><span class="line">    filterRegistrationBean.setFilter(corsFilter);</span><br><span class="line">    filterRegistrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);</span><br><span class="line">    filterRegistrationBean.addUrlPatterns(<span class="string">"/*"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> filterRegistrationBean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，在属性配置文件application.yml中配置一些必要的属性，<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">swagger:</span></span><br><span class="line"><span class="attr">  api-title:</span> <span class="string">Demo标题</span>  <span class="comment">#会展示在下拉列表框中，一般写项目名称</span></span><br><span class="line"><span class="attr">  api-description:</span>  <span class="string">Demo描述，集中注册</span></span><br><span class="line"><span class="attr">  group-name:</span> <span class="string">Demo项目</span></span><br><span class="line"><span class="attr">  apis-base-package:</span> <span class="string">cn.jboost.springboot.swagger</span> <span class="comment"># API类所在包名</span></span><br><span class="line"><span class="attr">  swagger-registry-path:</span> <span class="attr">http://localhost:11090/swagger/register</span>  <span class="comment">#就是2中注册服务的注册接口地址</span></span><br></pre></td></tr></table></figure></p>
+<p>配置完后， 就可以像一般项目一样编写接口类，加swagger注解。项目启动时， 会自动向注册服务完成注册，刷新注册服务的文档页面即可在下拉列表看到。</p>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><p>本文介绍了一个基于swagger ui增强版项目swagger-bootstrap-ui的接口文档集中化管理实现。采用该实现，将所有swagger在线接口文档集中管理，有效提高前后端对接效率。</p>
+<p>如果觉得本文有用，欢迎转发、推荐。</p>
+<p><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy （欢迎关注，及时获取技术干货分享）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/session-redis.html" title="redission-tomcat 快速实现从单机部署到多机部署" class="prev">PREV</a><a href="/springboot-aoplog.html" title="Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
