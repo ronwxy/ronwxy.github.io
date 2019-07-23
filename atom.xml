@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>空山新雨</title>
+  <title>空山新雨的技术空间</title>
   
-  
+  <subtitle>技术与管理兼修，空山新雨，勃勃生机</subtitle>
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.jboost.cn/"/>
@@ -10,7 +10,7 @@
   <id>http://blog.jboost.cn/</id>
   
   <author>
-    <name>ronwxy</name>
+    <name>空山新雨</name>
     
   </author>
   

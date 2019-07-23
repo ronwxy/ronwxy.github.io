@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /archives/
+Allow: /about/
+Allow: /categories/
+Allow: /tags/
+Disallow: /js/
+Disallow: /css/
+Disallow: /fonts/
+
+Sitemap: http://blog.jboost.cn/sitemap.xml
+Sitemap: http://blog.jboost.cn/baidusitemap.xml
