@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Docker笔记（四）：Docker镜像管理 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Docker笔记（四）：Docker镜像管理 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Docker笔记（四）：Docker镜像管理</h1><div class="post-info">2019-07-16<p class="visit"><i data-identity="2019/07/16/docker-4.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>在Docker中，应用是通过容器来运行的，而容器的运行是基于镜像的，类似面向对象设计中类与对象的关系——没有类的定义就谈不上实例的创建与使用，没有镜像的定义就谈不上容器的创建与运行。<br><a id="more"></a></p>
+<h2 id="1-获取镜像"><a href="#1-获取镜像" class="headerlink" title="1. 获取镜像"></a>1. 获取镜像</h2><p>镜像从哪里来，一般两个途径，一是公共镜像库，如官方镜像库Docker Hub，上面有大量的高质量的镜像直接可拿来用；二是自定义，我们可基于一个已有镜像，在其基础上增加一些层（还记得镜像的分层存储特性吧），然后构建形成自己的镜像。</p>
+<p>如果我们知道某个镜像的名称，则可直接通过<code>docker pull</code>来下载镜像到本地，如ubuntu、redis、nginx等，<code>docker pull</code>命令的格式如下<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull [选项] [Docker Registry的地址[:端口号]/]仓库名[:标签]</span><br></pre></td></tr></table></figure></p>
+<p>其中选项可设置：</p>
+<ul>
+<li>-a, –all-tags：下载仓库中所有标签（一般指版本）的镜像</li>
+<li>–disable-content-trust：跳过镜像验证，默认为true</li>
+</ul>
+<p>Docker Registry的地址即镜像仓库地址，一般为域名或IP加端口号，如果不指定则默认为Docker Hub；仓库名包含两部分，&lt;用户名&gt;/&lt;软件名&gt;，对于Docker Hub，如果不给出用户名，则默认为library，表示官方提供；标签一般是对应软件的版本号，如果不指定则默认为latest。</p>
+<p>比如我们要下一个nginx镜像，则可执行如下命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@iZwz9dbodbaqxj1gxhpnjxZ ~]# docker pull nginx</span><br><span class="line">Using default tag: latest</span><br><span class="line">latest: Pulling from library/nginx</span><br><span class="line">fc7181108d40: Already exists </span><br><span class="line">d2e987ca2267: Pull complete </span><br><span class="line">0b760b431b11: Pull complete </span><br><span class="line">Digest: sha256:48cbeee0cb0a3b5e885e36222f969e0a2f41819a68e07aeb6631ca7cb356fed1</span><br><span class="line">Status: Downloaded newer image for nginx:latest</span><br></pre></td></tr></table></figure>
+<p>这里我们没有指定选项，也没有指定镜像仓库地址，那么默认会从Docker Hub获取镜像（但Docker Hub由于在国外，速度比较慢，所以一般要设置国内加速器，参考<a href="/2019/07/14/docker-3.html">Docker笔记（三）：Docker安装与配置</a>第二部分：配置国内镜像)，也没有给出用户名，所以默认是library（第三行），没有指定标签，所以默认是latest（第二行），由第四至第六行可见，这个镜像包含三个层，并且第一个层已经存在了（之前下载的镜像已经包含了这个层， 直接复用），镜像分层的概念及层的复用，应该已经理解了。</p>
+<p>如果我们不知道镜像的完整名称怎么办，那就搜索一下，有两个途径，一是通过命令，假设我们记不起nginx全称了， 只记得<code>ngi</code>，则可通过如下命令搜索<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@iZwz9dbodbaqxj1gxhpnjxZ ~]# docker search ngi</span><br><span class="line">NAME                              DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED</span><br><span class="line">nginx                             Official build of Nginx.                        11693               [OK]                </span><br><span class="line">jwilder/nginx-proxy               Automated Nginx reverse proxy for docker con…   1628                                    [OK]</span><br><span class="line">richarvey/nginx-php-fpm           Container running Nginx + PHP-FPM capable of…   726                                     [OK]</span><br><span class="line">bitnami/nginx                     Bitnami nginx Docker Image                      69                                      [OK]</span><br><span class="line">linuxserver/nginx                 An Nginx container, brought to you by LinuxS…   69                                      </span><br><span class="line">tiangolo/nginx-rtmp               Docker image with Nginx using the nginx-rtmp…   48                                      [OK]</span><br><span class="line">nginx/nginx-ingress               NGINX Ingress Controller for Kubernetes         20                                      </span><br><span class="line">nginxdemos/hello                  NGINX webserver that serves a simple page co…   18                                      [OK]</span><br><span class="line">jlesage/nginx-proxy-manager       Docker container for Nginx Proxy Manager        17                                      [OK]</span><br><span class="line">schmunk42/nginx-redirect          A very simple container to redirect HTTP tra…   17                                      [OK]</span><br><span class="line">crunchgeek/nginx-pagespeed        Nginx with PageSpeed + GEO IP + VTS + more_s…   13                                      </span><br><span class="line">blacklabelops/nginx               Dockerized Nginx Reverse Proxy Server.          12                                      [OK]</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>该命令会从Docker Hub搜索镜像名包含<code>ngi</code>的镜像，其中STARS表示收藏用户数，OFFICIAL为[OK]表示官方提供的镜像，AUTOMATED [OK]表示由自动构建生成，一般选择STARS最多，官方提供的镜像。<br>这种方式获取到的信息有限，比如具体包含哪些版本不知道。还有一个途径是直接在Docker Hub网站上搜索，打开 <a href="https://hub.docker.com" target="_blank" rel="noopener">https://hub.docker.com</a> ， 在搜索框输入<code>ngi</code>，如下图<br><img src="/assets/docker-hub.png" alt="docker-hub"></p>
+<p>则会列出所有满足条件的镜像，点开<code>nginx</code>结果链接，可以看到提供的版本（通过版本链接可以查看定义对应镜像的Dockerfile），及相应的文档说明。这种方式获取的信息更加全面，所以推荐这种方式！</p>
+<p>另外，当我们没有执行<code>docker pull</code>，直接通过<code>docker run xx</code>来运行一个容器时，如果没有对应的镜像，则会先自动下载镜像，再基于镜像启动一个容器，比如我们在<a href="/2019/07/14/docker-3.html">Docker笔记（三）：Docker安装与配置</a>中检验docker是否安装成功时运行的<code>hello-world</code><br><img src="/assets/hello-docker.png" alt="hello-docker"></p>
+<h2 id="2-管理本地镜像"><a href="#2-管理本地镜像" class="headerlink" title="2. 管理本地镜像"></a>2. 管理本地镜像</h2><p>将镜像下载到本地后，我们可以基于镜像来创建、运行容器，及对镜像进行管理。</p>
+<p><strong>查看本地镜像</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@iZwz9dbodbaqxj1gxhpnjxZ ~]# docker image ls</span><br><span class="line">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">nginx               latest              f68d6e55e065        2 weeks ago         109MB</span><br><span class="line">mysql               latest              c7109f74d339        5 weeks ago         443MB</span><br><span class="line">hello-world         latest              fce289e99eb9        6 months ago        1.84kB</span><br></pre></td></tr></table></figure>
+<p>上面各列依次列出了镜像名称、标签（版本）、镜像ID、创建时间、镜像大小。镜像可以拥有多个标签（版本）。镜像的大小总和一般要大于实际的磁盘占有量，为什么？回忆一下镜像的分层存储概念，层是可以复用的，某个层其中一个镜像有了，另一个镜像就不会再下载了。口说无凭，我们来验证下，<code>docker system df</code>可列出镜像、容器、数据卷所占用的空间</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@iZwz9dbodbaqxj1gxhpnjxZ ~]# docker system df</span><br><span class="line">TYPE                TOTAL               ACTIVE              SIZE                RECLAIMABLE</span><br><span class="line">Images              3                   1                   497.1MB             497.1MB (99%)</span><br><span class="line">Containers          1                   0                   0B                  0B</span><br><span class="line">Local Volumes       0                   0                   0B                  0B</span><br><span class="line">Build Cache         0                   0                   0B                  0B</span><br></pre></td></tr></table></figure>
+<p>通过<code>docker image ls</code>列出的各镜像大小总共约552MB，但这里列出的镜像大小只有约497MB，这下有凭有据了吧。</p>
+<p><strong>根据条件列出镜像</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker image ls nginx # 根据名称列出镜像</span><br><span class="line">docker image ls nginx:latest # 根据名称与标签列出镜像</span><br><span class="line">docker image ls -f since=hello-world:latest # -f 是--filter的缩写，过滤器参数，列出在hello-world:latest之后建立的镜像，before=hello-world:latest则查看之前建立的镜像</span><br></pre></td></tr></table></figure></p>
+<p><strong>指定显示格式</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker image ls -q # 只显示镜像ID</span><br><span class="line">docker image ls --digests # 列出镜像摘要</span><br><span class="line"></span><br><span class="line">docker image ls --format "&#123;&#123;.ID&#125;&#125;: &#123;&#123;.Repository&#125;&#125;"  # 使用Go的模板语法格式化显示，这里显示格式为 镜像ID：镜像名称</span><br><span class="line">docker image ls --format "table &#123;&#123;.ID&#125;&#125;\t&#123;&#123;.Repository&#125;&#125;\t&#123;&#123;.Tag&#125;&#125;" # 自己定义表格格式</span><br></pre></td></tr></table></figure></p>
+<p><strong>虚悬镜像</strong><br>有时候会看到某些镜像既没有仓库名，也没有标签，均为 <code>&lt;none&gt;</code>。这些镜像原本是有镜像名和标签的，随着官方镜像维护，发布了新版本后(新版本会复用之前的镜像名称与标签，一般是bug修复版)，重新<code>docker pull xx</code> 时， 这个镜像名被转移到了新下载的镜像身上，而旧的镜像上的这个名称则被取消，从而成为了<code>&lt;none&gt;</code> 。除了<code>docker pull</code>可能导致这种情况， <code>docker build</code>也同样可以导致这种现象。由于新旧镜像同名，旧镜像名称被取消，从而出现仓库名、标签均为 <code>&lt;none&gt;</code> 的镜像。这类无标签镜像被称为虚悬镜像(dangling image) ，可以用下面的命令专门显示这类镜像：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image ls -f dangling=true</span><br></pre></td></tr></table></figure></p>
+<p>一般虚悬镜像没什么意义了，可以通过如下命令删除<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image prune</span><br></pre></td></tr></table></figure></p>
+<p><strong>中间层镜像</strong><br>为了加速镜像构建、重复利用资源，Docker会利用中间层镜像。所以在使用一段时间后，可能会看到一些依赖的中间层镜像。默认的<code>docker image ls</code>列表中只会显示顶层镜像，如果希望显示包括中间层镜像在内的所有镜像的话，可以加 -a<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker image ls -a</span></span><br></pre></td></tr></table></figure></p>
+<p>这样会看到很多无标签的镜像，与虚悬镜像不同，这些无标签的镜像很多都是中间层镜像，是其它镜像所依赖的镜像。这些无标签镜像不应该删除，否则会导致上层镜像因为依赖丢失而出错。实际上，这些镜像也没必要删除，因为相同的层只会存一遍，而这些镜像是别的镜像的依赖，因此并不会因为它们被列出来而多存了一份，无论如何你也会需要它们。只要删除那些依赖它们的镜像后，这些依赖的中间层镜像也会被连带删除。</p>
+<p><strong>删除镜像</strong><br>删除镜像命令格式<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image rm [选项] &lt;镜像1&gt; [&lt;镜像2&gt; ...]</span><br></pre></td></tr></table></figure></p>
+<p>选项可以设置：</p>
+<ul>
+<li>-f, –force  强制删除镜像</li>
+<li>–no-prune   不删除没有标签的父镜像</li>
+</ul>
+<p>&lt;镜像1&gt;、&lt;镜像2&gt; 等可以是镜像的名称，镜像的全ID，也可以是镜像ID的前面几个数字（只要与其它镜像区分开来就行），或者是镜像摘要。 如删除镜像名称为mysql的镜像<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@iZwz9dbodbaqxj1gxhpnjxZ ~]# docker image rm mysql</span><br><span class="line">Untagged: mysql:latest</span><br><span class="line">Untagged: mysql@sha256:415ac63da0ae6725d5aefc9669a1c02f39a00c574fdbc478dfd08db1e97c8f1b</span><br><span class="line">Deleted: sha256:c7109f74d339896c8e1a7526224f10a3197e7baf674ff03acbab387aa027882a</span><br><span class="line">Deleted: sha256:35d60530f024aa75c91a123a69099f7f6eaf5ad7001bb983f427f674980d8482</span><br><span class="line">Deleted: sha256:49d8bb533eee600076e3a513a203ee24044673fcef0c1b79e088b2ba43db2c17</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>由上面命令的执行结果可见，删除镜像包括另个行为：Untagged、Deleted。</p>
+<p>当我们使用上面命令来删除镜像的时候，实际上是在要求删除某个/某些标签的镜像。所以首先需要做的是将满足要求的所有镜像标签都取消，这就是Untagged的行为。一个镜像可以对应多个标签，因此当我们删除了所指定的标签后，可能还有别的标签指向了这个镜像，如果是这种情况，那么Delete行为就不会发生，仅仅是取消了这个镜像的符合要求的所有标签。所以并非所有的<code>docker image rm</code>都会产生删除镜像的行为，有可能仅仅是取消了某个标签而已。</p>
+<p>当该镜像所有的标签都被取消了，该镜像很可能就失去了存在的意义，因此会触发删除行为。镜像是多层存储结构，因此在删除的时候也是从上层向基础层方向依次进行判断删除。如果某个其它镜像正依赖于当前镜像的某一层，这种情况，依旧不会触发删除该层的行为。直到没有任何镜像依赖当前层时，才会真实的删除当前层。</p>
+<p>另外还需要注意是容器对镜像的依赖。如果基于镜像启动的容器存在（即使容器没有运行处于停止状态） ，同样不可以删除这个镜像。我们之前说了容器是以镜像为基础，再加一层容器存储层组成的多层存储结构去运行的。所以如果这些容器是不需要的，应该先将它们删除，然后再来删除镜像。 </p>
+<p><strong>通过组合命令来删除</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker image rm $(docker image ls -q nginx) # 删除镜像名称为nginx的所有镜像</span><br><span class="line">docker image rm $(docker image ls -q -f since=hello-world:latest) # 删除所有在hello-world:latest之后建立的镜像</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>本文对镜像的获取及本地镜像的基本管理做了介绍，本文镜像的获取途径都是从镜像仓库直接获取，镜像的另一个获取途径便是自定义，接下来会通过实例来进行介绍，欢迎关注。<br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号">  </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/07/17/docker-5.html" title="Docker笔记（五）：整一个自己的镜像" class="prev">PREV</a><a href="/2019/07/14/docker-3.html" title="Docker笔记（三）：Docker安装与配置" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Docker笔记（二）：Docker管理的对象 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Docker笔记（二）：Docker管理的对象 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Docker笔记（二）：Docker管理的对象</h1><div class="post-info">2019-07-14<p class="visit"><i data-identity="2019/07/14/docker-2.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>在<a href="/2019/07/13/docker-1.html">Docker笔记（一）：什么是Docker</a>中，我们提到了Docker管理的对象包含镜像、容器、网络、数据卷等，本文就来介绍下这些对象及用途。<br><a id="more"></a></p>
+<h2 id="1-镜像"><a href="#1-镜像" class="headerlink" title="1. 镜像"></a>1. 镜像</h2><p>所谓镜像，是一个静态的概念。它对我们期望干的事情做了一些定义，比如要运行什么程序，需要哪些依赖，需要什么样的配置，需要开放哪个网络端口等等。<br>Docker的镜像是一个特殊的文件系统，提供了运行时需要的程序、库、资源、配置等文件，还包含一些为运行时准备的配置参数（如环境变量、匿名数据卷、用户等），镜像不包含任何动态数据，其内容在构建之后也不会被改变。<br>镜像的文件系统有一个分层存储的概念，采用的是Union FS技术，因此，镜像并不是简单地由一组文件组成，而是由多层文件系统叠加联合组成。如下图所示<br><img src="/assets/container-layers.jpg" alt="container-layers"></p>
+<p>镜像构建时，会一层一层地构建，前一层是后一层的基础，每层构建完后就变成只读的，不会再发生改变。镜像分层存储的一大好处是复用，镜像的每一层可以在不同镜像间复用，这就好比我们开发项目时将一些公共功能封装成jar包，在各个项目可以直接依赖使用一样。关于镜像的更多内容，在后续使用时再详述。</p>
+<h2 id="2-容器"><a href="#2-容器" class="headerlink" title="2. 容器"></a>2. 容器</h2><p>相对镜像，容器是一个动态的运行时的概念，它与镜像的关系类似于面向对象中类与实例的关系。容器可以被创建、启动、停止、删除等。容器运行实质上就是运行一个进程，但与那些直接在宿主机上运行的进程不同，容器运行在自己的独立的隔离的命名空间中——拥有自己的root文件系统、网络配置、进程空间，甚至自己的用户ID空间，因此虽然是以进程的形式运行，但好像是运行在一个独立的系统中一样，这样相比直接运行于宿主机的进程，容器的运行显得更为安全。<br>前面说到镜像的分层存储概念，对于容器来说，实际上也是以镜像作为基础层，在其上创建了一个当前容器的存储层，如下图<br><img src="/assets/sharing-layers.jpg" alt="sharing-layers.jpg"></p>
+<p>以镜像ubuntu:15.04为基础层所创建的容器，都有一个自己的可读写的存储层（镜像的存储层是只读的）。容器存储层的生命周期与容器一样，容器销毁时，容器的存储层也会随之消亡，任何保存在容器存储层的数据也都会随容器的删除而丢失，因此一般我们要保持容器存储层的无状态化，所有文件的写操作，都应该使用数据卷或绑定宿主机目录。</p>
+<h2 id="3-数据卷"><a href="#3-数据卷" class="headerlink" title="3. 数据卷"></a>3. 数据卷</h2><p>数据卷是一个独立于容器，可供一个或多个容器使用的特殊目录，它绕过了Union FS，不会随容器的销毁而消亡。这好比我们在阿里云上建虚机，再加载一个数据盘一样，一般产生的数据都要保存在数据盘，而不是虚机的系统盘。<br>数据卷具备如下特性：</p>
+<ol>
+<li>可以在容器之间共享和重用</li>
+<li>对数据卷的修改会立马生效</li>
+<li>数据卷的更新，不会影响到镜像</li>
+<li>数据卷默认会一直存在，不会随容器的删除而消亡</li>
+</ol>
+<h2 id="4-网络"><a href="#4-网络" class="headerlink" title="4. 网络"></a>4. 网络</h2><p>Docker容器是如何与外部进行网络通信的？一般来说，我们在运行容器时，只需要指定容器服务端口与宿主机端口的映射，就可以通过宿主机IP与映射的端口访问容器服务了，因为Docker默认使用了Bridge的模式来实现容器与外部的通信。<br>Docker的网络子系统通过使用一些驱动程序，是可插拔式的，默认提供了如下几种驱动：</p>
+<ol>
+<li>bridge：默认的网络驱动。运行在容器中的应用程序一般是通过网桥与外部进行通信。</li>
+<li>host：容器直接使用宿主机的网络通信。host只在基于Docker 17.06或以上版本的Swarm服务中可用</li>
+<li>overlay：overlay可将多个Docker daemon进程连接起来使得Swarm服务之间能相互通信，也可以将overlay用于Swarm服务与容器之间，或运行在不同Docker daemon上的容器之间的通信，不需要操作系统层面的路由配置。</li>
+<li>macvlan：macvlan允许你分配一个mac地址给容器，让它像一台物理设备一样加入你的网络中。Docker daemon通过mac地址将请求路由给容器，适用于那些希望直接连到物理网络的遗留应用。</li>
+<li>none：禁用所有网络。一般与一个自定义的网络驱动一起使用。none不能用于Swarm服务。</li>
+<li>其它第三方网络插件：可从Docker Hub或其它第三方供应商获取安装。</li>
+</ol>
+<p>总之，bridge适用于在同一台宿主机运行多个容器的场景；host适用于不应与宿主机进行网络隔离的场景；overlay适用于运行在不同宿主机上的容器间通信，或多个应用通过Swarm服务来共同协作的场景；macvlan适用于从虚拟机迁移配置或希望容器作为物理机一样使用网络的场景。</p>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>本文对Docker所管理的几个基本对象——镜像、容器、数据卷、网络做了简单介绍，这是认识或学习Docker的基础，在后续实践操作过程中，将会对各部分进行更详细的使用说明，欢迎持续关注。<br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号">  </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/07/14/docker-3.html" title="Docker笔记（三）：Docker安装与配置" class="prev">PREV</a><a href="/2019/07/13/docker-1.html" title="Docker笔记（一）：什么是Docker" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>

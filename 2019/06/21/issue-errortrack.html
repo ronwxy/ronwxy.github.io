@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> 案例解析：使用IDEA异常断点来定位java.lang.ArrayStoreException的问题 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="案例解析：使用IDEA异常断点来定位java.lang.ArrayStoreException的问题 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">案例解析：使用IDEA异常断点来定位java.lang.ArrayStoreException的问题</h1><div class="post-info">2019-06-21<p class="visit"><i data-identity="2019/06/21/issue-errortrack.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>最近对 base-spring-boot （<a href="https://github.com/ronwxy/base-spring-boot）" target="_blank" rel="noopener">https://github.com/ronwxy/base-spring-boot）</a> 项目进行了升级。在将其用于应用开发中时遇到<code>java.lang.ArrayStoreException</code>的异常导致程序无法启动。平常开发过程中面对这种描述不够清楚，无法定位具体原因的问题该如何处理？本文分享通过使用IDEA异常断点来定位此类问题的方法。</p>
+<a id="more"></a>
+<p>启动程序时抛出如下异常，导致启动失败</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">org.springframework.beans.factory.BeanCreationException: Error creating bean with name &apos;devGlobalExceptionHandler&apos; defined in class path resource [cn/jboost/springboot/autoconfig/error/exception/ExceptionHandlerAutoConfiguration.class]: Post-processing of merged bean definition failed; nested exception is java.lang.ArrayStoreException: sun.reflect.annotation.TypeNotPresentExceptionProxy</span><br><span class="line">	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:570) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:515) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:320) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:318) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:843) ~[spring-beans-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:877) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:549) ~[spring-context-5.1.7.RELEASE.jar:5.1.7.RELEASE]</span><br><span class="line">	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:142) ~[spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]</span><br><span class="line">	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:775) [spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]</span><br><span class="line">	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:397) [spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]</span><br><span class="line">	at org.springframework.boot.SpringApplication.run(SpringApplication.java:316) [spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]</span><br><span class="line">	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1260) [spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]</span><br><span class="line">	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1248) [spring-boot-2.1.5.RELEASE.jar:2.1.5.RELEASE]</span><br><span class="line">	at com.cnbot.kindergarten.CnbotKindergartenApplication.main(CnbotKindergartenApplication.java:10) [classes/:na]</span><br><span class="line">Caused by: java.lang.ArrayStoreException: sun.reflect.annotation.TypeNotPresentExceptionProxy</span><br><span class="line">	at sun.reflect.annotation.AnnotationParser.parseClassArray(AnnotationParser.java:724) ~[na:1.8.0_201]</span><br><span class="line">	at sun.reflect.annotation.AnnotationParser.parseArray(AnnotationParser.java:531) ~[na:1.8.0_201]</span><br><span class="line">	at sun.reflect.annotation.AnnotationParser.parseMemberValue(AnnotationParser.java:355) ~[na:1.8.0_201]</span><br><span class="line">	at sun.reflect.annotation.AnnotationParser.parseAnnotation2(AnnotationParser.java:286) ~[na:1.8.0_201]</span><br><span class="line">	at sun.reflect.annotation.AnnotationParser.parseAnnotations2(AnnotationParser.java:120) ~[na:1.8.0_201]</span><br><span class="line">	at sun.reflect.annotation.AnnotationParser.parseAnnotations(AnnotationParser.java:72) ~[na:1.8.0_201]</span><br><span class="line">	...</span><br></pre></td></tr></table></figure>
+<p>单纯看异常栈，无法定位问题原因，只能看到是在调用<code>devGlobalExceptionHandler</code>创建bean时出错，错误信息<code>java.lang.ArrayStoreException: sun.reflect.annotation.TypeNotPresentExceptionProxy</code>。这属于框架内部抛出的异常，通常的设置断点Debug的方法很难定位到具体原因，可通过IDEA的异常断点来进行定位，它会在程序运行过程中出现指定异常时进行阻断。</p>
+<h3 id="1-添加异常断点"><a href="#1-添加异常断点" class="headerlink" title="1. 添加异常断点"></a>1. 添加异常断点</h3><p>在IDEA的Debug面板中，点击“View Breakpoints”（两个重叠的红色圈按钮），如下</p>
+<p><img src="/assets/exceptionbreak0.png" alt="Debug面板"></p>
+<p>打开“Breakpoints”窗口，在该窗口中点击“+”按钮，选择“Java Exception Breakpoints”， 如下图</p>
+<p><img src="/assets/exceptionbreak1.png" alt="Breakpoints"></p>
+<p>然后在弹出的“Enter Exception Class”窗口中输入<code>ArrayStoreException</code>选中对应异常，依次点击OK，Done按钮即完成异常断点添加。</p>
+<h3 id="2-程序debug"><a href="#2-程序debug" class="headerlink" title="2. 程序debug"></a>2. 程序debug</h3><p>开始以Debug模式启动程序。 程序运行后，在前面配置的异常出现时，将会进行阻断，如图</p>
+<p><img src="/assets/exceptionbreak3.png" alt="程序异常阻断"></p>
+<p>可以看到程序阻断在上图高亮的那行代码处，异常便是从这里抛出的。查看<code>parseClassValue</code>方法，可看到这里有catch<code>TypeNotPresentException</code>异常，并且包装成我们在异常栈看到的<code>TypeNotPresentExceptionProxy</code>返回。离真相很近了。</p>
+<p>我们可以在上述catch块中添加一个断点，查看异常包装前的状态，如图</p>
+<p><img src="/assets/exceptionbreak4.png" alt="断点定位"></p>
+<p>重新Debug运行，将定位到上图代码处，查看异常，看到如下图所示信息</p>
+<p><img src="/assets/exceptionbreak5.png" alt="异常信息"></p>
+<p>该信息表示<code>org.springframework.security.access.AccessDeniedException</code>这个类不存在，导致<code>BaseWebApplicationExceptionHandler</code>类型的bean实例化时出错。这时候问题基本已经定位到了。</p>
+<p>查看源码，在BaseWebApplicationExceptionHandler中有对AccessDeniedException的统一处理，但是spring-boot-autoconfigure所有的依赖都是optional的（不会传递依赖），而在新开发的项目中，并没有引入spring-security，因此导致<code>AccessDeniedException</code>这个类找不到而报错。目前通过去掉该部分处理解决。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>IDEA的Debug支持好几种断点类型，如前文介绍的异常断点，以及比较常用的条件断点等。当无法从异常栈信息找到问题所在时，借用这些类型的断点进行Debug，往往事情就变得简单了。</p>
+<p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
+<p>————————————————————————————————————————</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2019/06/24/springboot-tkmapper.html" title="Spring Boot从入门到实战（七）：整合通用Mapper简化单表操作" class="prev">PREV</a><a href="/2019/06/20/springboot-base.html" title="Spring Boot从入门到实战（六）：整合Web项目常用功能" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
