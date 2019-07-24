@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> 研发团队如何借助Gitlab来做代码review · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="研发团队如何借助Gitlab来做代码review - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">研发团队如何借助Gitlab来做代码review</h1><div class="post-info">2019-06-18<p class="visit"><i data-identity="code-review.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>代码review是代码质量保障的手段之一，同时开发成员之间代码review也是一种技术交流的方式，虽然会占用一些时间，但对团队而言，总体是个利大于弊的事情。如何借助现有工具在团队内部形成代码review的流程与规范，是team leader或技术管理者需要考虑的问题。本文分享一种基于Gitlab代码merge流程的code review方法，以供参考与探讨。如有更好的方法，欢迎交流。</p>
+<a id="more"></a>
+<h2 id="1-设置成员角色"><a href="#1-设置成员角色" class="headerlink" title="1. 设置成员角色"></a>1. 设置成员角色</h2><p>首先需要对你团队的成员分配角色，在Gitlab groups里选择一个group，然后左边菜单栏点击 Members，可在 Members 页面添加或编辑成员角色，如下图所示。</p>
+<p><img src="/assets/gitmember.png" alt="group成员"></p>
+<p>其中角色包含如下几类：</p>
+<ul>
+<li>Guest：权限最小，基本查看功能</li>
+<li>Reporter：只能查看，不能push</li>
+<li>Developer：能push，也能merge不受限制的分支</li>
+<li>Master：除了项目的迁移、删除等管理权限没有，其它权限基本都有</li>
+<li>Owner：权限最大，包括项目的迁移、删除等管理权限</li>
+</ul>
+<p>详细权限参考： <a href="https://docs.gitlab.com/ee/user/permissions.html" target="_blank" rel="noopener">https://docs.gitlab.com/ee/user/permissions.html</a></p>
+<p>确定团队中技术水平、经验较好的成员为Master，负责代码的review与分支的合并；其他成员为Developer，提交合并请求，接受review意见；Master之间可以互相review。</p>
+<h2 id="2-配置分支保护"><a href="#2-配置分支保护" class="headerlink" title="2. 配置分支保护"></a>2. 配置分支保护</h2><p>在项目页面左侧菜单栏 Settings -&gt; Repository， 进入“Protected Branches”部分配置分支保护，如下图所示。</p>
+<p><img src="/assets/protectedbranch.png" alt="分支保护"></p>
+<p>在这里可以针对每个分支，设置允许什么角色可以merge，允许什么角色可以push，选项包括三个：“Masters”， “Developers + Masters”， “No one”。<br>这里设置成只允许master可以直接push与merge这几个常设分支的代码。（如果更严格一点，可以将“Allowed to push”设置成“No one”）</p>
+<h2 id="3-代码review流程"><a href="#3-代码review流程" class="headerlink" title="3. 代码review流程"></a>3. 代码review流程</h2><h3 id="3-1-开发（开发者负责）"><a href="#3-1-开发（开发者负责）" class="headerlink" title="3.1. 开发（开发者负责）"></a>3.1. 开发（开发者负责）</h3><ol>
+<li>本地切到develop分支， 拉取最新代码（相关命令如下，GUI工具操作自行查相关文档） </li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git branch #查看当前位于哪个分支，前面打星号即为当前分支</span><br><span class="line">git checkout develop   #切换到develop分支</span><br><span class="line">git pull  #拉取最新代码</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>从develop分支切出子分支</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b feature-1101  #从当前分支切出子分支，命名为"feature-1101"</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>编码、本地自测完之后，提交子分支到远程仓库</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add *  #加入暂存区</span><br><span class="line">git commit -m "commit msg" #提交到本地仓库</span><br><span class="line">git push origin feature-1101 #提交到远程仓库</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-发起Merge请求（开发者负责）"><a href="#3-2-发起Merge请求（开发者负责）" class="headerlink" title="3.2 发起Merge请求（开发者负责）"></a>3.2 发起Merge请求（开发者负责）</h3><ol>
+<li>在项目主页面，依次点击左侧“Merge Requests”（下图1），“New merge request”（下图2），打开新建Merge请求页面</li>
+</ol>
+<p><img src="/assets/mergerequest1.png" alt="Merge请求"></p>
+<ol start="2">
+<li>在新建Merge请求页面，选择merge的源分支，及目标分支，如下图源分支为“feature-1101”，目标分支为“develop”，点击“Compare branches and continue”按钮进入对比与提交页面</li>
+</ol>
+<p><img src="/assets/mergerequest2.png" alt="新建Merge请求"></p>
+<ol start="3">
+<li>在对比与提交页面，可以点击“Changes” tab查看本次修改（这里我为了演示，只是加了两个换行），确认无误，点击“Submit merge request”按钮，提交merge请求</li>
+</ol>
+<p><img src="/assets/mergesubmit.png" alt="对比修改"></p>
+<ol start="4">
+<li>提交之后，将结果页面的浏览器地址发到团队即时通讯群（如钉钉），并@相应的同事申请review</li>
+</ol>
+<h3 id="3-3-代码Review（code-reviewer负责）"><a href="#3-3-代码Review（code-reviewer负责）" class="headerlink" title="3.3 代码Review（code reviewer负责）"></a>3.3 代码Review（code reviewer负责）</h3><ol>
+<li>负责代码Review的同事收到申请后，点击merge请求地址，打开页面，查看“Changes”</li>
+</ol>
+<p><img src="/assets/merge.png" alt="对比修改"></p>
+<p>这里可通过“Inline”单边查看，也可以通过“Side-by-side”两个版本对比查看</p>
+<ol start="2">
+<li>review完成后，若无问题，则可点击”Merge”按钮完成merge，同时可删除对应的子分支“feature-1101”，<br>若有问题，则可点击“Close merge request”按钮关闭该merge请求（也可以不关闭复用该merge请求），同时通知开发者进行相应调整，重新提交代码发起merge请求（如果之前没关闭merge请求，则刷新即可看到调整）。</li>
+</ol>
+<h3 id="3-4-冲突解决（开发者负责）"><a href="#3-4-冲突解决（开发者负责）" class="headerlink" title="3.4 冲突解决（开发者负责）"></a>3.4 冲突解决（开发者负责）</h3><ol>
+<li>merge的时候，可能存在代码冲突，这时，开发者可从develop分支重新拉取最新代码进行本地merge， 解决冲突后重新提交代码进行review</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">git pull origin develop #在当前子分支拉取develop分支的最新代码进行本地merge</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 解决冲突代码</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提交</span></span><br><span class="line">git add *</span><br><span class="line">git commit -m "fix merge conflict"</span><br><span class="line">git push origin feature-1101</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>自行解决不了时，寻求协助</li>
+</ol>
+<h2 id="4-借助阿里钉钉机器人来改善体验"><a href="#4-借助阿里钉钉机器人来改善体验" class="headerlink" title="4. 借助阿里钉钉机器人来改善体验"></a>4. 借助阿里钉钉机器人来改善体验</h2><p>前面流程中提醒code reviewer是需要开发者自己来发消息通知的，可不可以把这个流程自动化。我们可以借助Gitlab的webhook与钉钉机器人来实现。</p>
+<ol>
+<li>在钉钉群右上角点击“…”，打开群设置，群机器人中点击添加机器人，会显示可以添加的机器人类型，如下图所示</li>
+</ol>
+<p><img src="/assets/dingdingmachine.png" alt="钉钉机器人"></p>
+<ol start="2">
+<li>选择Gitlab，点击添加，输入机器人名称，如“Gitlab”，点击完成即创建了一个Gitlab的钉钉机器人。回到“群机器人”窗口，将能看到刚刚创建的Gitlab机器人，如图</li>
+</ol>
+<p><img src="/assets/dingdingmachinelist.png" alt="钉钉机器人列表"></p>
+<p>点击齿轮按钮，进入设置页，可看到webhook地址，点击复制，复制该机器人的webhook地址。如图</p>
+<p><img src="/assets/dingdingwebhook.png" alt="钉钉机器人webhook"></p>
+<ol start="3">
+<li>在Gitlab项目主页进入 Settings -&gt; Integrations， 将前面复制的webhook地址填入URL中，Trigger 部分选择“Merge request events”（不要勾太多，不然提醒太多就有点骚扰了），然后点击“Add webhook”就完成了。如图</li>
+</ol>
+<p><img src="/assets/gitlabwebhook.png" alt="GitlabWebhook"></p>
+<ol start="4">
+<li>当有开发人员提交merge请求时，钉钉机器人将在钉钉群里发出通知，code reviewer点击消息里的链接即可进入页面进行code review， review完成，将分支merge之后，钉钉机器人也会发出消息（所有merge相关的事件都会发出消息）。如图</li>
+</ol>
+<p><img src="/assets/dingdingmachinechat.png" alt="钉钉机器人通知"></p>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>团队协作，流程、规范很重要，不同的团队可能有不同的适用流程与规范。此文分享了基于Gitlab与阿里钉钉群机器人的代码review流程，希望对团队研发协作有一定参考价值，也欢迎一起探讨、交流。</p>
+<p><br><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的头条空间： <a href="https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112" target="_blank" rel="noopener">https://www.toutiao.com/c/user/5833678517/#mid=1636101215791112</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy</p>
+<p>————————————————————————————————————————</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springboot-base.html" title="Spring Boot从入门到实战（六）：整合Web项目常用功能" class="prev">PREV</a><a href="/git-branch.html" title="团队项目的Git分支如何管理" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>

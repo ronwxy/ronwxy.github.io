@@ -1,0 +1,189 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> ubuntu18.04上搭建KVM虚拟机环境超完整过程 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="ubuntu18.04上搭建KVM虚拟机环境超完整过程 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">ubuntu18.04上搭建KVM虚拟机环境超完整过程</h1><div class="post-info">2019-07-11<p class="visit"><i data-identity="ubuntu-kvm.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>看标题这是篇纯运维的文章。在中小型企业中，一般很少配置专业的运维人员，都是由开发人员兼着。同时，对有志于技术管理的开发人员来说，多了解一些运维及整个软件生命周期的知识，是很有帮助的，因为带团队不仅仅是个管人的活，更多的是在你的部下遇到难题或者无人能上的时候，你能协助他解决或亲自上阵，这比只会“吆五喝六”的管理者将能获得更高的敬重与威信。闲话不多说了，记录下整个KVM虚拟机的搭建过程吧。<br><a id="more"></a></p>
+<h2 id="1-KVM安装"><a href="#1-KVM安装" class="headerlink" title="1. KVM安装"></a>1. KVM安装</h2><h3 id="1-1-配置确认"><a href="#1-1-配置确认" class="headerlink" title="1.1 配置确认"></a>1.1 配置确认</h3><p>首先需要确认服务器的硬件是否支持虚拟化，执行如下命令确认</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ egrep -c '(vmx|svm)' /proc/cpuinfo</span><br><span class="line">48</span><br></pre></td></tr></table></figure>
+<p>如果输出结果大于0，意味着服务器硬件是支持虚拟化的。否则，重启进入BIOS设置中启用VT技术。<br>执行如下命令安装kvm-ok程序，来确定服务器是否能够运行硬件加速的KVM虚拟机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo apt install cpu-checker</span><br><span class="line"></span><br><span class="line">devuser@server_01:~$ sudo kvm-ok</span><br><span class="line">INFO: /dev/kvm exists</span><br><span class="line">KVM acceleration can be used</span><br></pre></td></tr></table></figure>
+<h3 id="1-2-安装KVM"><a href="#1-2-安装KVM" class="headerlink" title="1.2 安装KVM"></a>1.2 安装KVM</h3><p>安装KVM及依赖项<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo apt update</span><br><span class="line">devuser@server_01:~$ sudo apt install qemu qemu-kvm libvirt-bin  bridge-utils  virt-manager</span><br></pre></td></tr></table></figure></p>
+<p>启动libvirtd服务，并设置开机自动启动<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo systemctl start libvirtd.service</span><br><span class="line">devuser@server_01:~$ sudo systemctl enable libvirtd.service</span><br></pre></td></tr></table></figure></p>
+<p>执行<code>service libvirtd status</code>查看libvirtd服务状态，如图<br><img src="/assets/kvm1.png" alt="libvirtd-status"></p>
+<h3 id="1-3-桥接网络配置"><a href="#1-3-桥接网络配置" class="headerlink" title="1.3 桥接网络配置"></a>1.3 桥接网络配置</h3><p>一般虚拟机网络配置有Bridge、NAT等几种模式。NAT模式下，虚拟机不需要配置自己的IP，通过宿主机来访问外部网络；Bridge模式下， 虚拟机需要配置自己的IP，然后虚拟出一个网卡， 与宿主机的网卡一起挂到一个虚拟网桥上（类似于交换机）来访问外部网络，这种模式下，虚拟机拥有独立的IP，局域网其它主机能直接通过IP与其通信。简单理解，就是NAT模式下，虚机隐藏在宿主机后面了，虚机能通过宿主机访问外网，但局域网其它主机访问不到它，Bridge模式下，虚机跟宿主机一样平等地存在，局域网其它主机可直接通过IP与其通信。一般我们创建虚机是用来部署服务供使用的， 所以都是用Bridge模式。</p>
+<p>ubuntu 18中，网络配置通过netplan来实现了，如下，更改配置文件 /etc/netplan/50-cloud-init.yaml</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">devuser@cserver_01:~$ sudo vim /etc/netplan/50-cloud-init.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> This file is generated from information provided by</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> the datasource.  Changes to it will not persist across an instance.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> To <span class="built_in">disable</span> cloud-init<span class="string">'s network configuration capabilities, write a file</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> network: &#123;config: disabled&#125;</span></span><br><span class="line">network:</span><br><span class="line">    ethernets:</span><br><span class="line">        enp6s0:</span><br><span class="line">            dhcp4: true</span><br><span class="line">        enp7s0:</span><br><span class="line">            dhcp4: no</span><br><span class="line">            dhcp6: no</span><br><span class="line">    version: 2</span><br><span class="line"></span><br><span class="line">    bridges:</span><br><span class="line">         br0:</span><br><span class="line">             interfaces: [enp7s0]</span><br><span class="line">             dhcp4: no</span><br><span class="line">             addresses: [192.168.40.241/24]</span><br><span class="line">             gateway4: 192.168.40.1</span><br><span class="line">             nameservers:</span><br><span class="line">                 addresses: [114.114.114.114,8.8.8.8]</span><br></pre></td></tr></table></figure>
+<p>将宿主机原有网卡enp7s0挂到网桥br0上，并指定IP地址为192.168.40.241，nameservers指定DNS服务器。修改完后，通过<code>sudo netplan apply</code>重启网络服务生效，然后通过<code>ifconfig</code>查看，<br><img src="/assets/kvm2.png" alt="kvm2"><br>原来挂在enp7s0网卡下的IP现在挂到了br0上，宿主机及所有其它虚拟机都通过该网桥来与外部通讯。我们也可以通过<code>brctl show</code>来直观地查看，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ brctl show</span><br><span class="line">bridge name	    bridge id		STP enabled	    interfaces</span><br><span class="line">br0		    8000.2a5be3ec2698	no		        enp7s0</span><br><span class="line">docker0		8000.02424524dcce	no		        veth580af8e</span><br><span class="line">							        veth74119f3</span><br><span class="line">							        vethe7a2b0f</span><br><span class="line">							        vethfe89039</span><br></pre></td></tr></table></figure></p>
+<p>目前因为还没虚机，所以只有宿主机的网卡enp7s0挂在网桥br0上。同时也可以看到docker容器也是通过网桥docker0来通讯的。</p>
+<h2 id="2-虚拟机安装"><a href="#2-虚拟机安装" class="headerlink" title="2. 虚拟机安装"></a>2. 虚拟机安装</h2><h3 id="2-1-安装虚拟机"><a href="#2-1-安装虚拟机" class="headerlink" title="2.1 安装虚拟机"></a>2.1 安装虚拟机</h3><p>安装命令<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo virt-install --name=dev-server1 --memory=16384,maxmemory=16384 \</span><br><span class="line">--vcpus=4,maxvcpus=4 --os-type=linux --os-variant=rhel7 \</span><br><span class="line">--location=/home/devuser/tools/CentOS-7-x86_64-DVD-1810.iso \</span><br><span class="line">--disk path=/var/lib/libvirt/images/devserver1.img,size=300 \</span><br><span class="line">--bridge=br0 --graphics=none --console=pty,target_type=serial \</span><br><span class="line">--extra-args="console=tty0 console=ttyS0"</span><br></pre></td></tr></table></figure></p>
+<p>其中–name指定虚机名称；–memory=16384,maxmemory=16384配置了16G内存；–vcpus=4,maxvcpus=4配置了4个CPU内核；centos7需要指定–os-variant=rhel7；–disk path=xx,size=300指定了磁盘路径与大小，这里是300G。</p>
+<p>如果执行上述命令出现<code>qemu-kvm: could not open &#39;xx/CentOS-7-x86_64-DVD-1810.iso&#39;: Permission denied</code>异常退出时，可通过修改<code>/etc/libvirt/qemu.conf</code>文件将<code>user = &quot;root&quot;</code>，<code>group = &quot;root&quot;</code>前面的注释去掉解决（<a href="https://github.com/jedi4ever/veewee/issues/996）" target="_blank" rel="noopener">https://github.com/jedi4ever/veewee/issues/996）</a></p>
+<p>如无问题，安装程序将出现如下配置界面<br><img src="/assets/kvm3.png" alt="kvm3"></p>
+<p>可通过输入选项对应的数字来选择不同的配置，依次操作如下步骤完成时区设置：<br>输入2，回车，选择时区设置；输入1，回车，选择“Set timezone”；输入2，回车，选择“Asia”；回车，输入64，回车，选择“Shanghai”</p>
+<p>然后进行安装设置，<br><img src="/assets/kvm4.png" alt="kvm4"><br>依次操作如下：<br>输入5，回车，进入安装设置；输入c，回车，选择默认的磁盘进行安装；输入c，回车，使用默认的“2) Use All<br> Space”；输入1，回车，选择“1) Standard Partition”进行标准分区；输入c，回车，完成分区设置</p>
+<p>最后进入root密码设置，<br><img src="/assets/kvm5.png" alt="kvm5"><br>操作如下：<br>输入8，回车，进入root密码设置；输入密码，回车；输入确认密码，回车</p>
+<p>完成上述设置后，输入b开始进行安装<br><img src="/assets/kvm6.png" alt="kvm6"></p>
+<p>等待一段时间后，安装程序停在如下界面<br><img src="/assets/kvm7.png" alt="kvm7"></p>
+<p>按回车继续，最后输入用户名root，及前面设置的密码登录系统<br><img src="/assets/kvm8.png" alt="kvm8"></p>
+<h3 id="2-2-虚拟机网络配置"><a href="#2-2-虚拟机网络配置" class="headerlink" title="2.2 虚拟机网络配置"></a>2.2 虚拟机网络配置</h3><p>虚拟机安装完后，是没有分配IP的，我们通过<code>ip a</code>命令查看，<br><img src="/assets/kvm9.png" alt="kvm9"></p>
+<p>这时候的eth0下面空空如也，什么都没有。在<code>/etc/sysconfig/network-scripts/ifcfg-eth0</code>文件中添加如下内容</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vi /etc/sysconfig/network-scripts/ifcfg-eth0</span><br><span class="line">TYPE=Ethernet</span><br><span class="line">PROXY_METHOD=none</span><br><span class="line">BROWSER_ONLY=no</span><br><span class="line">BOOTPROTO=static #静态指定IP</span><br><span class="line">DEFROUTE=yes</span><br><span class="line"><span class="meta">#</span><span class="bash">IPV4_FAILURE_FATAL=no</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6INIT=yes</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_AUTOCONF=yes</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_DEFROUTE=yes</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_FAILURE_FATAL=no</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_ADDR_GEN_MODE=stable-privacy</span></span><br><span class="line">NAME=eth0</span><br><span class="line">UUID=449ed621-97a8-45b9-902f-0d347e27de98</span><br><span class="line">DEVICE=eth0</span><br><span class="line">ONBOOT=yes  #开机自动启动</span><br><span class="line">IPADDR=192.168.40.96</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">GATEWAY=192.168.40.1</span><br><span class="line">DNS1=192.168.40.1</span><br></pre></td></tr></table></figure>
+<p>并通过<code>systemctl restart network</code>重启网络生效，这时候再运行<code>ip a</code>查看，eth0下面已经有配置的IP了。不出意外的话，局域网其它主机就可以通过该IP来远程SSH连接了。<br><img src="/assets/kvm10.png" alt="kvm10"></p>
+<p>这时候我们再通过<code>brctl show</code>来查看网桥挂载情况，br0下面已经多了一个vnet0虚拟网卡了。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ brctl show</span><br><span class="line">bridge name	    bridge id		STP enabled	    interfaces</span><br><span class="line">br0		    8000.2a5be3ec2698	no		        enp7s0</span><br><span class="line">							        vnet0</span><br><span class="line">docker0		8000.02424524dcce	no		        veth580af8e</span><br><span class="line">							        veth74119f3</span><br><span class="line">							        vethd270ee8</span><br><span class="line">							        vethe7a2b0f</span><br><span class="line">							        vethfe89039</span><br></pre></td></tr></table></figure></p>
+<p>虚拟机装完后，默认的hostname是localhost，针对centos7，我们可以通过如下命令来修改hostname<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# hostnamectl set-hostname dev-server1</span><br></pre></td></tr></table></figure></p>
+<p>然后在/etc/hosts文件中添加127.0.0.1的host映射 dev-server1<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vi /etc/hosts</span><br><span class="line">127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 dev-server1</span><br><span class="line">::1         localhost localhost.localdomain localhost6 localhost6.localdomain6</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-虚拟机管理"><a href="#3-虚拟机管理" class="headerlink" title="3. 虚拟机管理"></a>3. 虚拟机管理</h2><ol>
+<li>列出当前运行的虚拟机<code>virsh list</code><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh list</span><br><span class="line"> Id    Name                           State</span><br><span class="line">----------------------------------------------------</span><br><span class="line"> 5     dev-server1                    running</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>如果列出所有的，则<code>virsh list --all</code></p>
+<ol start="2">
+<li>从宿主机进入虚拟机<code>virsh console</code>，后面接虚拟机ID或名称<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh console 5</span><br><span class="line">Connected to domain dev-server1</span><br><span class="line">Escape character is ^]</span><br><span class="line"></span><br><span class="line">CentOS Linux 7 (Core)</span><br><span class="line">Kernel 3.10.0-957.el7.x86_64 on an x86_64</span><br><span class="line"></span><br><span class="line">dev-server1 login:</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>输入用户名，密码即可登录虚拟机，按<code>Ctrl+]</code>可退出。</p>
+<ol start="3">
+<li><p>启动与关闭虚拟机<code>virsh start|shutdown</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">devuser@cserver_01:~$ virsh start dev-server1</span><br><span class="line">Domain dev-server1 started</span><br><span class="line"></span><br><span class="line">devuser@server_01:~$ virsh shutdown 5</span><br><span class="line">Domain 5 is being shutdown</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>libvirtd启动时，自动启动虚拟机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh autostart dev-server1</span><br><span class="line">Domain dev-server1 marked as autostarted</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>挂起/恢复虚拟机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh suspend dev-server1    # 挂起虚拟机</span><br><span class="line">devuser@server_01:~$ virsh resume dev-server1    # 恢复挂起的虚拟机</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>销毁虚拟机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh undefine dev-server1   # 彻底销毁虚拟机，会删除虚拟机配置文件，但不会删除虚拟磁盘</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号">  </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/docker-1.html" title="Docker笔记（一）：什么是Docker" class="prev">PREV</a><a href="/project-process.html" title="软件项目研发流程该怎么规范" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
