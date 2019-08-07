@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/docker-7.html</loc>
+    
+    <lastmod>2019-08-07T10:18:30.564Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/cors.html</loc>
     
-    <lastmod>2019-07-30T09:38:24.176Z</lastmod>
+    <lastmod>2019-07-31T05:39:09.209Z</lastmod>
     
   </url>
   

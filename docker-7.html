@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Docker笔记（七）：常用服务安装——Nginx、MySql、Redis · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Docker笔记（七）：常用服务安装——Nginx、MySql、Redis - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Docker笔记（七）：常用服务安装——Nginx、MySql、Redis</h1><div class="post-info">2019-08-07<p class="visit"><i data-identity="docker-7.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>开发中经常需要安装一些常用的服务软件，如Nginx、MySql、Redis等，如果按照普通的安装方法，一般都相对比较繁琐 —— 要经过下载软件或源码包，编译安装，配置，启动等步骤，使用 Docker 来安装这些服务软件能极大地简化安装过程，且速度也很快。<br><a id="more"></a></p>
+<p>本文以下操作假定你已经装好了docker，并做好了镜像配置。如果没有，请参考 <a href="/docker-3.html">Docker笔记（三）：Docker安装与配置</a></p>
+<h2 id="1-MySql-安装"><a href="#1-MySql-安装" class="headerlink" title="1. MySql 安装"></a>1. MySql 安装</h2><h3 id="1-1-下载镜像"><a href="#1-1-下载镜像" class="headerlink" title="1.1 下载镜像"></a>1.1 下载镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ docker pull mysql:5.7</span><br></pre></td></tr></table></figure>
+<h3 id="1-2-创建挂载目录"><a href="#1-2-创建挂载目录" class="headerlink" title="1.2 创建挂载目录"></a>1.2 创建挂载目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ mkdir -p apps/mysql/conf apps/mysql/data apps/mysql/logs</span><br></pre></td></tr></table></figure>
+<p>如上分别创建了配置文件目录，数据存放目录，以及日志文件目录</p>
+<h3 id="1-3-启动容器实例"><a href="#1-3-启动容器实例" class="headerlink" title="1.3 启动容器实例"></a>1.3 启动容器实例</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ docker run -d -p 3306:3306 --name mysql -v /home/devuser/apps/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf -v /home/devuser/apps/mysql/logs:/var/log/mysql -v /home/devuser/apps/mysql/data:/var/lib/mysql --restart=always -e MYSQL_ROOT_PASSWORD=Passw0rd mysql:5.7</span><br></pre></td></tr></table></figure>
+<p>其中<br>-d： 表示在后台运行<br>-p： 宿主机端口与容器端口映射<br>–name： 容器名称<br>-v： 宿主机目录与容器目录映射<br>–restart=always：除非被<code>docker stop</code>命令明确停止，否则一直尝试重启处于停止态的容器；如果Docker重启，也会自动启动容器<br>-e： 设置环境变量，这里设置了mysql root用户的密码为Passw0rd</p>
+<p>如此，MySql服务就跑起来了，很快很简单有木有。</p>
+<h2 id="2-Redis-安装"><a href="#2-Redis-安装" class="headerlink" title="2. Redis 安装"></a>2. Redis 安装</h2><h3 id="2-1-拉取镜像"><a href="#2-1-拉取镜像" class="headerlink" title="2.1 拉取镜像"></a>2.1 拉取镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ docker pull redis:5.0.5</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-启动容器"><a href="#2-2-启动容器" class="headerlink" title="2.2 启动容器"></a>2.2 启动容器</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ docker run -d --name redis -p 6379:6379 -v /home/devuser/apps/redis/data:/data --restart=always redis:5.0.5 redis-server --appendonly yes --requirepass "Passw1rd"</span><br></pre></td></tr></table></figure>
+<p>-p， -v 与上同，不赘述<br>redis-server –appendonly yes : 在容器启动时执行redis-server命令，并打开redis持久化配置<br>–requirepass： 设置密码</p>
+<h3 id="2-3-连接"><a href="#2-3-连接" class="headerlink" title="2.3 连接"></a>2.3 连接</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">~$ docker exec -it redis redis-cli -h 172.17.0.4 -p 6379 -a Passw1rd</span><br><span class="line">Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.</span><br><span class="line">172.17.0.4:6379&gt; keys *</span><br><span class="line">(empty list or set)</span><br><span class="line">172.17.0.4:6379&gt;</span><br></pre></td></tr></table></figure>
+<p>这种方式把密码暴露了，其它登录用户通过history即可看到密码，不是太安全。可改用如下方式，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">~$ docker exec -it redis redis-cli</span><br><span class="line">127.0.0.1:6379&gt;</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(error) NOAUTH Authentication required.</span><br><span class="line">127.0.0.1:6379&gt; auth 'Passw1rd'</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(empty list or set)</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-Nginx-安装"><a href="#3-Nginx-安装" class="headerlink" title="3. Nginx 安装"></a>3. Nginx 安装</h2><h3 id="3-1-拉取镜像"><a href="#3-1-拉取镜像" class="headerlink" title="3.1 拉取镜像"></a>3.1 拉取镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ docker pull nginx</span><br></pre></td></tr></table></figure>
+<p>会拉取最新的（latest）镜像</p>
+<h3 id="3-2-创建目录"><a href="#3-2-创建目录" class="headerlink" title="3.2 创建目录"></a>3.2 创建目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ mkdir -p apps/nginx/html apps/nginx/logs apps/nginx/conf</span><br></pre></td></tr></table></figure>
+<h3 id="3-3-先不指定映射路径启动一个容器"><a href="#3-3-先不指定映射路径启动一个容器" class="headerlink" title="3.3 先不指定映射路径启动一个容器"></a>3.3 先不指定映射路径启动一个容器</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~$ docker run -d -p 80:80 --name nginx nginx</span><br><span class="line">1fdcd13457a6eaacb511878e10d84ffbe48fe63fd1fb3705f58b2d4195b151d8</span><br></pre></td></tr></table></figure>
+<p>这里如果直接指定映射路径运行会报错，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~$ docker run -d -p 80:80 --name nginx -v ~/apps/nginx/html:/usr/share/nginx/html -v ~/apps/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v ~/apps/nginx/logs:/var/log/nginx nginx</span><br><span class="line">dab56c13f9e76aad37fcf73411c78d495a6466f1c0d214949650dbae44adddf4</span><br><span class="line">docker: Error response from daemon: OCI runtime create failed: container_linux.go:345: starting container process caused "process_linux.go:424: container init caused \"rootfs_linux.go:58: mounting \\\"/home/devuser/apps/nginx/conf/nginx.conf\\\" to rootfs \\\"/home/docker_image/overlay2/e40ccaf4d845a9af92487b47cbc4d505c5c776800ef8887c5b43833b10661427/merged\\\" at \\\"/home/docker_image/overlay2/e40ccaf4d845a9af92487b47cbc4d505c5c776800ef8887c5b43833b10661427/merged/etc/nginx/nginx.conf\\\" caused \\\"not a directory\\\"\"": unknown: Are you trying to mount a directory onto a file (or vice-versa)? Check if the specified host path exists and is the expected type.</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-4-将运行容器的配置文件复制到宿主机目录下"><a href="#3-4-将运行容器的配置文件复制到宿主机目录下" class="headerlink" title="3.4 将运行容器的配置文件复制到宿主机目录下"></a>3.4 将运行容器的配置文件复制到宿主机目录下</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ docker cp 1fdcd13457a6:/etc/nginx/nginx.conf ~/apps/nginx/conf/</span><br></pre></td></tr></table></figure>
+<h3 id="3-5-删除容器并重新运行"><a href="#3-5-删除容器并重新运行" class="headerlink" title="3.5 删除容器并重新运行"></a>3.5 删除容器并重新运行</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~$ docker stop 1fdcd1345</span><br><span class="line">~$ docker rm 1fdcd1345</span><br><span class="line">~$ docker run -d -p 80:80 --name nginx -v ~/apps/nginx/html:/usr/share/nginx/html -v ~/apps/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v ~/apps/nginx/logs:/var/log/nginx nginx</span><br></pre></td></tr></table></figure>
+<h3 id="3-6-更新配置后重新加载"><a href="#3-6-更新配置后重新加载" class="headerlink" title="3.6 更新配置后重新加载"></a>3.6 更新配置后重新加载</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ docker kill -s HUP nginx</span><br></pre></td></tr></table></figure>
+<p>类似于 <code>nginx -s reload</code></p>
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><p>本文没有总结。<br><br><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/cors.html" title="老被跨域问题烦？看看都有哪些处理方法" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
