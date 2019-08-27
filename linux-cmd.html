@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> 开发人员需要掌握的日常Linux命令集 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="开发人员需要掌握的日常Linux命令集 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">开发人员需要掌握的日常Linux命令集</h1><div class="post-info">2019-08-27<p class="visit"><i data-identity="linux-cmd.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>不会运维的开发不是好测试。<br><a id="more"></a></p>
+<p>本文整理了开发人员日常用到的linux相关命令，供参考。</p>
+<h2 id="文件相关"><a href="#文件相关" class="headerlink" title="文件相关"></a>文件相关</h2><p><code>cd</code> # 进入某个目录，不接参数进入当前用户目录（等同于cd ~），如/home/devuser，可接绝对路径或相对路径（../..表示上上级目录），也可以接 “-” 回到上次所在目录</p>
+<p><code>pwd</code> # 显示当前所在目录</p>
+<p><code>ls -la</code> # 列出当前目录所有对象，-a表示包含以.开头的隐藏文件或目录<br><code>ll -h</code> # ll 等同于 ls -l， -h表示按K M G 显示文件大小</p>
+<p><code>df -h</code> # 显示系统各盘符的空间使用情况<br><code>du -h --max-depth=1</code> # 显示当前目录下各文件大小，–max-depth=1只列出当前目录下的文件或目录，不会列出子目录下的文件</p>
+<p><code>mv test.log /home/devuser/</code> # 移动文件（夹） 或重命名</p>
+<p><code>cp [-r] test test.bak</code> # 复制文件，如果是文件夹则加 -r，表示复制文件夹下所有子文件夹内容<br><code>rm -[r]f /home/devuser/</code> # 删除文件，如果删除文件夹则加 -r </p>
+<p><code>find / -name test.log</code> # 在根目录下查找文件名为test.log的文件<br><code>find /var/log/ -size +50M -exec rm -f {} \;</code> # 在/var/log/目录下查找大于50M的文件并删除，建议先将rm改为ls确认<br><code>find /var/log/ -type f -atime +10</code> # 搜索在过去10天内未被使用过的文件<br><code>find /var/log/ -type f -mtime -10</code> # 搜索在10天内被创建或者修改过的文件<br><code>find /var/log/ -type f -atime +10|xargs rm -f</code> # |xargs 作用与 -exec类似<br><code>find ./ -name &quot;*.log&quot; -exec &#39;cat&#39; {} \; &gt; test.log</code> # 将当前目录下所有.log文件内容合并到一个文件test.log</p>
+<p><code>which java</code> # 在系统PATH路径下查找java可执行文件<br><code>whereis java</code> # 查找二进制、源文件、man文件，从文件索引中查找，而不仅仅从PATH路径下查找</p>
+<p><code>zip test.zip test.log test2.log</code> # 创建一个zip格式的压缩包，可以接多个文件或文件夹<br><code>zip -r file.zip file1 file2 dir1</code> # 将几个文件和目录同时压缩成一个zip格式的压缩包<br><code>unzip test.zip</code> # 解压一个zip格式压缩包</p>
+<p><code>tar -zcvf test.tar.gz</code> 要被压缩的文件名或目录 # 以gzip进行压缩 -z 按gzip，-c 压缩，-v 显示内容 -f 指定文件名<br><code>tar -zxvf test.tar.gz -C 解压缩到的目录</code> # 解压到指定目录 -x 解压<br><code>tar -ztvf test.tar.gz</code> # 不解压，只查看内容</p>
+<p><code>tar -jcvf test.tar.bz2 要被压缩的文件名或目录</code> # 以bzip2进行压缩<br><code>tar -jxvf test.tar.bz2 -C 解压缩到的目录</code> # 解压到指定目录</p>
+<h2 id="文本相关"><a href="#文本相关" class="headerlink" title="文本相关"></a>文本相关</h2><p><code>touch test.log</code> # 创建空文件<br><code>echo -e &#39;abc\ncba&#39;&gt; test.log</code> # 覆盖的形式往文件写入内容 -e 解析转移字符，不然当成字符串<br><code>echo &#39;aaa&#39; &gt;&gt; test.log</code> # 追加的形式往文件写入内容</p>
+<p><code>cat [-n] test.log |grep [-v] abc</code> # 过滤文件中包含 abc 的行， 加-v表示不包含， -n表示打印行号<br><code>cat test.log |grep  abc|wc -l</code> # 计算文件中包含 abc 的行数</p>
+<p><code>head -n 2 test.log</code> # 查看一个文件的前两行<br><code>tail -n 2 test.log</code> # 查看一个文件的最后两行<br><code>tail -n +1000 test.log</code> # 从1000行开始显示，显示1000行以后的<br><code>cat test.log | head -n 2000 | tail -n +1000</code> # 显示1000行到2000行的<br><code>cat test.log | tail -n +1000 | head -n 1000</code> # 从第1000行开始，显示1000行</p>
+<p><code>more test.log</code> # 一页一页地查看文件内容，空格键往后一页，B键往前一页，不能通过上下键控制翻滚，会一次加载整个文件<br><code>less test.log</code> # 一页一页地显示文件内容，可以通过上下键控制往前往后翻，可以向上向下搜，不需一次加载整个文件，所以速度比more快，“less is more”， less比more更强大</p>
+<p><code>tail -200f test.log</code> # 查看最后200行，根据文件描述符进行追踪，当文件改名或被删除，追踪停止<br><code>tail -F test.log</code> # 查看最后10行，只要对应文件名存在，就保持监视，即使文件被删除或改名后，如果再次创建相同的文件名，也会继续追踪</p>
+<p><code>grep abc test.log</code> # 在文件中查找关键词”abc”，类似于 <code>cat test.log|grep abc</code><br><code>grep ^abc test.log</code> # 在文件中查找以”abc”开始的词汇<br><code>grep [0-9] test.log</code> # 选择文件中所有包含数字的行<br><code>grep abc -R /var/log</code>/* # 在目录 ‘/var/log’ 及随后的目录中搜索字符串”abc”</p>
+<p><code>sed &#39;s/abc/ccc/g&#39; test.log</code> # 将test.log文件中的 “abc” 替换成 “ccc”并打印，不改变原有文件<br><code>sed &#39;/^$/d&#39; test.log</code> # 从文件中删除所有空白行并打印，不改变原有文件</p>
+<p><code>paste test.log test2.log</code> # 按两列合并两个文件每行的内容并打印，test.log在左边，test2.log在右边<br><code>paste -d &#39;+&#39; file1 file2</code> # 合并两个文件每行的内容并打印，中间用”+”拼接</p>
+<p><code>sort test.log</code> # 对文件内容进行排序，每行首字母排序<br><code>sort test.log test2.log</code> # 排序两个文件的内容<br><code>sort test.log test2.log | uniq</code> # 取出两个文件的并集(重复的行只保留一份)<br><code>sort test.log test2.log | uniq -u</code> # 删除交集，留下其他的行<br><code>sort test.log test2.log | uniq -d</code> # 取出两个文件的交集(同时存在于两个文件中的行)</p>
+<p># comm 类似于集合的差集运算，需要两个文件都是排序的<br><code>comm -1 test.log test2.log</code> # 比较两个文件的内容只删除test.log所包含的内容<br><code>comm -2 test.log test2.log</code> # 比较两个文件的内容只删除test2.log所包含的内容<br><code>comm -3 test.log test2.log</code> # 比较两个文件的内容删除两个文件共有的内容</p>
+<h2 id="权限相关"><a href="#权限相关" class="headerlink" title="权限相关"></a>权限相关</h2><p><code>chmod +x test.sh</code> # 为一个文件增加可执行权限<br><code>chmod ugo+rwx test.sh</code> # 设置文件的所有者(u)、群组(g)以及其他人(o)读（r，4 ）、写(w，2)和执行(x，1)的权限，+ 改为 - 即删除权限<br><code>chmod 755 test.sh</code> # 对文件所有者，群组，其他人分别设置7（rwx=4+2+1），5（rx=4+1）,5（rx=4+1）的权限</p>
+<p><code>chown [-R] 用户名:群组名 test.log</code> #改变一个文件的所有者和群组，如果是作用于文件夹下所有文件或目录，则加 -R<br><code>chgrp 群组名 test.log</code> # 改变文件的群组</p>
+<h2 id="进程相关"><a href="#进程相关" class="headerlink" title="进程相关"></a>进程相关</h2><p><code>top</code> # 实时显示系统中各个进程的资源占用状况<br><code>top -H -p 进程号</code> # 列出进程的所有线程，按1键根据CPU占有率排序<br><code>ps -ef|grep 进程名称</code> # 查看某个进程，一般用户找进程ID<br><code>kill -9 进程ID</code> # 停止某个进程<br><code>jps</code> # 查看所有java进程</p>
+<h2 id="网络相关"><a href="#网络相关" class="headerlink" title="网络相关"></a>网络相关</h2><p><code>ifconfig</code> # 查看系统各网卡信息（IP，mac地址，子网掩码等）<br><code>ss -s</code> # 查看当前系统tcp、udp连接数</p>
+<p><code>netstat -ano|grep 端口号</code> # 查看某个端口是否起来<br><code>lsof -i:端口号</code> # 查看某个端口对应的进程信息，lsof可能需要额外安装 （sudo yum install lsof）</p>
+<p><code>ssh devuser@192.168.40.206</code> # 远程连接另一台linux主机</p>
+<p><code>curl http://www.baidu.com</code> # get方式请求某个地址<br><code>curl -i -X POST -H &quot;Content-type:application/json&quot; -d &#39;{&quot;a&quot;:&quot;x&quot;,&quot;b&quot;:[&quot;y&quot;]}&#39;  http://xxx</code> # POST方式请求某个接口</p>
+<p><code>wget http://xxx.zip</code> # 下载文件</p>
+<p><code>scp test.log devuser@192.168.40.206:/home/devuser/</code># 传输文件到另一台主机的目录下，如果是文件夹则加 -r<br># nc 传输，可用于文件传输（scp需要密码，nc不需要密码），需要安装 sudo yum install nc<br><code>nc -l 1234 &gt; test.log</code> # 接收方，监听1234端口，将接收内容存于test.log<br><code>nc 192.168.40.205 1234 &lt; test.log</code> # 发送方，向接收方(ip为192.168.40.205)发送test.log的内容</p>
+<h2 id="系统相关"><a href="#系统相关" class="headerlink" title="系统相关"></a>系统相关</h2><p><code>top</code> # 查看CPU、内存使用情况，即各进程使用情况<br><code>free -g</code> # 查看内存使用情况<br><code>date</code> # 查看系统当前时间<br><code>uptime</code> # 查看当前CPU使用负载情况，及系统已运行时间，相当于top的第一行<br><code>su</code> # 切换到root用户<br><code>su devuser</code> # 切换到devuser用户<br><br><br>欢迎关注我的微信公众号：jboost-ksxy （一个不只有实战干货的技术公众号，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/mix-eci.html" title="k8s云集群混搭模式，可能帮你节省50%的服务成本" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>

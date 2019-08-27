@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://blog.jboost.cn/linux-cmd.html</loc>
+    <lastmod>2019-08-27</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/ubuntu-kvm.html</loc>
+    <lastmod>2019-08-26</lastmod>
+  </url>  <url>
     <loc>http://blog.jboost.cn/mix-eci.html</loc>
     <lastmod>2019-08-22</lastmod>
   </url>  <url>
@@ -10,10 +16,10 @@
     <loc>http://blog.jboost.cn/docker-8.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/docker-7.html</loc>
@@ -72,9 +78,6 @@
   </url>  <url>
     <loc>http://blog.jboost.cn/docker-1.html</loc>
     <lastmod>2019-07-13</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/ubuntu-kvm.html</loc>
-    <lastmod>2019-07-12</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/swagger-register.html</loc>
     <lastmod>2019-07-09</lastmod>
