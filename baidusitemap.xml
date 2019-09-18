@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://blog.jboost.cn/jdk8.html</loc>
+    <lastmod>2019-09-18</lastmod>
+  </url>  <url>
     <loc>http://blog.jboost.cn/docker-elk.html</loc>
     <lastmod>2019-09-07</lastmod>
   </url>  <url>
@@ -22,10 +25,10 @@
     <loc>http://blog.jboost.cn/docker-8.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/docker-7.html</loc>
