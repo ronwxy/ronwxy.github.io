@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> nginx（一）：基本用途与用法 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="nginx（一）：基本用途与用法 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">nginx（一）：基本用途与用法</h1><div class="post-info">2019-10-07<p class="visit"><i data-identity="nginx-1.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>最近由于事情较多，加上个人的懈怠，有一段时间没更新了。习惯的养成很难，但一旦养成，从中的受益也常会超乎意料，还是得坚持。接下来准备对一些开发维护过程中常用的工具软件与服务进行整理，如本系列的nginx，后续的redis，消息队列，jenkins等，欢迎关注。</p>
+<p>nginx是一个轻量级的高性能的HTTP服务器，在Web应用部署中很常见。也正因为很常见，所以掌握其基本原理与用法显得很有必要，本系列文章对nginx的相关内容进行梳理，以供初学者参考、熟悉者回顾。<br><a id="more"></a></p>
+<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>在nginx以前，比较流行的HTTP服务器应属Apache（LAMP中A就是指Apache）。但根据netcraft的调查显示，近两年nginx已经超越Apache，成为市场占有率第一的HTTP服务器。如下图<br><img src="/assets/httpserver-trend.png" alt="httpserver-trend"></p>
+<p>nginx能战胜Apache有几个主要原因，一是其足够轻量，不管是安装与维护，还是资源的占用都非常简单与轻量；二是其高性能，nginx基于事件驱动机制，具备非常好的性能，据称能支持高达50000个并发连接数；三是其具有很高的稳定性，相对其它HTTP服务器在访问负载很高时会导致内存耗尽进而可能失去响应，nginx采用分阶段资源分配技术，CPU与内存占有率都很低，在高并发场景下，稳定性更高。</p>
+<p>在日常使用中，nginx主要在三个方面为我们提供服务：</p>
+<ol>
+<li>作为静态服务器提供静态资源的访问，如html网站，文件等</li>
+<li>为后端服务提供反向代理</li>
+<li>为反向代理的后端服务集群提供负载均衡</li>
+</ol>
+<h2 id="2-静态服务器"><a href="#2-静态服务器" class="headerlink" title="2. 静态服务器"></a>2. 静态服务器</h2><p>静态服务器一般就是提供Web前端的一些静态资源，如html页面，js、css文件的访问，用法配置示例如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    location /static/ &#123;</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">        alias /usr/local/nginx/html/garten-web/dist/;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中</p>
+<ul>
+<li>index指定网站的初始页，可以跟多个文件，空格隔开，nginx根据顺序检查文件是否存在，如上例如果用户直接输入/static则会访问/usr/local/nginx/html/garten-web/dist/index.html（如果不存在则再看index.htm是否存在）</li>
+<li>alias是与root对应的用法，都用于访问本地文件系统的资源，在匹配到location配置的url路径后，在alias或root配置的目录寻找对应的资源，区别在于：alias就在配置的目录下寻找对应的资源，而root则会将location配置路径附加到root路径后，在拼接后的目录下寻找对应的资源。如上例中访问 /static/hello.html，使用alias则会访问到/usr/local/nginx/html/garten-web/dist/hello.html，使用root则会访问到/usr/local/nginx/html/garten-web/dist/static/hello.html</li>
+</ul>
+<blockquote>
+<p>alias配置的目录后有没有“/”要与location后面的路径是否有“/”保持一致，否则找不到资源</p>
+</blockquote>
+<h2 id="3-反向代理"><a href="#3-反向代理" class="headerlink" title="3. 反向代理"></a>3. 反向代理</h2><p>了解反向代理之前先看看什么是正向代理。</p>
+<p>举个不那么和谐的例子，当你需要访问某些国外网站的时候，直接输入域名是打不开的，这时可以找一台能访问这些网站的服务器来做代理（这台服务器能访问你访问不了的网站，你能访问这台服务器），你访问网站时，实际是通过代理来中转访问。这种情况，你是知道目标网站的地址的，但是服务器只知道请求来自于代理服务器，而不知道是你（真正的客户端）在访问，所以正向代理代理的是客户端，是对服务端隐藏了真实的客户端信息。</p>
+<p>而对于反向代理，客户端是明确的，但具体在后端请求了哪个服务却不明确了，比如你请求的是 <a href="http://www.abc.com，" target="_blank" rel="noopener">www.abc.com，</a> 在反向代理端，它可能是 <a href="http://www.cba.com" target="_blank" rel="noopener">www.cba.com</a> 的代理，也可能是 <a href="http://www.ccc.com" target="_blank" rel="noopener">www.ccc.com</a> 的代理， 不看配置你是不知道它到底代理的谁。因此，反向代理代理的是服务器端，隐藏了服务端的信息。</p>
+<p>nginx中配置反向代理很简单，如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    location /api/ &#123;</span><br><span class="line">        proxy_pass  http://192.168.0.120:8080/;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>使用nginx的反向代理，可以解决两个问题：</p>
+<ol>
+<li>跨域问题：前后端分离情况下，前端网页访问后端接口存在跨域问题，对后端接口的访问统一通过前端网站域名访问，在nginx中通过对接口的路径进行匹配后反向代理到后端接口服务。如上例中访问接口login可通过 <a href="http://localhost/api/login" target="_blank" rel="noopener">http://localhost/api/login</a> 访问，nginx将会反向代理到 <a href="http://192.168.0.120:8080/login" target="_blank" rel="noopener">http://192.168.0.120:8080/login</a> 后端接口地址</li>
+<li>负载均衡：如果后端服务部署的是服务器集群，则对服务的访问需要做负载均衡，nginx通过反向代理结合upstream来实现负载均衡</li>
+</ol>
+<p>反向代理的路径路由规则：如果proxy_pass配置的路径最后带“/”，则类似于alias，不会在proxy_pass的uri后面拼接location的路径，如果没带“/”，则会进行拼接，类似于root。<br>比如我们按上例配置访问 <a href="http://localhost/api/login" target="_blank" rel="noopener">http://localhost/api/login</a> 则代理到 <a href="http://192.168.0.120:8080/login" target="_blank" rel="noopener">http://192.168.0.120:8080/login</a></p>
+<p>但如果是按以下配置（proxy_pass配置路径不带子路径，且后面没带“/”），<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location /api/ &#123;</span><br><span class="line">    proxy_pass  http://192.168.0.120:8080;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>则会被代理到 <a href="http://192.168.0.120:8080/api/login，" target="_blank" rel="noopener">http://192.168.0.120:8080/api/login，</a> 将location的路径拼接了。</p>
+<p>如果proxy_pass配置的路径带子路径，如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location /api/ &#123;</span><br><span class="line">    proxy_pass  http://192.168.0.120:8080/api/;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>则不管后面带不带“/”，都不会拼接location的路径，只是与/api/后面的部分进行拼接。</p>
+<blockquote>
+<p>注意：如果是不带“/”   proxy_pass  <a href="http://192.168.0.120:8080/api/login" target="_blank" rel="noopener">http://192.168.0.120:8080/api/login</a> 则会被代理到 proxy_pass  <a href="http://192.168.0.120:8080/apilogin" target="_blank" rel="noopener">http://192.168.0.120:8080/apilogin</a> 了， 这时，可通过将location与proxy_pass配置路径保持一致即可——要么都带“/”，要么都不带。</p>
+</blockquote>
+<h2 id="4-负载均衡"><a href="#4-负载均衡" class="headerlink" title="4. 负载均衡"></a>4. 负载均衡</h2><p>nginx通过反向代理proxy_pass结合upstream来对后端服务器集群实现负载均衡，在nginx配置的http节点下定义upstream，如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">upstream backend &#123;</span><br><span class="line">    server 192.168.0.120:8080;</span><br><span class="line">    server 192.168.0.121:8080;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后在server节点下的location里配置反向代理，如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location /api/ &#123;</span><br><span class="line">    proxy_pass  http://backend/api/;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样就会将接收到的请求顺序循环分配到后端的服务器上，如果某个服务器宕机，也能自动将其剔除，不再分配请求，直到其恢复。这是默认的负载均衡策略，即轮询策略。</p>
+<p>nginx负载均衡的策略包括:</p>
+<ol>
+<li>权重轮询，权重轮询在上述轮询策略的基础上加了服务器的请求分配权重，以根据服务器配置的不同，将更多的请求分配到配置更高的服务器上。如<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">upstream backend &#123;</span><br><span class="line">    server 192.168.0.120:8080 weight=10;</span><br><span class="line">    server 192.168.0.121:8080 weight=20;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>分配给121的请求将比分配给120的请求多一倍。</p>
+<ol start="2">
+<li><p>ip_hash，通过对请求来源ip求hash值，将相同ip的请求分配到相同的服务器上，此种策略可以解决分布式session的问题。配置如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">upstream backend &#123;</span><br><span class="line">    ip_hash;</span><br><span class="line">    server 192.168.0.120:8080;</span><br><span class="line">    server 192.168.0.121:8080;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>url_hash，对访问url求hash值，将同一个url的请求分配到相同的服务器上，对有本地缓存的场景比较适用。配置如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">upstream backend &#123;</span><br><span class="line">    server 192.168.0.120:8080;</span><br><span class="line">    server 192.168.0.121:8080;</span><br><span class="line">    hash $request_uri;</span><br><span class="line">    hash_method crc32;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>hash_method指定hash算法</p>
+<ol start="4">
+<li>fair，根据后端服务器的响应时间来合理分配请求，响应时间短的优先分配。配置如<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">upstream backend &#123;</span><br><span class="line">    server 192.168.0.120:8080;</span><br><span class="line">    server 192.168.0.121:8080;</span><br><span class="line">    fair;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>nginx以其轻量级、高性能、高稳定性的特性成为HTTP服务器的主流，是不论开发者还是运维人员都必须了解掌握的服务软件。本文从静态服务器，反向代理，负载均衡三个日常使用场景的角度对nginx进行了简单介绍。</p>
+<p><br><br>欢迎关注我的微信公众号：jboost-ksxy<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springboot-localdatetime.html" title="Spring Boot（十二）：LocalDateTime格式化处理" class="prev">PREV</a><a href="/docker-11.html" title="Docker笔记（十一）：Dockerfile详解与最佳实践" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
