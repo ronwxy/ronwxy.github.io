@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/arch-1.html</loc>
+    
+    <lastmod>2019-11-15T02:04:14.490Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/springboot-localdatetime.html</loc>
     
     <lastmod>2019-11-01T10:08:21.753Z</lastmod>

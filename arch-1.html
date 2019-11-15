@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> 软件系统的非功能要素与设计思路 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="软件系统的非功能要素与设计思路 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">软件系统的非功能要素与设计思路</h1><div class="post-info">2019-11-15<p class="visit"><i data-identity="arch-1.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>对于具备一定复杂度的软件系统，我们一般都会进行架构设计。架构设计中涉及功能要素与非功能要素，功能要素对应业务需求，关注需要实现的业务模块与功能，非功能要素对应系统本身的运行需求，一般包括性能、可用性、可伸缩性、可扩展性、安全等几个方面，软件系统的非功能架构设计，就是通过一些技术手段来满足这几个方面的运行需求。<br><a id="more"></a></p>
+<h2 id="一-性能"><a href="#一-性能" class="headerlink" title="一. 性能"></a>一. 性能</h2><p>性能直观表现就是用户使用系统时响应的快慢程度。一般有响应时间（如用户点击一个按钮经服务端处理后，收到反馈的时长）、吞吐量（系统单位时间内能处理事务的个数，TPS —— Transaction-Per-Second）、支持并发数（能支持同时处理多少个并发在线用户）等衡量指标。</p>
+<p>系统性能可通过相应的测试进行评估，一般包括：</p>
+<ul>
+<li>性能测试：验证系统在资源可接受范围内，是否能达到性能预期。比如2核8G的服务器配置，在CPU负载不超过指定值的情况下，系统的吞吐量能否达到1k。</li>
+<li>负载测试：不断给系统增加并发请求以增加对系统的压力，直到系统的某项或多项性能指标达到安全临界值。这时候，继续增加压力，系统的处理能力如吞吐量不增反降。</li>
+<li>压力测试：在超过安全负载的情况下，继续对系统施加压力，直到系统崩溃或不能再处理任何请求，即系统在达到崩溃临界点时最大能承受多大的压力。</li>
+<li>稳定测试：在模拟生产环境的场景下，包括软硬件配置、网络环境等条件，加载一定的业务压力（业务压力也尽量模拟生产环境下的情况），运行一段比较长的时间，看系统是否能稳定地运行。</li>
+</ul>
+<p>测试报告形如下表</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">并发数</th>
+<th style="text-align:center">响应时间（ms）</th>
+<th style="text-align:center">TPS</th>
+<th style="text-align:center">错误率（%）</th>
+<th style="text-align:center">CPU负载</th>
+<th style="text-align:center">内存使用（GB）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">性能测试</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">500</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">性能测试</td>
+<td style="text-align:center">30</td>
+<td style="text-align:center">1000</td>
+<td style="text-align:center">40</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">15</td>
+<td style="text-align:center">14</td>
+</tr>
+<tr>
+<td style="text-align:center">负载测试</td>
+<td style="text-align:center">40</td>
+<td style="text-align:center">1200</td>
+<td style="text-align:center">45</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">30</td>
+<td style="text-align:center">16</td>
+</tr>
+<tr>
+<td style="text-align:center">压力测试</td>
+<td style="text-align:center">60</td>
+<td style="text-align:center">2000</td>
+<td style="text-align:center">30</td>
+<td style="text-align:center">40</td>
+<td style="text-align:center">50</td>
+<td style="text-align:center">16</td>
+</tr>
+<tr>
+<td style="text-align:center">压力测试</td>
+<td style="text-align:center">80</td>
+<td style="text-align:center">超时</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">100</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+</tr>
+</tbody>
+</table>
+<p>系统高性能的设计思路：</p>
+<ol>
+<li>客户端优化，包括浏览器缓存（App本地缓存）、静态资源压缩、减少Cookie传输，减少HTTP请求（合并接口）等。</li>
+<li>缓存，包括CDN缓存与服务端缓存。CDN将静态内容分发至离用户最近的网络服务商机房，通过反向代理服务器，缓存热点资源，从而加快用户请求的响应速度，减轻后端服务的负载压力；服务端缓存通过本地缓存与分布式缓存，缓存热点数据，从而加快数据请求过程，减轻数据库的负载压力。</li>
+<li>异步，对不需要立即获取结果的操作异步化，减少用户响应时间，改善系统的可扩展性与性能。异步一般通过消息队列实现。</li>
+<li>集群，将同一个服务使用多个实例通过负载均衡来提高服务的整体处理能力。集群需要服务实现无状态化，即对每一个请求的处理在服务本地不保留任何数据与状态。</li>
+<li>代码优化，多线程，资源服用（数据库连接池、线程池、HTTP连接池等），减少HTTP及数据库访问次数（如避免在循环中调用数据库访问，可优化成一次获取数据到本地再处理）。</li>
+<li>数据库访问，索引的使用，读写分离，分库分表，NoSQL的引入，存储结构优化等。</li>
+</ol>
+<h2 id="二-可用性"><a href="#二-可用性" class="headerlink" title="二. 可用性"></a>二. 可用性</h2><p>系统的高可用就是当系统的某个服务器宕机时，系统服务或系统的核心服务依然可用。</p>
+<p>对于互联网服务，一般要求7*24小时提供不间断的服务能力。系统的可用性一般就通过服务可用时间比来衡量，如三个9的可用性，就是在一段考核时间内，99.9%的时间服务可用。</p>
+<p>系统高可用的设计主要通过冗余与失效转移的手段来实现：</p>
+<ol>
+<li>冗余，在系统的每一层，都通过部署多台服务器以负载均衡的形式提供访问（集群的形式），避免单点问题。关系型数据库无法通过集群部署，可提供多台互相备份，在主服务挂掉时，从服务能快速切换。</li>
+<li>失效转移，在集群中其中一台服务器出现故障时，负载均衡能实时监测到并且不再往这台服务器分发请求，已失败的请求能重新调度到其它可用服务器。</li>
+</ol>
+<p>提高系统高可用也需要在开发测试阶段尽可能地进行质量保证，通过代码review，多维度测试，预发布验证，灰度发布等手段，来减少生产环境的bug引入率，提高系统的可用性。同时，在各环节添加必要的监控与告警，包括服务器资源、网络、应用等多个维度，当问题发生时能及时获得告警通知。即一方面通过多种途径规避问题的发生，另一方面当问题真正发生时，能快速响应尽可能减少影响。</p>
+<h2 id="三-可伸缩性"><a href="#三-可伸缩性" class="headerlink" title="三. 可伸缩性"></a>三. 可伸缩性</h2><p>可伸缩性是从提升系统服务能力的角度衡量的一个因素，如果能通过不断向集群中加入服务器就能提高系统的处理能力，来应对不断增长的用户并发访问，则系统是具有可伸缩性的。</p>
+<p>系统可伸缩性的设计思路：</p>
+<ol>
+<li>应用服务无状态化，对任何一个请求集群中任何一台服务器处理都能做到无差异化。</li>
+<li>缓存服务器的伸缩可能导致缓存路由失效，可通过一致性Hash算法来降低缓存路由失效的比率。</li>
+<li>关系型数据库很难通过集群实现可伸缩性，需要在数据库之外实现，如分库分表（不到万不得已不要使用分表）。</li>
+<li>NoSQL，本身就具备良好的伸缩性，如HDFS。</li>
+</ol>
+<h2 id="四-可扩展性"><a href="#四-可扩展性" class="headerlink" title="四. 可扩展性"></a>四. 可扩展性</h2><p>系统的可扩展性关注功能性需求，衡量系统能否快速响应需求变化，即增加一个功能基本不需要修改现有系统或调整很少。</p>
+<p>系统可扩展性的设计思路：</p>
+<ol>
+<li>解耦，事件驱动架构，生产者、消费者模式，如基于消息队列</li>
+<li>拆分，将复杂业务拆分成简单的职责单一的，高内聚、低耦合的服务单元，新增服务对现有服务影响不大</li>
+<li>复用，将比较固定的不常变动的服务下沉作为基础服务，新的业务功能基于基础服务的复用实现</li>
+<li>开放服务，将平台服务能力通过开放接口的形式提供给第三方，拓展平台业务服务能力</li>
+</ol>
+<h2 id="五-安全"><a href="#五-安全" class="headerlink" title="五. 安全"></a>五. 安全</h2><p>攻击无处不在，衡量系统安全性的标准是系统针对现有的与潜在的各种攻击与窃密手段，是否有相应的可靠的应对策略。</p>
+<p>系统的安全保障设计思路：</p>
+<ol>
+<li>信息加密，包括单项散列加密（如密码加密，MD5，SHA）、对称加密、非对称加密（公钥私钥，https传输）</li>
+<li>信息过滤，如敏感词过滤，黑名单机制等</li>
+<li>风险控制，通过规则引擎控制访问，或基于统计模型进行监控告警</li>
+<li>限流，限制单位时间内的访问量，如手机验证码</li>
+</ol>
+<p>安全是相对的，没有绝对安全的系统，只能通过一些保障手段使攻击成本大于其获利成本来保障系统免受攻击。</p>
+<h2 id="六-总结"><a href="#六-总结" class="headerlink" title="六. 总结"></a>六. 总结</h2><p>本文主要参考《大型网站技术架构》，对软件系统的几个核心的非功能性要素及其设计思路进行了介绍与总结，为软件系统的设计提供参考。</p>
+<p>———————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springboot-localdatetime.html" title="Spring Boot（十二）：LocalDateTime格式化处理" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
