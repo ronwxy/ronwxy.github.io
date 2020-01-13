@@ -2,16 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://blog.jboost.cn/micro-service.html</loc>
+    <loc>http://blog.jboost.cn/springboot-properties.html</loc>
     
-    <lastmod>2019-12-26T07:33:36.199Z</lastmod>
+    <lastmod>2020-01-13T11:34:42.896Z</lastmod>
     
   </url>
   
   <url>
     <loc>http://blog.jboost.cn/springcloud-1.html</loc>
     
-    <lastmod>2019-12-24T05:57:38.665Z</lastmod>
+    <lastmod>2020-01-13T11:34:24.509Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/micro-service.html</loc>
+    
+    <lastmod>2019-12-26T07:38:58.727Z</lastmod>
     
   </url>
   
@@ -212,13 +219,6 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/springboot-properties.html</loc>
-    
-    <lastmod>2019-07-22T10:27:52.437Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.jboost.cn/springboot-firstapp.html</loc>
     
     <lastmod>2019-07-22T10:27:17.454Z</lastmod>
@@ -303,14 +303,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
