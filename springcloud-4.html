@@ -1,0 +1,265 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Spring Cloud（四）：啥是服务降级与熔断之Hystrix · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Spring Cloud（四）：啥是服务降级与熔断之Hystrix - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Spring Cloud（四）：啥是服务降级与熔断之Hystrix</h1><div class="post-info">2020-01-19<p class="visit"><i data-identity="springcloud-4.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>在微服务的架构中，一个业务的实现通常包括多层服务的调用，底层基础服务的故障可能会导致上层服务级联发生故障，进而故障不断蔓延导致系统整体不可用，这种现象称为服务的雪崩效应。</p>
+<a id="more"></a>
+<h2 id="断路器"><a href="#断路器" class="headerlink" title="断路器"></a>断路器</h2><p>断路器（CircuitBreaker， 或叫熔断器）是用来避免服务雪崩效应，提升系统整体可用性的一种技术手段。通过在一个时间窗口内监测服务的调用失败情况，在失败时通过回调返回默认实现（这叫服务降级），当失败达到一定程度时，后续的调用直接导致快速失败，不再访问远程服务（这叫熔断机制），防止不断尝试调用可能会失败的服务，以使服务有机会恢复，一定时间后，当断路器监测到服务恢复后，会继续尝试调用。</p>
+<p>断路器原理有点类似于电路中的保险丝或电闸，当发现电路中出现短路异常情况时，通过保险丝熔断或电闸跳闸来断开电路，避免事故发生。</p>
+<h2 id="Hystrix服务降级"><a href="#Hystrix服务降级" class="headerlink" title="Hystrix服务降级"></a>Hystrix服务降级</h2><p>当使用Hystrix时，每一个远程服务的调用都被封装到一个HystrixCommand中，HystrixCommand有两个主要方法：run(), getFallback()。<br>其中run方法封装了远程服务的调用逻辑，如果run方法超时或者抛出异常，并且启用了服务降级，则会调用getFallback方法来进行降级处理。</p>
+<p>降级处理由 HystrixCommandProperties.Setter 中定义的配置属性来控制，主要包括：</p>
+<ul>
+<li>fallbackEnabled， 是否启用降级处理，如果启用则在超时或异常时调用getFallback来进行降级处理，默认启用</li>
+<li>fallbackIsolationSemaphoreMaxConcurrentRequests，控制getFallback方法并发请求的信号量，默认为10，如果请求超过了信号量限制，则不再尝试调用getFallback方法，而是快速失败</li>
+<li>executionIsolationThreadInterruptOnFutureCancel，隔离策略为THREAD，当Future#cancel(true)时，是否进行中断处理，默认为false</li>
+<li>executionIsolationThreadInterruptOnTimeout，隔离策略为THREAD，当执行线程超时时，是否进行中断，默认为true</li>
+<li>executionTimeoutInMilliseconds，执行超时时间，默认为1000ms，如果隔离策略为THREAD（线程池隔离），且配置了executionIsolationThreadInterruptOnTimeout=true，则执行线程将被中断，如果隔离策略为SEMAPHORE（信号量隔离），则终止操作，信号量隔离下执行线程与主线程是同一个线程，所以不会中断线程处理</li>
+</ul>
+<p>在进行降级处理调用getFallback方法时，需注意：</p>
+<ol>
+<li><p>该方法最大并发数受fallbackIsolationSemaphoreMaxConcurrentRequests控制，默认为10，如果失败率很高，则需配置该参数，如果并发数超过了配置，则不会执行getFallback，而是快速失败，抛出异常“HystrixRuntimeException: xxx fallback executionrejected”</p>
+</li>
+<li><p>尽量避免在getFallback中进行网络请求，而是能快速返回的缓存数据或静态数据（如默认值）；如果需要做网络请求，则应该是调用另一个被Hystrix保护的请求，即对fallback进行串联，第一个fallback中请求网络做业务调用，第二个fallback中回调缓存或静态数据</p>
+</li>
+</ol>
+<p>上文提到Hystrix的线程池隔离策略与信号量隔离策略，两者如何理解？</p>
+<ol>
+<li>线程池隔离：执行在一个单独的线程中，通过线程池中线程数量来控制并发请求量。每一个服务使用一个单独的线程池进行隔离，避免互相影响。这种策略下的服务调用是异步的，可通过hystrix来配置超时。</li>
+<li>信号量隔离：执行在调用线程中，通过信号量来控制控制并发请求量（executionIsolationSemaphoreMaxConcurrentRequests， 默认为10），如果并发量超过该值，则调用getFallback方法对服务进行降级。这种策略下的服务调用是同步的，无法对调用进行超时配置，只能通过调用协议（如http）的超时。信号量隔离策略一般只有在高并发量的情况下使用（如一秒几百次），这种情况下使用单独的线程池开销比较大；或者如果需要在调用服务的线程中，如RequestInterceptor中使用ThreadLocal中的变量，也可以通过将隔离策略设置为信号量来实现(hystrix.command.default.execution.isolation.strategy=SEMAPHORE)</li>
+</ol>
+<blockquote>
+<p>注： 如果只是需要在服务调用中使用安全上下文 SecurityContext， 则也可以通过配置 hystrix.shareSecurityContext=true 来实现，这样Hystrix的并发策略插件会将SecurityContext从主线程传递到Hystrix command使用的线程。</p>
+</blockquote>
+<p>线程池隔离策略与信号量隔离策略两者之间的区别</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">隔离策略</th>
+<th style="text-align:center">实现原理</th>
+<th style="text-align:center">调用模式</th>
+<th style="text-align:center">是否支持超时配置</th>
+<th style="text-align:center">降级实现</th>
+<th style="text-align:center">资源消耗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">线程池隔离</td>
+<td style="text-align:center">每个服务使用单独的线程池</td>
+<td style="text-align:center">异步调用</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">线程池满则请求拒绝，降级处理</td>
+<td style="text-align:center">较大，容易造成服务器负载高</td>
+</tr>
+<tr>
+<td style="text-align:center">信号量隔离</td>
+<td style="text-align:center">使用信号量的计数器</td>
+<td style="text-align:center">同步调用</td>
+<td style="text-align:center">不支持</td>
+<td style="text-align:center">信号量达到最大值则请求拒绝，降级处理</td>
+<td style="text-align:center">较小</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Hystrix熔断机制"><a href="#Hystrix熔断机制" class="headerlink" title="Hystrix熔断机制"></a>Hystrix熔断机制</h2><p>Hystrix客户端会对调用失败情况进行采样统计。当在一个时间窗口（由metrics.rollingStats.timeInMilliseconds配置， 默认10s）内，调用某个服务超过一定次数（由circuitBreaker.requestVolumeThreshold配置，默认20），失败率超过一定比例（由circuitBreaker.errorThresholdPercentage配置，默认50%），则熔断开关打开，调用会被快速失败（不再进行远程调用），如果开发者提供了fallback，则会调用fallback进行降级处理，如果没有，则抛出 异常。</p>
+<p>调用失败包括如下几种情况：</p>
+<ol>
+<li>调用中抛出异常</li>
+<li>调用超时</li>
+<li>线程池拒绝</li>
+<li>信号量拒绝</li>
+</ol>
+<p>熔断开关的状态：</p>
+<ul>
+<li>闭合（closed）：如果配置了熔断开关强制闭合，或者当前的请求失败率没有超过设置的阈值，则熔断开关处于闭合状态，不启动熔断机制。但这时如果调用超时或失败，仍会进行降级处理（除非fallbackEnabled为false）</li>
+<li>打开（open）：如果配置了熔断开关强制打开，或者当前的请求失败率超过了设置的阈值，则熔断开关打开，启动熔断机制，直接进行降级处理，不再进行远程调用</li>
+<li>半打开（half-open）：当熔断开关处理打开状态，需要在一定的时间窗口后进行重试，检测服务是否恢复，这种状态就是半打开状态。如果测试成功则关闭熔断开关，否则还是处于打开状态</li>
+</ul>
+<p>Hystrix熔断开关的状态关系如图所示</p>
+<p><img src="/assets/hystrix-status.png" alt="hystrix熔断开关状态"></p>
+<p>熔断相关的参数配置（HystrixCommandProperties.Setter）：</p>
+<ul>
+<li>circuitBreakerEnabled， 是否开启熔断机制，默认true</li>
+<li>circuitBreakerForceOpen，是否强制打开熔断开关，如果为true，则对请求进行强制降级，默认为false</li>
+<li>circuitBreakerForceClosed， 是否强制关闭熔断开关，默认为false</li>
+<li>circuitBreakerRequestVolumeThreshold， 在熔断开关闭合的情况下，一个采样时间窗口内需要进行至少多少个请求才进行采用统计计算失败率，默认为20</li>
+<li>circuitBreakerErrorThresholdPercentage， 在一个采样时间窗口内，失败率超过该值，则打开熔断开关，进行快速失败，默认采样时间窗口为10s，失败率为50%</li>
+<li>circuitBreakerSleepWindowInMilliseconds， 熔断后的重试时间窗口，在该时间窗口允许一次重试，如果重试成功，则关闭熔断开关，否则还是打开状态，默认5s</li>
+</ul>
+<h2 id="案例演示"><a href="#案例演示" class="headerlink" title="案例演示"></a>案例演示</h2><p>熔断是服务调用端的一种保护机制，因此通常与Feign结合使用，Feign的Hystrix支持在Dalston版本之前，hystrix只要在类路径中，feign默认就会自动将所有方法封装到断路器中，Dalston版及以后的版本改变了这一做法，需要进行显示配置 feign.hystrix.enabled=true。</p>
+<p>本文案例还是基于前面创建的springcloud-eureka（注册中心）， springcloud-eureka-client（一个简单的hello service）两个项目。</p>
+<ol>
+<li><p>新建springcloud-hystrix项目，pom.xml中引入相关依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-openfeign<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-hystrix<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>applicaiton.yml配置文件中添加必要配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eureka:</span></span><br><span class="line"><span class="attr">  client:</span></span><br><span class="line"><span class="attr">    serviceUrl:</span></span><br><span class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://localhost:8761/eureka/</span></span><br><span class="line"></span><br><span class="line"><span class="attr">feign:</span></span><br><span class="line"><span class="attr">  hystrix:</span></span><br><span class="line"><span class="attr">    enabled:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动类添加必要注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableCircuitBreaker</span></span><br><span class="line"><span class="meta">@EnableFeignClients</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HystrixApplication</span></span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>其它Feign Client类与Controller类详见源码：<a href="https://github.com/ronwxy/springcloud-demos" target="_blank" rel="noopener">https://github.com/ronwxy/springcloud-demos</a>  springcloud-hystrix项目</p>
+<ol start="4">
+<li>测试</li>
+</ol>
+<p>这里分四种情形分别进行演示。依次启动springcloud-eureka， springcloud-eureka-client（debug模式启动，并在hello接口里设置断点，模拟超时），springcloud-hystrix</p>
+<ul>
+<li>启用断路器，未指定fallback</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(name = <span class="string">"hello-service"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HelloClient</span></span></span><br></pre></td></tr></table></figure>
+<p>访问 <a href="http://localhost:8084/hystrix0" target="_blank" rel="noopener">http://localhost:8084/hystrix0</a>  得到结果如下</p>
+<p><img src="/assets/hystrix-nofallback.png" alt="无fallback"></p>
+<p>抛出异常： HystrixRuntimeException: HelloClient#hello() timed-out and no fallback available.] with root cause java.util.concurrent.TimeoutException: null</p>
+<ul>
+<li>启用断路器，指定fallback</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(name = <span class="string">"hello-service"</span>, contextId = <span class="string">"hello-with-fallback"</span>, fallback = HelloClientFallback.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HelloClient1</span></span></span><br></pre></td></tr></table></figure>
+<p>访问 <a href="http://localhost:8084/hystrix1" target="_blank" rel="noopener">http://localhost:8084/hystrix1</a>  得到结果返回 “调用hello-service返回：this is returned by fallback”， 不会抛出异常。</p>
+<ul>
+<li>启用断路器，指定fallbackFactory</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(name = <span class="string">"hello-service"</span>, contextId = <span class="string">"hello-with-fallbackFactory"</span>, fallbackFactory = HelloClientFallbackFactory.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HelloClient2</span></span></span><br></pre></td></tr></table></figure>
+<p>访问 <a href="http://localhost:8084/hystrix2" target="_blank" rel="noopener">http://localhost:8084/hystrix2</a>  得到结果返回 “调用hello-service返回：this is returned from fallbackFactory, cause: com.netflix.hystrix.exception.HystrixTimeoutException”，不会抛出异常。</p>
+<ul>
+<li>不启用断路器</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient</span>(name = <span class="string">"hello-service"</span>, contextId = <span class="string">"hello-without-circuitBreaker"</span>, configuration = DisableCircuitBreakerConfiguration.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HelloClient3</span></span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">DisableCircuitBreakerConfiguration</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Scope</span>(<span class="string">"prototype"</span>)</span><br><span class="line">    <span class="keyword">public</span> Feign.<span class="function">Builder <span class="title">feignBuilder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Feign.builder();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对单个feign client禁用断路器可以配置一个注入了 prototype scope的 Feign.Builder实例的配置类来实现。</p>
+<p>访问 <a href="http://localhost:8084/hystrix3" target="_blank" rel="noopener">http://localhost:8084/hystrix3</a>  得到结果如下</p>
+<p><img src="/assets/nohystrix.png" alt="无Hystrix"></p>
+<p>抛出异常： feign.RetryableException: Read timed out executing GET <a href="http://hello-service/hello]" target="_blank" rel="noopener">http://hello-service/hello]</a> with root cause java.net.SocketTimeoutException: Read timed out</p>
+<p>可见，在启用断路器，不指定fallback时，抛出HystrixRuntimeException异常，指定fallback时，调用fallback方法降级处理，但获取不到失败原因，如果需要获取失败原因，可使用fallbackFactory，不启用断路器时，抛出feign.RetryableException异常。</p>
+<p>注意上面的contextId， 当使用同一个名称或url来创建多个指向同一服务的feign client时， 需要使用contextId来避免配置bean的名称冲突。该属性可以改变feign 客户端的ApplicationContext的名称，覆盖feign客户端别名，作为客户端配置bean名称的一部分。</p>
+<p><a href="https://github.com/ronwxy/springcloud-demos" target="_blank" rel="noopener">本文示例代码</a></p>
+<p><br><br>认真生活，快乐分享<br>欢迎关注微信公众号：空山新雨的技术空间<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springcloud-3.html" title="Spring Cloud（三）：Web服务客户端之Feign" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
