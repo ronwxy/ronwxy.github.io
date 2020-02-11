@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://blog.jboost.cn/springcloud-5.html</loc>
+    <lastmod>2020-02-11</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/mybatis-cache.html</loc>
+    <lastmod>2020-01-20</lastmod>
+  </url>  <url>
     <loc>http://blog.jboost.cn/springcloud-4.html</loc>
     <lastmod>2020-01-20</lastmod>
   </url>  <url>
@@ -139,10 +145,10 @@
     <loc>http://blog.jboost.cn/issue-errortrack.html</loc>
     <lastmod>2019-07-09</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     <lastmod>2019-07-09</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     <lastmod>2019-07-09</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/project-process.html</loc>
