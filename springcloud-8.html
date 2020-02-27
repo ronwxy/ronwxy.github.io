@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Spring Cloud（八）：使用Spring Cloud Bus来实现配置动态更新 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Spring Cloud（八）：使用Spring Cloud Bus来实现配置动态更新 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Spring Cloud（八）：使用Spring Cloud Bus来实现配置动态更新</h1><div class="post-info">2020-02-26<p class="visit"><i data-identity="springcloud-8.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>使用Spring Cloud Config我们能实现服务配置的集中化管理，在服务启动时从Config Server获取需要的配置属性。但如果在服务运行过程中，我们需要将某个配置属性进行修改，比如将验证码的失效时间从五分钟调整为十分钟，如何将这个更新在服务端不重启服务就能动态生效，是本文讨论的内容。</p>
+<a id="more"></a>
+<h2 id="Spring-Cloud-Bus"><a href="#Spring-Cloud-Bus" class="headerlink" title="Spring Cloud Bus"></a>Spring Cloud Bus</h2><p>Spring Cloud Bus可以理解为Spring Cloud体系架构中的消息总线，通过一个轻量级的Message Broker来将分布式系统中的节点连接起来。可用来实现广播状态更新（如配置更新），或其它管理指令。<br>Spring Cloud Bus 就像是一个分布式的Spring Boot Actuator， 目前提供了两种类型的消息队列中间件支持：RabbitMQ与Kafka（对应的pom依赖分别为spring-cloud-starter-bus-amqp， spring-cloud-starter-bus-kafka）。</p>
+<p>Spring Cloud 在spring-cloud-context中添加了两个actuator管理接口（POST请求）： <code>/actuator/env</code> 与 <code>/actuator/refresh</code>， 前者可用于更新当前服务实例Environment对象中的配置属性，后者可用于刷新当前服务实例的配置信息。</p>
+<p>Spring Cloud Bus也提供了两个对应的接口</p>
+<ol>
+<li><code>/actuator/bus-env</code>，相对于<code>/actuator/env</code> ， 使用键值对更新每个实例的Environment，默认不暴露，需配置management.endpoints.web.exposure.include=bus-env 来开放接口访问</li>
+<li><code>/actuator/bus-refresh</code>，相对于<code>/actuator/refresh</code>，对每个实例，清空<code>RefreshScope</code>缓存，重新绑定@ConfigurationProperties， 默认不暴露，可通过配置<br>management.endpoints.web.exposure.include=bus-refresh 来开放接口访问</li>
+</ol>
+<p>综上，<code>/actuator/env</code> 与 <code>/actuator/refresh</code> 是针对单个服务实例修改或刷新其配置信息，而 <code>/actuator/bus-env</code> 与 <code>/actuator/bus-refresh</code> 则是借助于Spring Cloud Bus的消息机制作用于分布式系统中的所有服务实例，因此前面有Spring Cloud Bus 就像是一个分布式的Spring Boot Actuator的说法。</p>
+<p>使用Spring Cloud Bus来实现服务配置动态更新的结构图如下</p>
+<p><img src="/assets/spring-cloud-bus.png" alt="spring-cloud-bus"></p>
+<ol>
+<li>更新配置仓库中的配置文件，push到远程Git仓库</li>
+<li>远程Git仓库通过Webhook调用配置服务器的通知更新接口</li>
+<li>配置服务器发送配置更新消息到消息总线</li>
+<li>其它服务节点监听到配置服务器发送的配置更新消息</li>
+<li>其它服务节点向配置服务器发送拉取最新配置的请求</li>
+<li>配置服务器向配置仓库拉取最新的配置返回给其它服务节点</li>
+</ol>
+<h2 id="案例演示"><a href="#案例演示" class="headerlink" title="案例演示"></a>案例演示</h2><p>我们还是以前面的springcloud-config， springcloud-eureka， springcloud-eureka-client三个项目来完成本文的案例演示。<a href="https://github.com/ronwxy/springcloud-demos" target="_blank" rel="noopener">源码地址</a></p>
+<h3 id="使用Actuator"><a href="#使用Actuator" class="headerlink" title="使用Actuator"></a>使用Actuator</h3><p>在不引入Spring Cloud Bus的情况下，我们可以通过Spring Cloud提供的actuator接口来实现单个实例的配置动态更新。</p>
+<p>依次启动springcloud-eureka， springcloud-config， springcloud-eureka-client项目，然后修改springcloud-eureka-client的启动端口，将8080改为8081，再启动一个springcloud-eureka-client的服务实例。</p>
+<p>springcloud-eureka-client 的测试接口代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RefreshScope</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> Environment env;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;app&#125;"</span>)</span><br><span class="line">    <span class="keyword">private</span> String app;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello, welcome to spring cloud 2. env: "</span> + env.getProperty(<span class="string">"app"</span>) + <span class="string">", value: "</span> + app;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时依次请求两个实例的hello接口，得到结果如下</p>
+<p><img src="/assets/springcloudbus-test1.png" alt="springcloudbus-test1"></p>
+<p><img src="/assets/springcloudbus-test2.png" alt="springcloudbus-test2"></p>
+<p>我们通过<code>/actuator/env</code>接口来修改端口8080实例的属性app的值，使用postman操作如图</p>
+<p><img src="/assets/springcloudbus-test3.png" alt="springcloudbus-test3"></p>
+<p>此时再请求接口返回结果如下</p>
+<p><img src="/assets/springcloudbus-test4.png" alt="springcloudbus-test4"></p>
+<p>可以看到Environment对象中app属性的值已更新，但是 @Value注解的属性值未变，可见 <code>/actuator/env</code> 接口只是更新了Environment对象，并不负责刷新其它方式引用的属性值。此时请求另一个端口为8081的实例接口，其属性值都未更新，也可见 <code>/actuator/env</code> 只作用于当前实例本身。</p>
+<p>如果要让8080实例的@Value属性也动态更新，则可再调用<code>/actuator/refresh</code>接口，如图</p>
+<p><img src="/assets/springcloudbus-test5.png" alt="springcloudbus-test5"></p>
+<p>此时再请求测试接口，得到结果如下（@Value注解的属性也已经更新了）</p>
+<p><img src="/assets/springcloudbus-test6.png" alt="springcloudbus-test6"></p>
+<h3 id="使用Spring-Cloud-Bus"><a href="#使用Spring-Cloud-Bus" class="headerlink" title="使用Spring Cloud Bus"></a>使用Spring Cloud Bus</h3><p>前面我们使用 <code>/actuator/env</code> 与 <code>/actuator/refresh</code> 两个接口可以实现单个服务实例配置的动态更新，但在微服务架构中，服务实例可能达几十甚至几百个，一个个调用来做动态更新就有点太不方便了。这时就该Spring Cloud Bus登场了。</p>
+<p>1.添加依赖与配置</p>
+<p>在springcloud-config， 与springcloud-eureka-client两个项目中，添加spring cloud bus的依赖与配置。<br>在pom.xml文件中添加依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-bus-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在application.yml配置文件中添加RabbitMQ的相关配置</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  rabbitmq:</span></span><br><span class="line"><span class="attr">    host:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span></span><br><span class="line"><span class="attr">    port:</span> <span class="number">5672</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">rabbitmq</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">passw0rd</span></span><br></pre></td></tr></table></figure>
+<p>2.依次启动springcloud-eureka， springcloud-config， springcloud-eureka-client项目，并以8081端口再启动一个springcloud-eureka-client的服务实例。</p>
+<p>3.我们使用postman对配置服务器调用<code>/actuator/bus-env</code>接口，</p>
+<p><img src="/assets/springcloudbus-test7.png" alt="springcloudbus-test7"></p>
+<p>请求两个服务实例的测试接口，得到结果</p>
+<p><img src="/assets/springcloudbus-test9.png" alt="springcloudbus-test9"></p>
+<p><img src="/assets/springcloudbus-test8.png" alt="springcloudbus-test8"></p>
+<p>两个实例的Environment对象都已经更新，如果要将@Value注解的属性也更新，则可再调用配置服务器的<code>/actuator/bus-refresh</code>接口。</p>
+<p><code>/actuator/bus-env</code>接口是直接更新的内存Environment实例属性，如果服务重启，则又还原到之前的配置了， 所以还是需要借助配置仓库来永久更新。配置更新后还需要手动调用接口使其生效？DevOps时代了，能自动化的就自动化吧，我们可以借助Git的webhook机制来实现自动化。</p>
+<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><p>本文开头的“使用Spring Cloud Bus来实现服务配置动态更新的结构图”已经示例了使用Git仓库的webhook来触发自动更新配置的流程。但是在Git（如Github）中，我们不能直接使用<code>/actuator/bus-refresh</code>接口来作为webhook（因为接口协议不一致，会出现解析异常），也有人通过提供自己的接口来作为webhook，在自己接口中再转发请求到<code>/actuator/bus-refresh</code>来实现。但实际上，spring-cloud-config-monitor已经提供了对Git webhook的支持。</p>
+<p>如下图，spring-cloud-config-monitor提供了对Github，Gitlab，Gitee，BitBucket等的支持</p>
+<p><img src="/assets/spring-cloud-config-monitor.png" alt="springcloud-config-monitor"></p>
+<p>1.在配置服务器springcloud-config的pom.xml文件中添加依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-monitor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>2.在配置仓库的设置页面配置webhook，比如Github的配置如图</p>
+<p><img src="/assets/config-github-webhook.png" alt="config-github-webhook"></p>
+<p>Payload URL 配置为配置服务器的monitor接口地址，path参数必须。如果你的配置服务器在内网，比如做本地测试时，还需要实现一下内网穿透（如frp）。<br>在配置仓库项目中修改配置属性，提交代码，Github webhook就会触发自动更新，上图下方红色框为触发自动更新的记录。</p>
+<h3 id="自动更新配置未生效排查"><a href="#自动更新配置未生效排查" class="headerlink" title="自动更新配置未生效排查"></a>自动更新配置未生效排查</h3><p>如果出现Github触发了自动更新，但服务的配置更新未生效的情况，则需要查看webhook的匹配规则与服务实例的ServiceID是否匹配，webhook的匹配规则为 <code>spring.application.name:spring.cloud.config.profile:**</code>，服务实例的ServiceID可通过<code>spring.cloud.bus.id</code>配置，如果没有配置，则默认为</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">&#123;vcap.application.name:<span class="variable">$&#123;spring.application.name:application&#125;</span>&#125;:<span class="variable">$&#123;vcap.application.instance_index:$&#123;spring.application.index:$&#123;local.server.port:$&#123;server.port:0&#125;</span>&#125;&#125;&#125;:<span class="variable">$&#123;vcap.application.instance_id:$&#123;random.value&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure>
+<p>遵循app:index:id的格式，</p>
+<ul>
+<li>app：如果vcap.application.name存在，使用vcap.application.name，否则使用spring.application.name，默认值为application</li>
+<li>index：优先使用vcap.application.instance_index，如果不存在则依次使用spring.application.index、local.server.port、server.port， 默认值为0</li>
+<li>id：如果vcap.application.instance_id存在，使用vcap.application.instance_id，否则给一个随机值</li>
+</ul>
+<p>我们可以在服务项目中打开spring cloud bus的debug日志</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">logging:</span></span><br><span class="line"><span class="attr">  level:</span></span><br><span class="line">    <span class="string">org.springframework.cloud.bus:</span> <span class="string">debug</span></span><br></pre></td></tr></table></figure>
+<p>通过DefaultBusPathMatcher的debug日志来查看是否匹配，如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DEBUG 286196 --- [7O8XC9KNWbyDA-1] o.s.cloud.bus.DefaultBusPathMatcher      : In match: hello-service:8081:c96f04c81dfce6dffaa9d116811d127c, hello-service:8081:c96f04c81dfce6dffaa9d116811d127c</span><br></pre></td></tr></table></figure>
+<p>如果没有匹配则可以按照webhook的匹配规则设置<code>spring.cloud.bus.id</code>值或<code>vcap.application.instance_index</code>值，如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  application:</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">hello-service</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    config:</span></span><br><span class="line"><span class="attr">      discovery:</span></span><br><span class="line"><span class="attr">        service-id:</span> <span class="string">config-server</span></span><br><span class="line"><span class="attr">        enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">      profile:</span> <span class="string">$&#123;spring.profiles.active:default&#125;</span></span><br><span class="line"><span class="attr">    bus:</span></span><br><span class="line"><span class="attr">      id:</span> <span class="string">$&#123;spring.application.name&#125;:$&#123;spring.cloud.config.profile&#125;:$&#123;random.value&#125;</span></span><br><span class="line"><span class="comment">#或</span></span><br><span class="line"><span class="attr">vcap:</span></span><br><span class="line"><span class="attr">  application:</span></span><br><span class="line"><span class="attr">    instance_index:</span> <span class="string">$&#123;spring.cloud.config.profile&#125;</span></span><br></pre></td></tr></table></figure>
+<p>配置更新未生效的另一个情况是查看是否用了@RefreshScope注解。</p>
+<h2 id="RefreshScope"><a href="#RefreshScope" class="headerlink" title="@RefreshScope"></a>@RefreshScope</h2><p>细心的人会发现本文开头的测试接口类上加了@RefreshScope注解。 @RefreshScope是Spring Cloud提供的用来实现配置、实例热加载的注解。被@RefreshScope修饰的@Bean都是延迟加载的，即在第一次访问（调用方法）时才会被初始化，并且这些bean存于缓存中。当收到配置更新的消息时，缓存中的@RefreshScope bean会被清除，这样下次访问时将会重新创建bean，此时使用的就是最新的配置信息，从而实现配置的热加载。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文分别示例了使用spring boot actuator与spring cloud bus来实现服务配置的更新及两者之间的区别， spring cloud bus一定程度上像是一个分布式的spring boot actuator。同时演示了使用webhook与spring cloud bus，monitor结合来实现配置自动更新的具体流程及可能遇到的问题。</p>
+<p><br><br>认真生活，快乐分享<br>欢迎关注微信公众号：空山新雨的技术空间<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springcloud-7.html" title="Spring Cloud（七）：服务网关zuul过滤器" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
