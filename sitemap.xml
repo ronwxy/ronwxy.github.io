@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/redis-persistence.html</loc>
+    
+    <lastmod>2020-03-10T10:20:08.256Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/springcloud-8.html</loc>
     
     <lastmod>2020-02-27T05:11:37.349Z</lastmod>
@@ -359,14 +366,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
