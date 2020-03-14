@@ -6,7 +6,9 @@
 <li>Sentinel（哨兵）模式</li>
 <li>Cluster模式 </li>
 </ul>
-<h2 id="主从复制模式"><a href="#主从复制模式" class="headerlink" title="主从复制模式"></a>主从复制模式</h2><h3 id="1-基本原理"><a href="#1-基本原理" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h3><p>主从复制模式中包含一个主数据库实例（master）与一个或多个从数据库实例（slave），客户端可对主数据库进行读写操作，对从数据库进行读操作，主数据库写入的数据会实时自动同步给从数据库。</p>
+<h2 id="主从复制模式"><a href="#主从复制模式" class="headerlink" title="主从复制模式"></a>主从复制模式</h2><h3 id="1-基本原理"><a href="#1-基本原理" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h3><p>主从复制模式中包含一个主数据库实例（master）与一个或多个从数据库实例（slave），如下图</p>
+<p><img src="/assets/redis-master-slave.png" alt="redis-master-slave"></p>
+<p>客户端可对主数据库进行读写操作，对从数据库进行读操作，主数据库写入的数据会实时自动同步给从数据库。</p>
 <p>具体工作机制为：</p>
 <ol>
 <li>slave启动后，向master发送SYNC命令，master接收到SYNC命令后通过bgsave保存快照（即上文所介绍的RDB持久化），并使用缓冲区记录保存快照这段时间内执行的写命令</li>
@@ -36,7 +38,9 @@
 <li>master宕机，如果宕机前数据没有同步完，则切换IP后会存在数据不一致的问题</li>
 <li>难以支持在线扩容，Redis的容量受限于单机配置</li>
 </ol>
-<h2 id="Sentinel（哨兵）模式"><a href="#Sentinel（哨兵）模式" class="headerlink" title="Sentinel（哨兵）模式"></a>Sentinel（哨兵）模式</h2><h3 id="1-基本原理-1"><a href="#1-基本原理-1" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h3><p>哨兵模式基于主从复制模式，只是引入了哨兵来监控与自动处理故障。哨兵顾名思义，就是来为Redis集群站哨的，一旦发现问题能做出相应的应对处理。其功能包括</p>
+<h2 id="Sentinel（哨兵）模式"><a href="#Sentinel（哨兵）模式" class="headerlink" title="Sentinel（哨兵）模式"></a>Sentinel（哨兵）模式</h2><h3 id="1-基本原理-1"><a href="#1-基本原理-1" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h3><p>哨兵模式基于主从复制模式，只是引入了哨兵来监控与自动处理故障。如图</p>
+<p><img src="/assets/redis-sentinel.png" alt="redis-sentinel"></p>
+<p>哨兵顾名思义，就是来为Redis集群站哨的，一旦发现问题能做出相应的应对处理。其功能包括</p>
 <ol>
 <li>监控master、slave是否正常运行</li>
 <li>当master出现故障时，能自动将一个slave转换为master（大哥挂了，选一个小弟上位）</li>
@@ -99,7 +103,8 @@
 <li>同样也继承了主从模式难以在线扩容的缺点，Redis的容量受限于单机配置</li>
 <li>需要额外的资源来启动sentinel进程，实现相对复杂一点，同时slave节点作为备份节点不提供服务</li>
 </ol>
-<h2 id="Cluster模式"><a href="#Cluster模式" class="headerlink" title="Cluster模式"></a>Cluster模式</h2><h3 id="1-基本原理-2"><a href="#1-基本原理-2" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h3><p>哨兵模式解决了主从复制不能自动故障转移，达不到高可用的问题，但还是存在难以在线扩容，Redis容量受限于单机配置的问题。Cluster模式实现了Redis的分布式存储，即每台节点存储不同的内容，来解决在线扩容的问题。</p>
+<h2 id="Cluster模式"><a href="#Cluster模式" class="headerlink" title="Cluster模式"></a>Cluster模式</h2><h3 id="1-基本原理-2"><a href="#1-基本原理-2" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h3><p>哨兵模式解决了主从复制不能自动故障转移，达不到高可用的问题，但还是存在难以在线扩容，Redis容量受限于单机配置的问题。Cluster模式实现了Redis的分布式存储，即每台节点存储不同的内容，来解决在线扩容的问题。如图</p>
+<p><img src="/assets/redis-cluster.png" alt="redis-cluster"></p>
 <p>Cluster采用无中心结构,它的特点如下：</p>
 <ol>
 <li>所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽</li>
