@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/redis-cluster.html</loc>
+    
+    <lastmod>2020-03-14T07:07:54.311Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/redis-persistence.html</loc>
     
     <lastmod>2020-03-10T10:20:08.256Z</lastmod>
@@ -177,14 +184,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
@@ -366,14 +373,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
