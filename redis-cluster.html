@@ -1,10 +1,11 @@
 <!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> 一文了解Redis的三种集群方案 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="一文了解Redis的三种集群方案 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
 <script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">一文了解Redis的三种集群方案</h1><div class="post-info">2020-03-12<p class="visit"><i data-identity="redis-cluster.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>在开发测试环境中，我们一般搭建Redis的单实例来应对开发测试需求，但是在生产环境，如果对可用性、可靠性要求较高，则需要引入Redis的集群方案。虽然现在各大云平台有提供缓存服务可以直接使用，但了解一下其背后的实现与原理总还是有些必要（比如面试）， 本文就一起来学习一下Redis的几种集群方案。</p>
+<a id="more"></a>
 <p>Redis支持三种集群方案</p>
 <ul>
 <li>主从复制模式</li>
 <li>Sentinel（哨兵）模式</li>
-<li>Cluster模式 </li>
+<li>Cluster模式</li>
 </ul>
 <h2 id="主从复制模式"><a href="#主从复制模式" class="headerlink" title="主从复制模式"></a>主从复制模式</h2><h3 id="1-基本原理"><a href="#1-基本原理" class="headerlink" title="1. 基本原理"></a>1. 基本原理</h3><p>主从复制模式中包含一个主数据库实例（master）与一个或多个从数据库实例（slave），如下图</p>
 <p><img src="/assets/redis-master-slave.png" alt="redis-master-slave"></p>
@@ -71,7 +72,7 @@
 <li>发现master下线的哨兵节点（我们称他为A）向每个哨兵发送命令，要求对方选自己为领头哨兵</li>
 <li>如果目标哨兵节点没有选过其他人，则会同意选举A为领头哨兵</li>
 <li>如果有超过一半的哨兵同意选举A为领头，则A当选</li>
-<li>如果有多个哨兵节点同时参选领头，此时有可能存在一轮投票无竞选者胜出，此时每个参选的节点等待一个随机时间后再次发起参选请求，进行下一轮投票竟选，直至选举出领头哨兵</li>
+<li>如果有多个哨兵节点同时参选领头，此时有可能存在一轮投票无竞选者胜出，此时每个参选的节点等待一个随机时间后再次发起参选请求，进行下一轮投票竞选，直至选举出领头哨兵</li>
 </ol>
 <p>选出领头哨兵后，领头者开始对系统进行故障恢复，从出现故障的master的从数据库中挑选一个来当选新的master,选择规则如下：</p>
 <ol>
@@ -93,7 +94,7 @@
 <p>我们来模拟master挂掉的场景，执行 <code>kill -9 3017</code> 将master进程干掉，进入slave中执行 <code>info replication</code>查看，</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 sentinel]# redis-cli -p 7001</span><br><span class="line">127.0.0.1:7001&gt; auth 123456</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:7001&gt; info replication</span><br><span class="line"><span class="meta">#</span><span class="bash"> Replication</span></span><br><span class="line">role:slave</span><br><span class="line">master_host:127.0.0.1</span><br><span class="line">master_port:7002</span><br><span class="line">master_link_status:up</span><br><span class="line">master_last_io_seconds_ago:1</span><br><span class="line">master_sync_in_progress:0</span><br><span class="line"><span class="meta">#</span><span class="bash"> 省略</span></span><br><span class="line">127.0.0.1:7001&gt; exit</span><br><span class="line">[root@dev-server-1 sentinel]# redis-cli -p 7002</span><br><span class="line">127.0.0.1:7002&gt; auth 123456</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:7002&gt; info replication</span><br><span class="line"><span class="meta">#</span><span class="bash"> Replication</span></span><br><span class="line">role:master</span><br><span class="line">connected_slaves:1</span><br><span class="line">slave0:ip=127.0.0.1,port=7001,state=online,offset=13642721,lag=1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 省略</span></span><br></pre></td></tr></table></figure>
 <p>可以看到slave 7002已经成功上位晋升为master（role：master），接收一个slave 7001的连接。此时查看slave2.conf配置文件，发现<code>replicaof</code>的配置已经被移除了，slave1.conf的配置文件里<code>replicaof 127.0.0.1 6379</code> 被改为 <code>replicaof 127.0.0.1 7002</code>。重新启动master，也可以看到master.conf配置文件中添加了<code>replicaof 127.0.0.1 7002</code>的配置项，可见大哥（master）下位后，再出来混就只能当当小弟（slave）了，三十年河东三十年河西。</p>
-<h3 id="哨兵模式的优缺点"><a href="#哨兵模式的优缺点" class="headerlink" title="哨兵模式的优缺点"></a>哨兵模式的优缺点</h3><p>优点：</p>
+<h3 id="3-哨兵模式的优缺点"><a href="#3-哨兵模式的优缺点" class="headerlink" title="3. 哨兵模式的优缺点"></a>3. 哨兵模式的优缺点</h3><p>优点：</p>
 <ol>
 <li>哨兵模式基于主从复制模式，所以主从复制模式有的优点，哨兵模式也有</li>
 <li>哨兵模式下，master挂掉可以自动进行切换，系统可用性更高</li>
@@ -149,7 +150,7 @@
 <li>节点会因为某些原因发生阻塞（阻塞时间大于 cluster-node-timeout）被判断下线，这种failover是没有必要的</li>
 <li>数据通过异步复制，不保证数据的强一致性</li>
 <li>slave充当“冷备”，不能缓解读压力</li>
-<li>批量操作限制，目前只支持具有相同slot值得key执行批量操作，对mset、mget、sunion等操作支持不友好</li>
+<li>批量操作限制，目前只支持具有相同slot值的key执行批量操作，对mset、mget、sunion等操作支持不友好</li>
 <li>key事务操作支持有线，只支持多key在同一节点的事务操作，多key分布不同节点时无法使用事务功能</li>
 <li>不支持多数据库空间，单机redis可以支持16个db，集群模式下只能使用一个，即db 0</li>
 </ol>
