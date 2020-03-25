@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/linux-autoboot.html</loc>
+    
+    <lastmod>2020-03-25T07:00:01.980Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/springboot-redis.html</loc>
     
     <lastmod>2020-03-21T02:40:17.242Z</lastmod>
@@ -380,14 +387,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     

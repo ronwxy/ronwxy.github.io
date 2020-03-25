@@ -1,0 +1,218 @@
+<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Linux开机自启动配置 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Linux开机自启动配置 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Linux开机自启动配置</h1><div class="post-info">2020-03-24<p class="visit"><i data-identity="linux-autoboot.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>很多时候，我们需要将一些服务在Linux系统启动时即自动运行，省得每次都要去手动启动一遍，如Redis， MySQL， Nginx等。本文对CentOS与Ubuntu下开机自启动的配置方法进行整理，供参考查阅。</p>
+<a id="more"></a>
+<h2 id="CentOS7的开机自启动配置"><a href="#CentOS7的开机自启动配置" class="headerlink" title="CentOS7的开机自启动配置"></a>CentOS7的开机自启动配置</h2><h3 id="一-rc-local方式"><a href="#一-rc-local方式" class="headerlink" title="一. rc.local方式"></a>一. rc.local方式</h3><p>rc.local是CentOS以前版本的方式，在CentOS7中仍然以兼容的形式存在，虽仍可用，但不推荐（推荐使用systemd service）。</p>
+<ol>
+<li>编写需要开机自启动的脚本，并添加执行权限</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 ~]# vim test_rclocal.sh</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">time=`date +%F_%T`</span><br><span class="line">echo $time' from rc.local' &gt;&gt; /tmp/test.log</span><br><span class="line"></span><br><span class="line">[root@dev-server-1 ~]# chmod +x test_rclocal.sh</span><br></pre></td></tr></table></figure>
+<p>作为测试，上述脚本打印一个时间到/tmp/test.log文件中</p>
+<ol start="2">
+<li>在/etc/rc.d/rc.local配置文件中添加脚本运行命令（使用绝对路径）</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 ~]# vim /etc/rc.d/rc.local </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ...注释部分</span></span><br><span class="line">touch /var/lock/subsys/local</span><br><span class="line"></span><br><span class="line">/root/test_rclocal.sh &gt;/dev/null 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>添加/etc/rc.d/rc.local文件的执行权限</li>
+</ol>
+<p>在centos7中，/etc/rc.d/rc.local没有执行权限，需要手动授权</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 ~]# chmod +x /etc/rc.d/rc.local</span><br></pre></td></tr></table></figure>
+<p>以上三步，即可使<code>/root/test_rclocal.sh &gt;/dev/null 2&gt;/dev/null</code> 命令在服务器系统启动时自动运行。</p>
+<h3 id="二-chkconfig方式"><a href="#二-chkconfig方式" class="headerlink" title="二. chkconfig方式"></a>二. chkconfig方式</h3><ol>
+<li>编写需要开机自启动的测试脚本，并添加执行权限</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 ~]# vim test_chkconfig.sh</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line">time=`date +%F_%T`</span><br><span class="line">echo $time' from chkconfig' &gt;&gt; /tmp/test.log</span><br><span class="line"></span><br><span class="line">[root@dev-server-1 ~]# chmod +x test_chkconfig.sh</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>在/etc/rc.d/init.d/目录下添加一个可执行脚本testchkconfig</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 ~]# vim /etc/rc.d/init.d/testchkconfig</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chkconfig: 2345 90 10</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> description: <span class="built_in">test</span> chkconfig</span></span><br><span class="line"></span><br><span class="line">/root/test_chkconfig.sh &gt;/dev/null 2&gt;/dev/null</span><br><span class="line"></span><br><span class="line">[root@dev-server-1 ~]# chmod 755 /etc/rc.d/init.d/testchkconfig</span><br></pre></td></tr></table></figure>
+<p>上述testchkconfig脚本的头部必须遵循一定的格式 <code># chkconfig: 2345 90 10</code>， 其中2345指定服务在哪些执行等级中开启或关闭，90表示启动的优先级（0-100，越大优先级越低），10表示关闭的优先级。执行等级包括</p>
+<ul>
+<li>0：表示关机</li>
+<li>1：单用户模式</li>
+<li>2：无网络连接的多用户命令行模式</li>
+<li>3：有网络连接的多用户命令行模式</li>
+<li>4：保留未使用</li>
+<li>5：带图形界面的多用户模式</li>
+<li>6：重新启动</li>
+</ul>
+<ol start="3">
+<li>加入开机启动服务列表</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 ~]# chkconfig --add testchkconfig</span><br><span class="line">[root@dev-server-1 ~]# chkconfig --list</span><br><span class="line"></span><br><span class="line">Note: This output shows SysV services only and does not include native</span><br><span class="line">      systemd services. SysV configuration data might be overridden by native</span><br><span class="line">      systemd configuration.</span><br><span class="line"></span><br><span class="line">      If you want to list systemd services use 'systemctl list-unit-files'.</span><br><span class="line">      To see services enabled on particular target use</span><br><span class="line">      'systemctl list-dependencies [target]'.</span><br><span class="line"></span><br><span class="line">netconsole     	0:off	1:off	2:off	3:off	4:off	5:off	6:off</span><br><span class="line">network        	0:off	1:off	2:on	3:on	4:on	5:on	6:off</span><br><span class="line">testchkconfig  	0:off	1:off	2:on	3:on	4:on	5:on	6:off</span><br></pre></td></tr></table></figure>
+<p>使用 <code>chkconfig --list</code> 可查看当前加入开机自启动的服务列表，但如Note部分所述，该命令只显示SysV服务，不包含原生的systemd服务，查看systemd服务可使用<code>systemctl list-unit-files</code>命令。</p>
+<p>以上三步，即可使<code>/root/test_chkconfig.sh &gt;/dev/null 2&gt;/dev/null</code> 命令在服务器系统启动时自动运行。</p>
+<p>chkconfig的其它命令参考</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">chkconfig --list <span class="comment"># 表示查看所有服务在各个运行级别下的状态。</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">chkconfig testchkconfig on <span class="comment"># 表示指定服务在所有的运行级别下都是开启状态。</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">chkconfig testchkconfig off <span class="comment"># 表示指定服务在所有的运行级别下都是关闭状态。</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">chkconfig --level 5 testchkconfig on <span class="comment"># 表示指定服务在运行级别5图形模式的状态下开机启动服务。</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">chkconfig --level 5 testchkconfig off <span class="comment"># 表示指定服务在运行级别5图形模式的状态下开机不启动服务。</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="三-自定义systemd-service方式"><a href="#三-自定义systemd-service方式" class="headerlink" title="三. 自定义systemd service方式"></a>三. 自定义systemd service方式</h3><p>CentOS7的systemd服务脚本存放在：/usr/lib/systemd/system（系统级）/usr/lib/systemd/user（用户级）下，以.service结尾。这里以nginx为例</p>
+<ol>
+<li>在/usr/lib/systemd/system目录下创建nginx.service文件</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[devuser@test-server-1 ~]$ sudo vim /usr/lib/systemd/system/nginx.service</span><br><span class="line"></span><br><span class="line">[Unit]</span><br><span class="line">Description=nginx server</span><br><span class="line">Documentation=http://nginx.org/en/docs/</span><br><span class="line"><span class="meta">#</span><span class="bash"> 依赖服务，仅当依赖的服务启动之后再启动自定义的服务</span></span><br><span class="line">After=network.target remote-fs.target nss-lookup.target  </span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动类型，包括simple、forking、oneshot、notify、dbus</span></span><br><span class="line">Type=forking</span><br><span class="line"><span class="meta">#</span><span class="bash"> pid文件路径</span></span><br><span class="line">PIDFile=/var/run/nginx.pid</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动前执行的操作</span></span><br><span class="line">ExecStartPre=/usr/local/nginx/sbin/nginx -t -c /usr/local/nginx/conf/nginx.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动命令</span></span><br><span class="line">ExecStart=/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"> 重载命令</span></span><br><span class="line">ExecReload=/usr/local/nginx/sbin/nginx -s reload</span><br><span class="line"><span class="meta">#</span><span class="bash"> 停止命令</span></span><br><span class="line">ExecStop=/usr/local/nginx/sbin/nginx -s stop</span><br><span class="line"><span class="meta">#</span><span class="bash"> 是否给服务分配独立的临时空间</span></span><br><span class="line">PrivateTmp=true</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 服务安装的用户模式，一般使用multi-user即可</span></span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+<p>其中Service部分的Type包括如下几种类型：</p>
+<ul>
+<li>simple：表示ExecStart启动的进程是该服务的主进程。如果它需要为其他进程提供服务，那么必须在该服务启动之前先建立好通信渠道，比如套接字，以加快后续单元的启动速度。</li>
+<li>forking：表示ExecStart进程将会在启动时使用fork()函数，这是传统Unix系统的做法，也就是说这个进程将由systemd进程fork出来，然后当该进程都准备就绪时，systemd进程退出，而fork出来的进程作为服务的主进程继续运行，对于此类型的进程，建议设置PIDFile选项，以帮助systemd准确定位该服务的主进程。</li>
+<li>oneshot：该进程会在systemd启动后续单元之前退出，适用于仅需要执行一次的程序。比如清理磁盘，你只需要执行一次，不需要一直在后台运行这个程序。</li>
+<li>notify：与simple类似，不同之处在于该进程会在启动完成之后通过sd_notify之类的接口发送一个通知消息。systemd在启动后续单元之前，必须确保该进程已经成功地发送了一个消息。</li>
+<li>dbus：该进程需要在D-Bus上获得一个由BusName指定的名称，systemd将会在启动后续单元之前，首先确保该进程已经成功获取了指定D-Bus名称。</li>
+</ul>
+<ol start="2">
+<li>开启开机自启动</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[devuser@test-server-1 ~]$ sudo systemctl enable nginx.service</span><br><span class="line">Created symlink from /etc/systemd/system/multi-user.target.wants/nginx.service to /usr/lib/systemd/system/nginx.service.</span><br></pre></td></tr></table></figure>
+<p>以上两步，就将nginx服务配置成了在操作系统启动时自动启动。</p>
+<p>其它命令参考</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl start nginx.service <span class="comment"># 启动</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl restart nginx.service <span class="comment"># 重启</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl reload nginx.service <span class="comment"># 重载</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl stop nginx.service <span class="comment"># 停止</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl status nginx.service <span class="comment"># 查看服务状态</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl cat nginx.service <span class="comment"># 查看服务配置</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash">systemctl list-unit-files |grep nginx <span class="comment"># 查看服务enabled状态</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl <span class="built_in">disable</span> nginx.service <span class="comment"># 关闭开机自启动</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo journalctl -f -u nginx.service <span class="comment"># 查看日志</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl daemon-reload <span class="comment"># 配置修改后，重新加载</span></span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>根据以上配置，通过start启动nginx服务时，报<code>PID file /var/run/nginx.pid not readable (yet?) after start.</code>的错误，启动失败，日志如下</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[devuser@test-server-1 ~]$ sudo journalctl -f -u nginx.service</span><br><span class="line">-- Logs begin at Wed 2020-03-25 09:14:55 CST. --</span><br><span class="line">Mar 25 11:02:27 test-server-1 nginx[14144]: nginx: configuration file /usr/local/nginx/conf/nginx.conf test is successful</span><br><span class="line">Mar 25 11:02:27 test-server-1 systemd[1]: PID file /run/nginx.pid not readable (yet?) after start.</span><br><span class="line">Mar 25 11:04:29 test-server-1 systemd[1]: nginx.service start operation timed out. Terminating.</span><br><span class="line">Mar 25 11:04:29 test-server-1 systemd[1]: Failed to start nginx.</span><br><span class="line">Mar 25 11:04:29 test-server-1 systemd[1]: Unit nginx.service entered failed state.</span><br><span class="line">Mar 25 11:04:29 test-server-1 systemd[1]: nginx.service failed.</span><br></pre></td></tr></table></figure>
+<p>从字面看是PID文件不可读，查看/var/run/nginx.pid，该文件也确实不存在，查看nginx.conf配置文件，发现是<code>pid /var/run/nginx.pid;</code>这行配置被注释掉了， 如果不指定pid文件位置，nginx默认会把pid文件保存在logs目录中。所以出现systemd启动服务时找不到pid文件而报错，将nginx.conf中的pid配置注释去掉，重启nginx.service即可。</p>
+<h2 id="Ubuntu18-04的开机自启动配置"><a href="#Ubuntu18-04的开机自启动配置" class="headerlink" title="Ubuntu18.04的开机自启动配置"></a>Ubuntu18.04的开机自启动配置</h2><p>在Ubuntu18.04中，主要也是以systemd服务来实现开机自启动，systemd默认读取/etc/systemd/system/下的配置文件，该目录下的一些文件会链接到/lib/systemd/system/下的文件。</p>
+<p>因此可以在/etc/systemd/system/目录下面创建一个自启动服务配置，以内网穿透服务frp客户端为例，如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=frpc</span><br><span class="line">After=network.target</span><br><span class="line">Wants=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">TimeoutStartSec=30</span><br><span class="line">ExecStart=/home/devuser/apps/frp/frpc -c /home/devuser/apps/frp/frpc.ini</span><br><span class="line">ExecStop=/bin/kill $MAINPID</span><br><span class="line">Restart=1</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+<p>各配置项与CentOS类似。然后将服务器加到自启动列表中并启动服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl <span class="built_in">enable</span> frpc</span></span><br><span class="line"><span class="meta">$</span><span class="bash">sudo systemctl start frpc</span></span><br></pre></td></tr></table></figure>
+<p>其它更多systemctl命令与CentOS类似。 </p>
+<p>也可以使用/lib/systemd/system/rc-local.service来执行一些开机需要执行的脚本，该文件内容为</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">  SPDX-License-Identifier: LGPL-2.1+</span></span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">  This file is part of systemd.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">  systemd is free software; you can redistribute it and/or modify it</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  under the terms of the GNU Lesser General Public License as published by</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  the Free Software Foundation; either version 2.1 of the License, or</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  (at your option) any later version.</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> This unit gets pulled automatically into multi-user.target by</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> systemd-rc-local-generator <span class="keyword">if</span> /etc/rc.local is executable.</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=/etc/rc.local Compatibility</span><br><span class="line">Documentation=man:systemd-rc-local-generator(8)</span><br><span class="line">ConditionFileIsExecutable=/etc/rc.local</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=forking</span><br><span class="line">ExecStart=/etc/rc.local start</span><br><span class="line">TimeoutSec=0</span><br><span class="line">RemainAfterExit=yes</span><br><span class="line">GuessMainPID=no</span><br></pre></td></tr></table></figure>
+<p>从Description看它是为了兼容之前版本的/etc/rc.local的，该服务启动命名就是<code>/etc/rc.local start</code>，将该文件链接到/etc/systemd/system下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ln -s /lib/systemd/system/rc-local.service /etc/systemd/system/rc-local.service</span></span><br></pre></td></tr></table></figure>
+<p>创建/etc/rc.local文件，并赋予可执行权限</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim /etc/rc.local</span></span><br><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash  </span></span><br><span class="line">echo "test rc " &gt; /var/test.log  </span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo chmod +x /etc/rc.local</span></span><br></pre></td></tr></table></figure>
+<p>&lt;<em>完</em>&gt;</p>
+<p>欢迎关注作者微信公众号：空山新雨的技术空间，查看更多关于Java、Spring Boot、Spring Cloud、Docker等技术实践文章</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"></p>
+</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springboot-redis.html" title="Spring Boot（十三）：整合Redis集群" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
+    el: "#vcomments",
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    notify: false,
+    verify: false,
+    avatar: "robohash",
+    visitor: true,
+    placeholder: "随便说点什么～.～",
+});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
+try {
+    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
+} catch(error) {}
+const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+    query.equalTo("identity", identity);
+    query.find().then(results => {
+        resolve(results.length > 0);
+    }, error => reject(error));
+    })
+}
+
+const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+    let querys = [];
+    for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+    }
+    query = AV.Query.or.apply(null ,querys);
+    } else {
+    identity = identity || getRealPath();
+    query = new AV.Query("Timer");
+    query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+    query.find()
+    .then(results => resolve(results))
+    .catch(error => reject(error))
+    })
+}
+
+const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let Todo = AV.Object.extend('Timer');
+    let todo = new Todo();
+    todo.set("times", 1);
+    todo.set("identity", identity);
+    todo.save().then(res => resolve(true), error => reject(error));
+    })
+}
+
+const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+    let query = new AV.Query('Timer');
+    query.equalTo("identity", identity);
+    query.find().then(todos => {
+        todos.forEach(todo => {
+        todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+    }).then(todos => resolve(true), error => reject(error));
+    })
+}
+
+return {
+    isExist,
+    _get,
+    update,
+    create
+}
+})()
+
+const calcAndWriteTimes = () => {
+let isPost = true;
+
+let timerAllDOM = document.querySelectorAll(".article-timer");
+
+if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+    if(exist) {
+        return valineAPI.update(identity);
+    }
+    return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+}
+
+let timerDOMCache = {};
+
+for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+    timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+    timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+    };
+    }
+}
+
+let identities = Object.keys(timerDOMCache);
+valineAPI._get(identities).then(results => {
+    for(let result of results) {
+    let {identity, times} = result.attributes;
+    timerDOMCache[identity].times = times;
+    timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+    if(timerDOMCache[identity].times){
+        continue;
+    }
+    timerDOMCache[identity].dom.map(item => item.innerText = 1);
+    valineAPI.create(identity);
+    }
+}).catch(error => console.log(error.message))
+}
+
+if(true){
+calcAndWriteTimes();
+}</script></body></html>
