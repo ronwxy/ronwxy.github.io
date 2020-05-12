@@ -1,6 +1,346 @@
-<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Docker笔记（六）：容器管理 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Docker笔记（六）：容器管理 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Docker笔记（六）：容器管理</h1><div class="post-info">2019-07-21<p class="visit"><i data-identity="docker-6.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>容器是Docker中的另一核心概念，在Docker中，应用的运行都是在容器内进行的，容器则基于镜像创建。前面已对Docker镜像做了基本介绍，本文对Docker容器管理的相关内容做一个梳理。<br><a id="more"></a></p>
-<h2 id="1-启动容器"><a href="#1-启动容器" class="headerlink" title="1. 启动容器"></a>1. 启动容器</h2><p>启动容器的命令格式如下<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run [OPTIONS] IMAGE-NAME [COMMAND] [ARG...]</span><br></pre></td></tr></table></figure></p>
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Docker笔记（六）：容器管理 - 半路雨歌</title>
+  
+    <meta name="keywords" content="docker">
+  
+  
+    <meta name="description" content="容器是Docker中的另一核心概念，在Docker中，应用的运行都是在容器内进行的，容器则基于镜像创建。前面已对Docker镜像做了基本介绍，本文对Docker容器管理的相关内容做一个梳理。">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/docker-6.html">
+      Docker笔记（六）：容器管理
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-07-21</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/DevOps/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>DevOps</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>容器是Docker中的另一核心概念，在Docker中，应用的运行都是在容器内进行的，容器则基于镜像创建。前面已对Docker镜像做了基本介绍，本文对Docker容器管理的相关内容做一个梳理。</p>
+<a id="more"></a>
+
+<h2 id="1-启动容器"><a href="#1-启动容器" class="headerlink" title="1. 启动容器"></a>1. 启动容器</h2><p>启动容器的命令格式如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run [OPTIONS] IMAGE-NAME [COMMAND] [ARG...]</span><br></pre></td></tr></table></figure>
+
 <p>其中OPTIONS部分可指定容器运行的一些可选项，常用选项包括：</p>
 <ul>
 <li>-d 将容器以后台进程（daemon）的形式运行</li>
@@ -15,26 +355,25 @@
 <table>
 <thead>
 <tr>
-<th style="text-align:center">取值</th>
-<th style="text-align:left">描述</th>
+<th align="center">取值</th>
+<th align="left">描述</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">always</td>
-<td style="text-align:left">除非被<code>docker stop</code>命令明确停止，否则一直尝试重启处于停止态的容器；如果Docker重启，也会自动启动容器</td>
+<tbody><tr>
+<td align="center">always</td>
+<td align="left">除非被<code>docker stop</code>命令明确停止，否则一直尝试重启处于停止态的容器；如果Docker重启，也会自动启动容器</td>
 </tr>
 <tr>
-<td style="text-align:center">unless-stopped</td>
-<td style="text-align:left">与always的区别是，停止态的容器不在Docker重启的时候被重启</td>
+<td align="center">unless-stopped</td>
+<td align="left">与always的区别是，停止态的容器不在Docker重启的时候被重启</td>
 </tr>
 <tr>
-<td style="text-align:center">on-failed</td>
-<td style="text-align:left">在容器退出时返回值不为0的时候，重启容器；如果Docker重启，容器也会被启动，不管之前是否处于停止状态</td>
+<td align="center">on-failed</td>
+<td align="left">在容器退出时返回值不为0的时候，重启容器；如果Docker重启，容器也会被启动，不管之前是否处于停止状态</td>
 </tr>
-</tbody>
-</table>
-<p>以启动一个mysql数据库服务为例<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 3306:3306 --name mysql \</span><br><span class="line"> -v /home/devuser/apps/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf \</span><br><span class="line"> -v /home/devuser/apps/mysql/logs:/var/log/mysql \</span><br><span class="line"> -v /home/devuser/apps/mysql/data:/var/lib/mysql \</span><br><span class="line"> -e MYSQL_ROOT_PASSWORD=Passw0rd --restart=always mysql:5.7</span><br></pre></td></tr></table></figure></p>
+</tbody></table>
+<p>以启动一个mysql数据库服务为例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 3306:3306 --name mysql \</span><br><span class="line"> -v /home/devuser/apps/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf \</span><br><span class="line"> -v /home/devuser/apps/mysql/logs:/var/log/mysql \</span><br><span class="line"> -v /home/devuser/apps/mysql/data:/var/lib/mysql \</span><br><span class="line"> -e MYSQL_ROOT_PASSWORD=Passw0rd --restart=always mysql:5.7</span><br></pre></td></tr></table></figure>
 <p>上述命令启动了一个mysql容器服务，-d 表示以后台进程运行，执行命令后只返回一个容器ID，不会输出任何其它信息；-p 将容器暴露的端口3306映射到宿主机的3306端口，外部主机就可以通过宿主机IP与3306端口来访问mysql服务； –name 指定了容器名称为mysql； -v 将mysql的配置文件路径、日志路径、数据存储路径映射到了宿主机对应的路径目录；-e 设置了一个环节变量指定mysql root账号的密码；–restart 指定容器在异常退出时，包括Docker重启时，自动启动容器。</p>
 <p>我们前面有提过，当我们执行CLI命令时，实际上是客户端（Docker Client）通过发送请求到Docker后台进程（Docker Daemon），由Docker后台进程来执行的，那么当我们执行上述<code>docker run</code>命令的时候，Docker后台进程具体都干了些啥呢？一般来说，包括如下几个操作步骤</p>
 <ol>
@@ -58,148 +397,694 @@
 <li>删除所有停止状态的容器 <code>docker container prune</code></li>
 </ol>
 <p>其中xxx既可以是容器ID（短ID即可，只要与其它区分开来），也可以是容器名称。<br><code>docker rm</code>之前必须要先<code>docker stop</code>将容器置为停止状态，而<code>docker rm -f</code>可以强制删除运行状态的容器，其背后是通过Linux/POSIX信号来实现的，<code>docker rm -f</code>命令直接发出<code>SIGKILL</code>信号，不会给容器内运行进程任何缓冲的时间，立即终止，而<code>docker stop</code>命令却是先发送<code>SIGTERM</code>信号，通知容器进程结束，会为进程预留一个清理并优雅停止的机会，如果一段时间后进程还没有终止，那么就会发送<code>SIGKILL</code>信号，来终止进程的运行。</p>
-<p>我们也可以像镜像操作中一样，组合使用命令来更方便地操作，如强制删除所有容器（慎用）<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f $(docker ps -aq)</span><br></pre></td></tr></table></figure></p>
-<h2 id="3-进入容器"><a href="#3-进入容器" class="headerlink" title="3. 进入容器"></a>3. 进入容器</h2><p>容器在运行时指定 -d 选项时， 是以后台进程的形式运行的，如果我们需要进入容器查看或操作，可以通过<code>docker exec</code>命令，<code>docker exec</code>命令的格式如下<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec [OPTIONS] container-id COMMAND</span><br></pre></td></tr></table></figure></p>
+<p>我们也可以像镜像操作中一样，组合使用命令来更方便地操作，如强制删除所有容器（慎用）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f $(docker ps -aq)</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-进入容器"><a href="#3-进入容器" class="headerlink" title="3. 进入容器"></a>3. 进入容器</h2><p>容器在运行时指定 -d 选项时， 是以后台进程的形式运行的，如果我们需要进入容器查看或操作，可以通过<code>docker exec</code>命令，<code>docker exec</code>命令的格式如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec [OPTIONS] container-id COMMAND</span><br></pre></td></tr></table></figure>
+
 <p>OPTIONS常用的一般是 -t， -i，意义跟在<code>docker run</code>选项中一样 —— 为容器启动一个伪终端（pseudo-tty），并保持标准输入打开，从而可以像Linux命令行一样进行交互， COMMAND一般为 <code>bash</code>。</p>
 <p>另外还有一个命令是<code>docker attach xxx</code>，其中xxx是容器ID，但推荐使用<code>docker exec</code>，因为<code>docker attach</code>中当执行<code>exit</code>退出容器时，容器也会随之终止，但<code>docker exec</code>则不会。</p>
 <p>如果不进入容器，也可以通过<code>docker logs xxx</code>，xxx是容器ID，来查看容器的输出信息。</p>
-<h2 id="4-导入导出容器"><a href="#4-导入导出容器" class="headerlink" title="4. 导入导出容器"></a>4. 导入导出容器</h2><p>可以使用<code>docker export</code>命令将一个容器的快照进行导出，如<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export xxx &gt; mycontainer.tar</span><br></pre></td></tr></table></figure></p>
+<h2 id="4-导入导出容器"><a href="#4-导入导出容器" class="headerlink" title="4. 导入导出容器"></a>4. 导入导出容器</h2><p>可以使用<code>docker export</code>命令将一个容器的快照进行导出，如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export xxx &gt; mycontainer.tar</span><br></pre></td></tr></table></figure>
 <p>其中xxx是容器ID，可以通过<code>docker ps -a</code>查看，上述命令将容器的当前快照导出到了本地文件。</p>
-<p><code>docker import</code>命令则可以将一个容器快照文件导入为镜像，如<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat mycontainer.tar | docker import - test/myimage:v1.0</span><br></pre></td></tr></table></figure></p>
-<p>可以通过URL来导入，如<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker import http://test.com/testimage.tgz test/myimage2:v1.0</span><br></pre></td></tr></table></figure></p>
+<p><code>docker import</code>命令则可以将一个容器快照文件导入为镜像，如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat mycontainer.tar | docker import - test/myimage:v1.0</span><br></pre></td></tr></table></figure>
+<p>可以通过URL来导入，如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker import http://test.com/testimage.tgz test/myimage2:v1.0</span><br></pre></td></tr></table></figure>
 <p>由此可见，我们获取镜像又多了一个来源——从已有容器快照文件导入。 </p>
 <h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>本文对容器的一些基本操作进行了介绍，需要注意的是如之前所说，容器应以无状态的形式运行，所有产生的数据应该通过挂载数据卷的方式写入宿主机文件目录，避免容器销毁时造成数据丢失；尽量使用<code>docker stop</code> + <code>docker rm</code>的方式来替代<code>docker rm -f</code>，使容器内运行程序“优雅”地退出。有时候可能遇到这样的场景，容器创建运行后，我们需要对运行的一些参数进行更新或添加，这时候该怎么操作。后文会对该场景进行介绍，欢迎关注。</p>
-<p><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
-</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springboot-async.html" title="Spring Boot从入门到实战（十）：异步处理" class="prev">PREV</a><a href="/docker-5.html" title="Docker笔记（五）：整一个自己的镜像" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
-    el: "#vcomments",
+</br>
+我的个人博客地址：http://blog.jboost.cn         
+我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）
+———————————————————————————————————————————————————————————————
+![微信公众号](/assets/qrcode-05.jpg) 
+
+
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/docker-6.html>http://blog.jboost.cn/docker-6.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-22T18:24:14+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2019-07-22</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/docker/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>docker</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/docker-6.html&title=Docker笔记（六）：容器管理 - 半路雨歌&summary=容器是Docker中的另一核心概念，在Docker中，应用的运行都是在容器内进行的，容器则基于镜像创建。前面已对Docker镜像做了基本介绍，本文对Docker容器管理的相关内容做一个梳理。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/docker-6.html&title=Docker笔记（六）：容器管理 - 半路雨歌&summary=容器是Docker中的另一核心概念，在Docker中，应用的运行都是在容器内进行的，容器则基于镜像创建。前面已对Docker镜像做了基本介绍，本文对Docker容器管理的相关内容做一个梳理。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/docker-6.html&title=Docker笔记（六）：容器管理 - 半路雨歌&summary=容器是Docker中的另一核心概念，在Docker中，应用的运行都是在容器内进行的，容器则基于镜像创建。前面已对Docker镜像做了基本介绍，本文对Docker容器管理的相关内容做一个梳理。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACUUlEQVR42u3ayXHEQAgAQOWftB3Blrhkr5ie31oXjT8UcP0cei5wcHBwcPBF8Kt4Pr745vqn797FMxUvODg4ODj4Rni4APhwfzVR2e914wUHBwcHB98MjxYQ0UCyz1e/H74fHBwcHBwc/IoWNNOFCjg4ODg4OPhz8HKjP9jAAAcHBwcHB58bKHQH+NWFgn+fpICDg4ODg38RvFt4/PXvsQU/cHBwcHDwF8O7J9tguPt79Ho5XnBwcHBw8EXwbgMhCqwO/KOJjiYKHBwcHBz8BHi1AJkeULSh2Y0IcHBwcHDwF8G7AWUTFgVGvzvegQEHBwcHB38RvNtAmE5g97nbRgY4ODg4OPhieHcBLxpA9b7ogkK6gAEHBwcHB38hPDuIjzYUutezjYrwb3BwcHBw8IXwaoFwNU82wdF/VHmSAg4ODg4O/iL4fzUauosD2USBg4ODg4OfBJ9qCGTfP72IAA4ODg4OfgI8+6FoYZMtgKYaHrcDBXBwcHBw8EXwbkFTTcxTg42xgQI4ODg4OPgL4dnCJnvfU4OI8YECODg4ODj4Ing1MdXEdRcF040IcHBwcHDwF8GnA842CqLgaEEEDg4ODg5+Evwqnm5Cphb/svGBg4ODg4NvhD9VsEQLlTIkuaAADg4ODg6+Gf54AZFsPHQHCuOLAeDg4ODg4AfAu4VId/HgsY0IcHBwcHDwhfBuQNnnvqaAAQcHBwcH/yJ4dqCQfU920JAtoG7fCw4ODg4OvhBebShEB/PdQUF1EQAcHBwcHHwz/LQDDg4ODg6+4PwCQ/0ELmwarRAAAAAASUVORK5CYII=">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/springboot-async.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spring Boot从入门到实战（十）：异步处理</p>
+                <p class='content'>在业务开发中，有时候会遇到一些非核心的附加功能，比如短信或微信模板消息通知，或者一些耗时比较久，但主流程不需要立即获得其结果反馈的操作，比如保存图片、同步数据到其它合作方等等。如果将这些操作都置...</p>
+              </a>
+            
+            
+              <a class='next' href='/docker-5.html'>
+                <p class='title'>Docker笔记（五）：整一个自己的镜像<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>获取镜像的途径有两个，一是从镜像仓库获取，如官方的Docker Hub，二是自定义。上文已经介绍如何从镜像仓库获取镜像，本文基于一个Springboot项目，来介绍自定义一个镜像的基本流程。
+
+...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Docker笔记（六）：容器管理',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-启动容器"><span class="toc-text">1. 启动容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-管理已有容器"><span class="toc-text">2. 管理已有容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-进入容器"><span class="toc-text">3. 进入容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-导入导出容器"><span class="toc-text">4. 导入导出容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-总结"><span class="toc-text">5. 总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          ，总访客量
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
     appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
-    notify: false,
-    verify: false,
-    avatar: "robohash",
-    visitor: true,
-    placeholder: "随便说点什么～.～",
-});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
-try {
-    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
-} catch(error) {}
-const isExist = (identity) => {
-    identity = identity || getRealPath();
-    let query = new AV.Query('Timer');
-    return new Promise((resolve, reject) => {
-    query.equalTo("identity", identity);
-    query.find().then(results => {
-        resolve(results.length > 0);
-    }, error => reject(error));
-    })
-}
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
-const _get = (identity) => {
-    let query = null;
-    if(identity && identity instanceof Array){
-    let querys = [];
-    for(let i = 0; i < identity.length; ++i) {
-        querys[i] = new AV.Query('Timer');
-        querys[i].equalTo('identity', identity[i]);
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
     }
-    query = AV.Query.or.apply(null ,querys);
-    } else {
-    identity = identity || getRealPath();
-    query = new AV.Query("Timer");
-    query.equalTo("identity", identity);
-    }
+    initCopyCode();
+  }(window, document);
+</script>
 
-    return new Promise((resolve, reject) => {
-    query.find()
-    .then(results => resolve(results))
-    .catch(error => reject(error))
-    })
-}
 
-const create = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let Todo = AV.Object.extend('Timer');
-    let todo = new Todo();
-    todo.set("times", 1);
-    todo.set("identity", identity);
-    todo.save().then(res => resolve(true), error => reject(error));
-    })
-}
 
-const update = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let query = new AV.Query('Timer');
-    query.equalTo("identity", identity);
-    query.find().then(todos => {
-        todos.forEach(todo => {
-        todo.set("times", todo.attributes.times + 1);
-        });
-        return AV.Object.saveAll(todos);
-    }).then(todos => resolve(true), error => reject(error));
-    })
-}
 
-return {
-    isExist,
-    _get,
-    update,
-    create
-}
-})()
+<!-- fancybox -->
 
-const calcAndWriteTimes = () => {
-let isPost = true;
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
 
-let timerAllDOM = document.querySelectorAll(".article-timer");
 
-if(isPost) {
-    let identity = timerAllDOM[0].getAttribute("data-identity");
-    valineAPI.isExist(identity)
-    .then(exist => {
-    if(exist) {
-        return valineAPI.update(identity);
-    }
-    return new Promise(resolve => resolve(true));
-    })
-    .then( succuess => valineAPI._get(identity))
-    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
-    .catch(error => console.log(error.message))
-    return ;
-}
 
-let timerDOMCache = {};
 
-for(let timerDOM of timerAllDOM) {
-    let identity = timerDOM.getAttribute("data-identity");
-    if(timerDOMCache.hasOwnProperty(identity)){
-    timerDOMCache[identity].dom.push(timerDOM);
-    }else{
-    timerDOMCache[identity] = {
-        dom: [timerDOM],
-        times: undefined
-    };
-    }
-}
 
-let identities = Object.keys(timerDOMCache);
-valineAPI._get(identities).then(results => {
-    for(let result of results) {
-    let {identity, times} = result.attributes;
-    timerDOMCache[identity].times = times;
-    timerDOMCache[identity].dom.map(item => item.innerText = times);
-    }
-    for(let identity of identities) {
-    if(timerDOMCache[identity].times){
-        continue;
-    }
-    timerDOMCache[identity].dom.map(item => item.innerText = 1);
-    valineAPI.create(identity);
-    }
-}).catch(error => console.log(error.message))
-}
 
-if(true){
-calcAndWriteTimes();
-}</script></body></html>
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

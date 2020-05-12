@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Kubernetes笔记（三）：Gitlab+Jenkins Pipeline+Docker+k8s+Helm自动化部署实践（干货！） - 半路雨歌</title>
+  
+    <meta name="keywords" content="k8s,kubernetes,helm,jenkins">
+  
+  
+    <meta name="description" content="通过前面两篇文章，我们已经有了一个“嗷嗷待哺”的K8s集群环境，也对相关的概念与组件有了一个基本了解（前期对概念有个印象即可，因为只有实践了才能对其有深入理解，所谓“纸上得来终觉浅，绝知此事要躬行”），本文从实践角度介绍如何结合我们常用的Gitlab与Jenkins，通过K8s来实现项目的自动化部署，示例将包括基...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/k8s3-cd.html">
+      Kubernetes笔记（三）：Gitlab+Jenkins Pipeline+Docker+k8s+Helm自动化部署实践（干货！）
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-05-09</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/DevOps/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>DevOps</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>通过前面两篇文章，我们已经有了一个“嗷嗷待哺”的K8s集群环境，也对相关的概念与组件有了一个基本了解（前期对概念有个印象即可，因为只有实践了才能对其有深入理解，所谓“纸上得来终觉浅，绝知此事要躬行”），本文从实践角度介绍如何结合我们常用的Gitlab与Jenkins，通过K8s来实现项目的自动化部署，示例将包括基于SpringBoot的服务端项目与基于Vue.js的Web项目。</p>
+<a id="more"></a>
+
+<p>本文涉及到的工具与技术包括：</p>
+<ul>
+<li>Gitlab —— 常用的源代码管理系统</li>
+<li>Jenkins, Jenkins Pipeline —— 常用的自动化构建、部署工具，Pipeline以流水线的方式将构建、部署的各个步骤组织起来</li>
+<li>Docker，Dockerfile —— 容器引擎，所有应用最终都要以Docker容器运行，Dockerfile是Docker镜像定义文件</li>
+<li>Kubernetes —— Google开源的容器编排管理系统</li>
+<li>Helm —— Kubernetes的包管理工具，类似Linux的yum，apt，或Node的npm等包管理工具，能将Kubernetes中的应用及相关依赖服务以包（Chart）的形式组织管理</li>
+</ul>
+<p>环境背景：</p>
+<ol>
+<li>已使用Gitlab做源码管理，源码按不同的环境建立了develop（对应开发环境），pre-release（对应测试环境），master（对应生产环境）分支</li>
+<li>已搭建了Jenkins服务</li>
+<li>已有Docker Registry服务，用于Docker镜像存储（基于Docker Registry或Harbor自建，或使用云服务，本文使用阿里云容器镜像服务）</li>
+<li>已搭建了K8s集群</li>
+</ol>
+<p>预期效果：</p>
+<ol>
+<li>分环境部署应用，开发环境、测试环境、生产环境分开来，部署在同一集群的不同namespace，或不同集群中（比如开发测试部署在本地集群的不同namespace中，生产环境部署在云端集群）</li>
+<li>配置尽可能通用化，只需要通过修改少量配置文件的少量配置属性，就能完成新项目的自动化部署配置</li>
+<li>开发测试环境在push代码时自动触发构建与部署，生产环境在master分支上添加版本tag并且push tag后触发自动部署</li>
+<li>整体交互流程如下图</li>
+</ol>
+<p><img src="http://blog.jboost.cn/assets/jenkins-cicd.png" alt="jenkins-cicd"></p>
+<h2 id="项目配置文件"><a href="#项目配置文件" class="headerlink" title="项目配置文件"></a>项目配置文件</h2><p>首先我们需要在项目的根路径中添加一些必要的配置文件，如下图所示</p>
+<p><img src="http://blog.jboost.cn/assets/springboot-ci-structure.png" alt="springboot-ci-structure"></p>
+<p>包括：</p>
+<ol>
+<li>Dockerfile文件，用于构建Docker镜像的文件（参考 <a href="http://blog.jboost.cn/docker-11.html">Docker笔记（十一）：Dockerfile详解与最佳实践</a>）</li>
+<li>Helm相关配置文件，Helm是Kubernetes的包管理工具，可以将应用部署相关的Deployment，Service，Ingress等打包进行发布与管理（Helm的具体介绍我们后面再补充）</li>
+<li>Jenkinsfile文件，Jenkins的pipeline定义文件，定义了各个阶段需执行的任务</li>
+</ol>
+<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><p>在项目根目录中添加一个Dockerfile文件（文件名就叫Dockerfile），定义如何构建Docker镜像，以Spring Boot项目为例，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">FROM frolvlad&#x2F;alpine-java:jdk8-slim</span><br><span class="line">#在build镜像时可以通过 --build-args profile&#x3D;xxx 进行修改</span><br><span class="line">ARG profile</span><br><span class="line">ENV SPRING_PROFILES_ACTIVE&#x3D;$&#123;profile&#125;</span><br><span class="line">#项目的端口</span><br><span class="line">EXPOSE 8000 </span><br><span class="line">WORKDIR &#x2F;mnt</span><br><span class="line"></span><br><span class="line">#修改时区</span><br><span class="line">RUN sed -i &#39;s&#x2F;dl-cdn.alpinelinux.org&#x2F;mirrors.ustc.edu.cn&#x2F;g&#39; &#x2F;etc&#x2F;apk&#x2F;repositories \</span><br><span class="line">    &amp;&amp; apk add --no-cache tzdata \</span><br><span class="line">    &amp;&amp; ln -sf &#x2F;usr&#x2F;share&#x2F;zoneinfo&#x2F;Asia&#x2F;Shanghai &#x2F;etc&#x2F;localtime \</span><br><span class="line">    &amp;&amp; echo &quot;Asia&#x2F;Shanghai&quot; &gt; &#x2F;etc&#x2F;timezone \</span><br><span class="line">    &amp;&amp; apk del tzdata \</span><br><span class="line">    &amp;&amp; rm -rf &#x2F;var&#x2F;cache&#x2F;apk&#x2F;* &#x2F;tmp&#x2F;* &#x2F;var&#x2F;tmp&#x2F;* $HOME&#x2F;.cache</span><br><span class="line"></span><br><span class="line">COPY .&#x2F;target&#x2F;your-project-name-1.0-SNAPSHOT.jar .&#x2F;app.jar</span><br><span class="line">ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;&#x2F;mnt&#x2F;app.jar&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>将SPRING_PROFILES_ACTIVE通过参数profile暴露出来，在构建的时候可以通过 –build-args profile=xxx 来进行动态设定，以满足不同环境的镜像构建要求。</p>
+<blockquote>
+<p>SPRING_PROFILES_ACTIVE本可以在Docker容器启动时通过<code>docker run -e SPRING_PROFILES_ACTIVE=xxx</code>来设定，因这里使用Helm进行部署不直接通过<code>docker run</code>运行，因此通过ARG在镜像构建时指定</p>
+</blockquote>
+<h3 id="Helm配置文件"><a href="#Helm配置文件" class="headerlink" title="Helm配置文件"></a>Helm配置文件</h3><p>Helm是Kubernetes的包管理工具，将应用部署相关的Deployment，Service，Ingress等打包进行发布与管理（可以像Docker镜像一样存储于仓库中）。如上图中Helm的配置文件包括：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">helm                                    - chart包的目录名</span><br><span class="line">├── templates                           - k8s配置模版目录</span><br><span class="line">│   ├── deployment.yaml                 - Deployment配置模板，定义如何部署Pod</span><br><span class="line">│   ├── _helpers.tpl                    - 以下划线开头的文件，helm视为公共库定义文件，用于定义通用的子模版、函数、变量等</span><br><span class="line">│   ├── ingress.yaml                    - Ingress配置模板，定义外部如何访问Pod提供的服务，类似于Nginx的域名路径配置</span><br><span class="line">│   ├── NOTES.txt                       - chart包的帮助信息文件，执行helm install命令成功后会输出这个文件的内容</span><br><span class="line">│   └── service.yaml                    - Service配置模板，配置访问Pod的服务抽象，有NodePort与ClusterIp等</span><br><span class="line">|── values.yaml                         - chart包的参数配置文件，各模版文件可以引用这里的参数</span><br><span class="line">├── Chart.yaml                          - chart定义，可以定义chart的名字，版本号等信息</span><br><span class="line">├── charts                              - 依赖的子包目录，里面可以包含多个依赖的chart包，一般不存在依赖，我这里将其删除了</span><br></pre></td></tr></table></figure>
+
+<p>我们可以在Chart.yaml中定义每个项目的chart名称（类似安装包名），如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v2</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">your-chart-name</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">A</span> <span class="string">Helm</span> <span class="string">chart</span> <span class="string">for</span> <span class="string">Kubernetes</span></span><br><span class="line"></span><br><span class="line"><span class="attr">type:</span> <span class="string">application</span></span><br><span class="line"><span class="attr">version:</span> <span class="number">1.0</span><span class="number">.0</span></span><br><span class="line"><span class="attr">appVersion:</span> <span class="number">1.16</span><span class="number">.0</span></span><br></pre></td></tr></table></figure>
+
+<p>在values.yaml中定义模板文件中需要用到的变量，如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#部署Pod的副本数，即运行多少个容器</span></span><br><span class="line"><span class="attr">replicaCount:</span> <span class="number">1</span></span><br><span class="line"><span class="comment">#容器镜像配置</span></span><br><span class="line"><span class="attr">image:</span></span><br><span class="line">  <span class="attr">repository:</span> <span class="string">registry.cn-hangzhou.aliyuncs.com/demo/demo</span></span><br><span class="line">  <span class="attr">pullPolicy:</span> <span class="string">Always</span></span><br><span class="line">  <span class="comment"># Overrides the image tag whose default is the chart version.</span></span><br><span class="line">  <span class="attr">tag:</span> <span class="string">"dev"</span></span><br><span class="line"><span class="comment">#镜像仓库访问凭证</span></span><br><span class="line"><span class="attr">imagePullSecrets:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">aliyun-registry-secret</span></span><br><span class="line"><span class="comment">#覆盖启动容器名称</span></span><br><span class="line"><span class="attr">nameOverride:</span> <span class="string">""</span></span><br><span class="line"><span class="attr">fullnameOverride:</span> <span class="string">""</span></span><br><span class="line"><span class="comment">#容器的端口暴露及环境变量配置</span></span><br><span class="line"><span class="attr">container:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8000</span></span><br><span class="line">  <span class="attr">env:</span> <span class="string">[]</span></span><br><span class="line"><span class="comment">#ServiceAccount，默认不创建</span></span><br><span class="line"><span class="attr">serviceAccount:</span></span><br><span class="line">  <span class="comment"># Specifies whether a service account should be created</span></span><br><span class="line">  <span class="attr">create:</span> <span class="literal">false</span></span><br><span class="line">  <span class="comment"># Annotations to add to the service account</span></span><br><span class="line">  <span class="attr">annotations:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="attr">podAnnotations:</span> <span class="string">&#123;&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">podSecurityContext:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">  <span class="comment"># fsGroup: 2000</span></span><br><span class="line"></span><br><span class="line"><span class="attr">securityContext:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">  <span class="comment"># capabilities:</span></span><br><span class="line">  <span class="comment">#   drop:</span></span><br><span class="line">  <span class="comment">#   - ALL</span></span><br><span class="line">  <span class="comment"># readOnlyRootFilesystem: true</span></span><br><span class="line">  <span class="comment"># runAsNonRoot: true</span></span><br><span class="line">  <span class="comment"># runAsUser: 1000</span></span><br><span class="line"><span class="comment">#使用NodePort的service，默认为ClusterIp</span></span><br><span class="line"><span class="attr">service:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">NodePort</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8000</span></span><br><span class="line"><span class="comment">#外部访问Ingress配置，需要配置hosts部分</span></span><br><span class="line"><span class="attr">ingress:</span></span><br><span class="line">  <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">annotations:</span> <span class="string">&#123;&#125;</span></span><br><span class="line">    <span class="comment"># kubernetes.io/ingress.class: nginx</span></span><br><span class="line">    <span class="comment"># kubernetes.io/tls-acme: "true"</span></span><br><span class="line">  <span class="attr">hosts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">demo.com</span></span><br><span class="line">      <span class="attr">paths:</span> <span class="string">["/demo"]</span></span><br><span class="line">  <span class="attr">tls:</span> <span class="string">[]</span></span><br><span class="line">  <span class="comment">#  - secretName: chart-example-tls</span></span><br><span class="line">  <span class="comment">#    hosts:</span></span><br><span class="line">  <span class="comment">#      - chart-example.local</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">#.... 省略了其它默认参数配置</span></span><br></pre></td></tr></table></figure>
+
+<p>这里在默认生成的基础上添加了container部分，可以在这里指定容器的端口号而不用去改模板文件（让模板文件在各个项目通用，通常不需要做更改），同时添加env的配置，可以在helm部署时往容器里传入环境变量。将Service type从默认的ClusterIp改为了NodePort。部署同类型的不同项目时，只需要根据项目情况配置Chart.yaml与values.yaml两个文件的少量配置项，templates目录下的模板文件可直接复用。</p>
+<p>部署时需要在K8s环境中从Docker镜像仓库拉取镜像，因此需要在K8s中创建镜像仓库访问凭证（imagePullSecrets）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 登录Docker Registry生成/root/.docker/config.json文件</span></span><br><span class="line">sudo docker login --username=your-username registry.cn-shenzhen.aliyuncs.com</span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建namespace develop（我这里是根据项目的环境分支名称建立namespace）</span></span><br><span class="line">kubectl create namespace develop</span><br><span class="line"><span class="meta">#</span><span class="bash"> 在namespace develop中创建一个secret</span></span><br><span class="line">kubectl create secret generic aliyun-registry-secret --from-file=.dockerconfigjson=/root/.docker/config.json  --type=kubernetes.io/dockerconfigjson --namespace=develop</span><br></pre></td></tr></table></figure>
+
+<h3 id="Jenkinsfile"><a href="#Jenkinsfile" class="headerlink" title="Jenkinsfile"></a>Jenkinsfile</h3><p>Jenkinsfile是Jenkins pipeline配置文件，遵循Groovy语法，对于Spring Boot项目的构建部署， 编写Jenkinsfile脚本文件如下，</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line">image_tag = <span class="string">"default"</span>  <span class="comment">//定一个全局变量，存储Docker镜像的tag（版本）</span></span><br><span class="line">pipeline &#123;</span><br><span class="line">    agent any</span><br><span class="line">    environment &#123;</span><br><span class="line">        GIT_REPO = <span class="string">"$&#123;env.gitlabSourceRepoName&#125;"</span>  <span class="comment">//从Jenkins Gitlab插件中获取Git项目的名称</span></span><br><span class="line">        GIT_BRANCH = <span class="string">"$&#123;env.gitlabTargetBranch&#125;"</span>  <span class="comment">//项目的分支</span></span><br><span class="line">        GIT_TAG = sh(<span class="string">returnStdout:</span> <span class="literal">true</span>,<span class="string">script:</span> <span class="string">'git describe --tags --always'</span>).trim()  <span class="comment">//commit id或tag名称</span></span><br><span class="line">        DOCKER_REGISTER_CREDS = credentials(<span class="string">'aliyun-docker-repo-creds'</span>) <span class="comment">//docker registry凭证</span></span><br><span class="line">        KUBE_CONFIG_LOCAL = credentials(<span class="string">'local-k8s-kube-config'</span>)  <span class="comment">//开发测试环境的kube凭证</span></span><br><span class="line">        KUBE_CONFIG_PROD = <span class="string">""</span> <span class="comment">//credentials('prod-k8s-kube-config') //生产环境的kube凭证</span></span><br><span class="line"></span><br><span class="line">        DOCKER_REGISTRY = <span class="string">"registry.cn-hangzhou.aliyuncs.com"</span> <span class="comment">//Docker仓库地址</span></span><br><span class="line">        DOCKER_NAMESPACE = <span class="string">"your-namespace"</span>  <span class="comment">//命名空间</span></span><br><span class="line">        DOCKER_IMAGE = <span class="string">"$&#123;DOCKER_REGISTRY&#125;/$&#123;DOCKER_NAMESPACE&#125;/$&#123;GIT_REPO&#125;"</span> <span class="comment">//Docker镜像地址</span></span><br><span class="line"></span><br><span class="line">        INGRESS_HOST_DEV = <span class="string">"dev.your-site.com"</span>    <span class="comment">//开发环境的域名</span></span><br><span class="line">        INGRESS_HOST_TEST = <span class="string">"test.your-site.com"</span>  <span class="comment">//测试环境的域名</span></span><br><span class="line">        INGRESS_HOST_PROD = <span class="string">"prod.your-site.com"</span>  <span class="comment">//生产环境的域名</span></span><br><span class="line">    &#125;</span><br><span class="line">    parameters &#123;</span><br><span class="line">        string(<span class="string">name:</span> <span class="string">'ingress_path'</span>, <span class="string">defaultValue:</span> <span class="string">'/your-path'</span>, <span class="string">description:</span> <span class="string">'服务上下文路径'</span>)</span><br><span class="line">        string(<span class="string">name:</span> <span class="string">'replica_count'</span>, <span class="string">defaultValue:</span> <span class="string">'1'</span>, <span class="string">description:</span> <span class="string">'容器副本数量'</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(<span class="string">'Code Analyze'</span>) &#123;</span><br><span class="line">            agent any</span><br><span class="line">            steps &#123;</span><br><span class="line">               echo <span class="string">"1. 代码静态检查"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(<span class="string">'Maven Build'</span>) &#123;</span><br><span class="line">            agent &#123;</span><br><span class="line">                docker &#123;</span><br><span class="line">                    image <span class="string">'maven:3-jdk-8-alpine'</span></span><br><span class="line">                    args <span class="string">'-v $HOME/.m2:/root/.m2'</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo <span class="string">"2. 代码编译打包"</span></span><br><span class="line">                sh <span class="string">'mvn clean package -Dfile.encoding=UTF-8 -DskipTests=true'</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(<span class="string">'Docker Build'</span>) &#123;</span><br><span class="line">            agent any</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo <span class="string">"3. 构建Docker镜像"</span></span><br><span class="line">                echo <span class="string">"镜像地址： $&#123;DOCKER_IMAGE&#125;"</span></span><br><span class="line">                <span class="comment">//登录Docker仓库</span></span><br><span class="line">                sh <span class="string">"sudo docker login -u $&#123;DOCKER_REGISTER_CREDS_USR&#125; -p $&#123;DOCKER_REGISTER_CREDS_PSW&#125; $&#123;DOCKER_REGISTRY&#125;"</span></span><br><span class="line">                script &#123;</span><br><span class="line">                    <span class="keyword">def</span> profile = <span class="string">"dev"</span></span><br><span class="line">                    <span class="keyword">if</span> (env.gitlabTargetBranch == <span class="string">"develop"</span>) &#123;</span><br><span class="line">                        image_tag = <span class="string">"dev."</span> + env.GIT_TAG</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (env.gitlabTargetBranch == <span class="string">"pre-release"</span>) &#123;</span><br><span class="line">                        image_tag = <span class="string">"test."</span> + env.GIT_TAG</span><br><span class="line">                        profile = <span class="string">"test"</span></span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (env.gitlabTargetBranch == <span class="string">"master"</span>)&#123;</span><br><span class="line">                        <span class="comment">// master分支则直接使用Tag</span></span><br><span class="line">                        image_tag = env.GIT_TAG</span><br><span class="line">                        profile = <span class="string">"prod"</span></span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">//通过--build-arg将profile进行设置，以区分不同环境进行镜像构建</span></span><br><span class="line">                    sh <span class="string">"docker build  --build-arg profile=$&#123;profile&#125; -t $&#123;DOCKER_IMAGE&#125;:$&#123;image_tag&#125; ."</span></span><br><span class="line">                    sh <span class="string">"sudo docker push $&#123;DOCKER_IMAGE&#125;:$&#123;image_tag&#125;"</span></span><br><span class="line">                    sh <span class="string">"docker rmi $&#123;DOCKER_IMAGE&#125;:$&#123;image_tag&#125;"</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        stage(<span class="string">'Helm Deploy'</span>) &#123;</span><br><span class="line">            agent &#123;</span><br><span class="line">                docker &#123;</span><br><span class="line">                    image <span class="string">'lwolf/helm-kubectl-docker'</span></span><br><span class="line">                    args <span class="string">'-u root:root'</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo <span class="string">"4. 部署到K8s"</span></span><br><span class="line">                sh <span class="string">"mkdir -p /root/.kube"</span></span><br><span class="line">                script &#123;</span><br><span class="line">                    <span class="keyword">def</span> kube_config = env.KUBE_CONFIG_LOCAL</span><br><span class="line">                    <span class="keyword">def</span> ingress_host = env.INGRESS_HOST_DEV</span><br><span class="line">                    <span class="keyword">if</span> (env.gitlabTargetBranch == <span class="string">"pre-release"</span>) &#123;</span><br><span class="line">                        ingress_host = env.INGRESS_HOST_TEST</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (env.gitlabTargetBranch == <span class="string">"master"</span>)&#123;</span><br><span class="line">                        ingress_host = env.INGRESS_HOST_PROD</span><br><span class="line">                        kube_config = env.KUBE_CONFIG_PROD</span><br><span class="line">                    &#125;</span><br><span class="line">                    sh <span class="string">"echo $&#123;kube_config&#125; | base64 -d &gt; /root/.kube/config"</span></span><br><span class="line">                    <span class="comment">//根据不同环境将服务部署到不同的namespace下，这里使用分支名称</span></span><br><span class="line">                    sh <span class="string">"helm upgrade -i --namespace=$&#123;env.gitlabTargetBranch&#125; --set replicaCount=$&#123;params.replica_count&#125; --set image.repository=$&#123;DOCKER_IMAGE&#125; --set image.tag=$&#123;image_tag&#125; --set nameOverride=$&#123;GIT_REPO&#125; --set ingress.hosts[0].host=$&#123;ingress_host&#125; --set ingress.hosts[0].paths=&#123;$&#123;params.ingress_path&#125;&#125; $&#123;GIT_REPO&#125; ./helm/"</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Jenkinsfile定义了整个自动化构建部署的流程：</p>
+<ol>
+<li>Code Analyze，可以使用SonarQube之类的静态代码分析工具完成代码检查，这里先忽略</li>
+<li>Maven Build，启动一个Maven的Docker容器来完成项目的maven构建打包，挂载maven本地仓库目录到宿主机，避免每次都需要重新下载依赖包</li>
+<li>Docker Build，构建Docker镜像，并推送到镜像仓库，不同环境的镜像通过tag区分，开发环境使用dev.commitId的形式，如dev.88f5822，测试环境使用test.commitId，生产环境可以将webhook事件设置为tag push event，直接使用tag名称</li>
+<li>Helm Deploy，使用helm完成新项目的部署，或已有项目的升级，不同环境使用不同的参数配置，如访问域名，K8s集群的访问凭证kube_config等</li>
+</ol>
+<h2 id="Jenkins配置"><a href="#Jenkins配置" class="headerlink" title="Jenkins配置"></a>Jenkins配置</h2><h3 id="Jenkins任务配置"><a href="#Jenkins任务配置" class="headerlink" title="Jenkins任务配置"></a>Jenkins任务配置</h3><p>在Jenkins中创建一个pipeline的任务，如图</p>
+<p><img src="http://blog.jboost.cn/assets/jenkins-pipeline-pro.png" alt="jenkins-pipeline-pro"></p>
+<p>配置构建触发器，将目标分支设置为develop分支，生成一个token，如图</p>
+<p><img src="http://blog.jboost.cn/assets/jenkins-pipeline-config1.png" alt="jenkins-pipeline-config1"></p>
+<p>记下这里的“GitLab webhook URL”及token值，在Gitlab配置中使用。</p>
+<p>配置流水线，选择“Pipeline script from SCM”从项目源码中获取pipeline脚本文件，配置项目Git地址，拉取源码凭证等，如图</p>
+<p><img src="http://blog.jboost.cn/assets/jenkins-pipeline-config2.png" alt="jenkins-pipeline-config2.png"></p>
+<p>保存即完成了项目开发环境的Jenkins配置。测试环境只需将对应的分支修改为pre-release即可</p>
+<h3 id="Jenkins凭据配置"><a href="#Jenkins凭据配置" class="headerlink" title="Jenkins凭据配置"></a>Jenkins凭据配置</h3><p>在Jenkinsfile文件中，我们使用到了两个访问凭证——Docker Registry凭证与本地K8s的kube凭证，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DOCKER_REGISTER_CREDS = credentials('aliyun-docker-repo-creds') //docker registry凭证</span><br><span class="line">KUBE_CONFIG_LOCAL = credentials('local-k8s-kube-config')  //开发测试环境的kube凭证</span><br></pre></td></tr></table></figure>
+
+<p>这两个凭证需要在Jenkins中创建。</p>
+<p>添加Docker Registry登录凭证,在Jenkins 凭据页面，添加一个用户名密码类型的凭据，如图</p>
+<p><img src="http://blog.jboost.cn/assets/jenkins-cred.png" alt="jenkins-cred"></p>
+<p><img src="http://blog.jboost.cn/assets/jenkins-cred2.png" alt="jenkins-cred2"></p>
+<p>添加K8s集群的访问凭证，在master节点上将/root/.kube/config文件内容进行base64编码，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">base64 /root/.kube/config &gt; kube-config-base64.txt</span><br><span class="line">cat kube-config-base64.txt</span><br></pre></td></tr></table></figure>
+
+<p>使用编码后的内容在Jenkins中创建一个Secret text类型的凭据，如图</p>
+<p><img src="http://blog.jboost.cn/assets/jenkins-cred3.png" alt="jenkins-cred3"></p>
+<p>在Secret文本框中输入base64编码后的内容。</p>
+<h2 id="Gitlab配置"><a href="#Gitlab配置" class="headerlink" title="Gitlab配置"></a>Gitlab配置</h2><p>在Gitlab项目的 Settings - Integrations 页面配置一个webhook，在URL与Secret Token中填入前面Jenkins触发器部分的“GitLab webhook URL”及token值，选中“Push events”作为触发事件，如图</p>
+<p><img src="http://blog.jboost.cn/assets/gitlab-webhook-config.png" alt="gitlab-webhook-config"></p>
+<p>开发、测试环境选择“Push events”则在开发人员push代码，或merge代码到develop，pre-release分支时，就会触发开发或测试环境的Jenkins pipeline任务完成自动化构建；生产环境选择“Tag push events”，在往master分支push tag时触发自动化构建。如图为pipeline构建视图</p>
+<p><img src="http://blog.jboost.cn/assets/jenkins-build.png" alt="jenkins-build"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文介绍使用Gitlab+Jenkins Pipeline+Docker+Kubernetes+Helm来实现Spring Boot项目的自动化部署，只要稍加修改即可应用于其它基于Spring Boot的项目（具体修改的地方在源码的Readme文件中说明）。</p>
+<p>本文涉及的所有配置文件（包括基于Spring Boot的服务端项目与基于Vue.js的Web项目）可在源码项目中获取（源码地址获取办法：关注公众号“半路雨歌”，首页输入“k8sops”即可）。</p>
+<p>原文地址：<a href="http://blog.jboost.cn/k8s3-cd.html">http://blog.jboost.cn/k8s3-cd.html</a></p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/k8s3-cd.html>http://blog.jboost.cn/k8s3-cd.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-05-12T08:53:26+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-05-12</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/k8s/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>k8s</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/kubernetes/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>kubernetes</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/helm/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>helm</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/jenkins/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>jenkins</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/k8s3-cd.html&title=Kubernetes笔记（三）：Gitlab+Jenkins Pipeline+Docker+k8s+Helm自动化部署实践（干货！） - 半路雨歌&summary=通过前面两篇文章，我们已经有了一个“嗷嗷待哺”的K8s集群环境，也对相关的概念与组件有了一个基本了解（前期对概念有个印象即可，因为只有实践了才能对其有深入理解，所谓“纸上得来终觉浅，绝知此事要躬行”），本文从实践角度介绍如何结合我们常用的Gitlab与Jenkins，通过K8s来实现项目的自动化部署，示例将包括基于SpringBoot的服务端项目与基于Vue.js的Web项目。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/k8s3-cd.html&title=Kubernetes笔记（三）：Gitlab+Jenkins Pipeline+Docker+k8s+Helm自动化部署实践（干货！） - 半路雨歌&summary=通过前面两篇文章，我们已经有了一个“嗷嗷待哺”的K8s集群环境，也对相关的概念与组件有了一个基本了解（前期对概念有个印象即可，因为只有实践了才能对其有深入理解，所谓“纸上得来终觉浅，绝知此事要躬行”），本文从实践角度介绍如何结合我们常用的Gitlab与Jenkins，通过K8s来实现项目的自动化部署，示例将包括基于SpringBoot的服务端项目与基于Vue.js的Web项目。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/k8s3-cd.html&title=Kubernetes笔记（三）：Gitlab+Jenkins Pipeline+Docker+k8s+Helm自动化部署实践（干货！） - 半路雨歌&summary=通过前面两篇文章，我们已经有了一个“嗷嗷待哺”的K8s集群环境，也对相关的概念与组件有了一个基本了解（前期对概念有个印象即可，因为只有实践了才能对其有深入理解，所谓“纸上得来终觉浅，绝知此事要躬行”），本文从实践角度介绍如何结合我们常用的Gitlab与Jenkins，通过K8s来实现项目的自动化部署，示例将包括基于SpringBoot的服务端项目与基于Vue.js的Web项目。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACPElEQVR42u3dS07EMAwA0N7/0nAAVNW/MlP3ZQdqUj+zMXY0c/y8dB3g4ODg4OCL4Edx/Tmwec7Uc5f7wcHBwcHBF8LDBcDF88fQOntfN15wcHBwcPDN8Gog2YCzCRyLFxwcHBwcHDydiCgouh8cHBwcHBz8/wqYaMPiaj84ODg4ODj43EChCugOLD4+SQEHBwcHB/8i+F2D+7t+LscLDg4ODg6+CN5d0YZBFzYWLzg4ODg4+CJ4tUDoJiCbkG584ODg4ODgG+F3FRLtAIuNhvBAARwcHBwcfAG8WzhMFULR33cbE+Dg4ODg4Jvg0YZBulAoQqcKqtNzwcHBwcHBXwDPBtpNYLdAGR8ogIODg4ODPwBe/Uc/25DoJqL6vsuBAjg4ODg4+AJ4tYFQhXcvEFYvFIKDg4ODg2+CRwuVqeez0OoFv/BAARwcHBwc/MHw6cH8VGOjO1hIV27g4ODg4OAPhncDzhYe1cFB9XxwcHBwcPDN8GojITugnypQrs4vT1LAwcHBwcEfDJ8eFLQDHdoHDg4ODg7+JvinGgp3xQEODg4ODr4R3l3VQmKqYZFODDg4ODg4+CL4UVzRAKYuFIwlChwcHBwcfCG8WrBU91cvIHQvCoCDg4ODg2+GdwuI6YbG9IUDcHBwcHBw8LkPqus2FtKFDTg4ODg4OHj4i1bvamB8beUGDg4ODg7+QfhUwyDb+L878eDg4ODg4Jvh2ZUNPJuYboJP/3Dg4ODg4OCL4G9b4ODg4ODgC9YvgmwGEBByvDMAAAAASUVORK5CYII=">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/k8s2-concept.html'>
+                <p class='title'>Kubernetes笔记（二）：了解k8s的基本组件与概念<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>前文 Kubernetes笔记（一）：十分钟部署一套K8s环境 介绍了如何快速搭建一个k8s系统。为了继续使用k8s来部署我们的应用，需要先对k8s中的一些基本组件与概念有个了解。
+
+
+Kube...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Kubernetes笔记（三）：Gitlab+Jenkins Pipeline+Docker+k8s+Helm自动化部署实践（干货！）',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#项目配置文件"><span class="toc-text">项目配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dockerfile"><span class="toc-text">Dockerfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Helm配置文件"><span class="toc-text">Helm配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Jenkinsfile"><span class="toc-text">Jenkinsfile</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jenkins配置"><span class="toc-text">Jenkins配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jenkins任务配置"><span class="toc-text">Jenkins任务配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Jenkins凭据配置"><span class="toc-text">Jenkins凭据配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gitlab配置"><span class="toc-text">Gitlab配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          ，总访客量
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

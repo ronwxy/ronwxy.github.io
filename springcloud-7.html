@@ -1,7 +1,345 @@
-<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Spring Cloud（七）：服务网关zuul过滤器 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Spring Cloud（七）：服务网关zuul过滤器 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Spring Cloud（七）：服务网关zuul过滤器</h1><div class="post-info">2020-02-20<p class="visit"><i data-identity="springcloud-7.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>上文介绍了Zuul的基本使用与路由功能，本文接着介绍Zuul的核心概念 —— Zuul过滤器（filter）。</p>
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Spring Cloud（七）：服务网关zuul过滤器 - 半路雨歌</title>
+  
+    <meta name="keywords" content="java,SpringCloud">
+  
+  
+    <meta name="description" content="上文介绍了Zuul的基本使用与路由功能，本文接着介绍Zuul的核心概念 —— Zuul过滤器（filter）。
+Zuul的功能基本通过Zuul过滤器来实现（类比于Struts的拦截器，只是Struts拦截器用到责任链模式，Zuul则是通过FilterProcessor来控制执行），在不同的阶段，通过不同类型的过滤...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/springcloud-7.html">
+      Spring Cloud（七）：服务网关zuul过滤器
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-02-20</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/SpringCloud/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>SpringCloud</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>上文介绍了Zuul的基本使用与路由功能，本文接着介绍Zuul的核心概念 —— Zuul过滤器（filter）。</p>
 <p>Zuul的功能基本通过Zuul过滤器来实现（类比于Struts的拦截器，只是Struts拦截器用到责任链模式，Zuul则是通过FilterProcessor来控制执行），在不同的阶段，通过不同类型的过滤器来实现相应的功能。</p>
 <a id="more"></a>
+
 <h2 id="Zuul过滤器"><a href="#Zuul过滤器" class="headerlink" title="Zuul过滤器"></a>Zuul过滤器</h2><h3 id="过滤器类型"><a href="#过滤器类型" class="headerlink" title="过滤器类型"></a>过滤器类型</h3><p>zuul的过滤器根据对HTTP请求的不同处理阶段包括如下四种类型</p>
 <ul>
 <li>pre ：在请求转发到后端目标服务之前执行，一般用于请求认证、确定路由地址、日志记录等</li>
@@ -17,82 +355,78 @@
 <table>
 <thead>
 <tr>
-<th style="text-align:center">filter类型</th>
-<th style="text-align:center">实现类</th>
-<th style="text-align:center">filter顺序值</th>
-<th style="text-align:center">功能说明</th>
+<th align="center">filter类型</th>
+<th align="center">实现类</th>
+<th align="center">filter顺序值</th>
+<th align="center">功能说明</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">pre</td>
-<td style="text-align:center">ServletDetectionFilter</td>
-<td style="text-align:center">-3</td>
-<td style="text-align:center">检测请求是否通过Spring Dispatcher，并在RequestContext 中添加一个key为isDispatcherServletRequest， 值为true（不通过则为false）的属性</td>
+<tbody><tr>
+<td align="center">pre</td>
+<td align="center">ServletDetectionFilter</td>
+<td align="center">-3</td>
+<td align="center">检测请求是否通过Spring Dispatcher，并在RequestContext 中添加一个key为isDispatcherServletRequest， 值为true（不通过则为false）的属性</td>
 </tr>
 <tr>
-<td style="text-align:center">pre</td>
-<td style="text-align:center">FormBodyWrapperFilter</td>
-<td style="text-align:center">-1</td>
-<td style="text-align:center">解析Form data，为请求的下游进行重新编码</td>
+<td align="center">pre</td>
+<td align="center">FormBodyWrapperFilter</td>
+<td align="center">-1</td>
+<td align="center">解析Form data，为请求的下游进行重新编码</td>
 </tr>
 <tr>
-<td style="text-align:center">pre</td>
-<td style="text-align:center">DebugFilter</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">如果请求参数设置了debug，则会将RequestContext.setDebugRouting() ，RequestContext.setDebugRequest() 设置为ture</td>
+<td align="center">pre</td>
+<td align="center">DebugFilter</td>
+<td align="center">1</td>
+<td align="center">如果请求参数设置了debug，则会将RequestContext.setDebugRouting() ，RequestContext.setDebugRequest() 设置为ture</td>
 </tr>
 <tr>
-<td style="text-align:center">route</td>
-<td style="text-align:center">SendForwardFilter</td>
-<td style="text-align:center">500</td>
-<td style="text-align:center">使用RequestDispatch servlet来转发请求，转发地址存于RequestContext中key为FilterConstants.FORWARD_TO_KEY的属性中，对于转发到当前应用的接口比较有用</td>
+<td align="center">route</td>
+<td align="center">SendForwardFilter</td>
+<td align="center">500</td>
+<td align="center">使用RequestDispatch servlet来转发请求，转发地址存于RequestContext中key为FilterConstants.FORWARD_TO_KEY的属性中，对于转发到当前应用的接口比较有用</td>
 </tr>
 <tr>
-<td style="text-align:center">post</td>
-<td style="text-align:center">SendResponseFilter</td>
-<td style="text-align:center">1000</td>
-<td style="text-align:center">将代理请求的响应内容写到当前的响应中</td>
+<td align="center">post</td>
+<td align="center">SendResponseFilter</td>
+<td align="center">1000</td>
+<td align="center">将代理请求的响应内容写到当前的响应中</td>
 </tr>
 <tr>
-<td style="text-align:center">error</td>
-<td style="text-align:center">SendErrorFilter</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">如果RequestContext.getThrowable() 不为空，则会转发到/error，可以通过error.path来改变默认的转发路径/error</td>
+<td align="center">error</td>
+<td align="center">SendErrorFilter</td>
+<td align="center">0</td>
+<td align="center">如果RequestContext.getThrowable() 不为空，则会转发到/error，可以通过error.path来改变默认的转发路径/error</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>@EnableZuulProxy 除了上面的过滤器，还包含如下过滤器</p>
 <table>
 <thead>
 <tr>
-<th style="text-align:center">filter类型</th>
-<th style="text-align:center">实现类</th>
-<th style="text-align:center">filter顺序值</th>
-<th style="text-align:center">功能说明</th>
+<th align="center">filter类型</th>
+<th align="center">实现类</th>
+<th align="center">filter顺序值</th>
+<th align="center">功能说明</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">pre</td>
-<td style="text-align:center">PreDecorationFilter</td>
-<td style="text-align:center">5</td>
-<td style="text-align:center">确定路由到哪里，如何路由，依赖提供的RouteLocator，同时也为下游请求设置多个与proxy相关的header</td>
+<tbody><tr>
+<td align="center">pre</td>
+<td align="center">PreDecorationFilter</td>
+<td align="center">5</td>
+<td align="center">确定路由到哪里，如何路由，依赖提供的RouteLocator，同时也为下游请求设置多个与proxy相关的header</td>
 </tr>
 <tr>
-<td style="text-align:center">route</td>
-<td style="text-align:center">RibbonRoutingFilter</td>
-<td style="text-align:center">10</td>
-<td style="text-align:center">使用ribbon，hystrix，以及内嵌的http client来发送请求，可在RequestContext中通过FilterConstants.SERVICE_ID_KEY 来找到路由Service的ID</td>
+<td align="center">route</td>
+<td align="center">RibbonRoutingFilter</td>
+<td align="center">10</td>
+<td align="center">使用ribbon，hystrix，以及内嵌的http client来发送请求，可在RequestContext中通过FilterConstants.SERVICE_ID_KEY 来找到路由Service的ID</td>
 </tr>
 <tr>
-<td style="text-align:center">route</td>
-<td style="text-align:center">SimpleHostRoutingFilter</td>
-<td style="text-align:center">100</td>
-<td style="text-align:center">使用Apache httpClient来发送请求到一个预先确定的url，可通过RequestContext.getRouteHost()来获取urls</td>
+<td align="center">route</td>
+<td align="center">SimpleHostRoutingFilter</td>
+<td align="center">100</td>
+<td align="center">使用Apache httpClient来发送请求到一个预先确定的url，可通过RequestContext.getRouteHost()来获取urls</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>由上可见@EnableZuulServer 注解并不包含往后端服务负载均衡地路由请求的代理功能，@EnableZuulProxy的PreDecorationFilter，RibbonRoutingFilter过滤器才能担当此任。PreDecorationFilter通过提供的DiscoveryClientRouteLocator 从 DiscoveryClient（如Eureka）与属性文件中加载路由定义， 为每个serviceId创建一个route，新服务添加进来，路由也会动态刷新。路由确定了，在RibbonRoutingFilter 中通过ribbon与hystrix结合来向后端目标服务发起请求，并进行负载均衡。过滤器的顺序值表示在同类型过滤器中的执行顺序，值越小越先执行。</p>
 <h2 id="自定义Zuul过滤器"><a href="#自定义Zuul过滤器" class="headerlink" title="自定义Zuul过滤器"></a>自定义Zuul过滤器</h2><p>自定义的zuul过滤器与框架自带过滤器类似，包括四部分</p>
 <ol>
@@ -103,146 +437,686 @@
 </ol>
 <p>比如我们需要在Http请求头中设置一个值，供请求链路的下游环节访问，则可以自定义一个过滤器如下，</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReqIdPreFilter</span> <span class="keyword">extends</span> <span class="title">ZuulFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">filterType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> FilterConstants.PRE_TYPE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">filterOrder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> FilterConstants.PRE_DECORATION_FILTER_ORDER - <span class="number">1</span>; <span class="comment">//在PreDecorationFilter过滤器之前执行</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">shouldFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">run</span><span class="params">()</span> <span class="keyword">throws</span> ZuulException </span>&#123;</span><br><span class="line">        RequestContext ctx = RequestContext.getCurrentContext();</span><br><span class="line">        ctx.addZuulRequestHeader(<span class="string">"reqId"</span>, UUID.randomUUID().toString());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>在请求的后续环节，比如后端服务的filter或接口中，则可直接从HttpServletRequest 获取该header值，如</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping</span>(<span class="string">"hello/reqId"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getReqId</span><span class="params">(HttpServletRequest request)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"hello-service返回："</span> + request.getHeader(<span class="string">"reqId"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="Zuul的错误处理"><a href="#Zuul的错误处理" class="headerlink" title="Zuul的错误处理"></a>Zuul的错误处理</h2><p>在zuul过滤器的生命周期中，如果任何一个环节抛出异常，则error过滤器会被执行，SendErrorFilter只有当RequestContext.getThrowable()不为null时才会运行，会设置javax.servlet.error.* 属性到request中，然后将请求转发到spring boot的error page， 默认为BasicErrorController实现的/error接口。 有时候我们需要将返回响应格式进行统一，而默认的/error接口实现可能不满足要求，则可以自定义/error接口。需要实现ErrorController 接口以使默认的BasicErrorController 失效。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ZuulErrorController</span> <span class="keyword">implements</span> <span class="title">ErrorController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/error"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, String&gt; <span class="title">error</span><span class="params">(HttpServletRequest request)</span></span>&#123;</span><br><span class="line">        Map&lt;String, String&gt; result = Maps.newHashMap();</span><br><span class="line">        result.put(<span class="string">"code"</span>, request.getAttribute(<span class="string">"javax.servlet.error.status_code"</span>).toString());</span><br><span class="line">        result.put(<span class="string">"message"</span>, request.getAttribute(<span class="string">"javax.servlet.error.message"</span>).toString());</span><br><span class="line">        result.put(<span class="string">"exception"</span>, request.getAttribute(<span class="string">"javax.servlet.error.exception"</span>).toString());</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getErrorPath</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"/error"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="Zuul的服务降级"><a href="#Zuul的服务降级" class="headerlink" title="Zuul的服务降级"></a>Zuul的服务降级</h2><p>当调用服务出现超时或异常时，在zuul侧可提供回调进行服务降级，返回默认响应结果，如</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyFallbackProvider</span> <span class="keyword">implements</span> <span class="title">FallbackProvider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getRoute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>; <span class="comment">//指定这个回调针对的route Id，如果对所有route，则返回* 或null</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ClientHttpResponse <span class="title">fallbackResponse</span><span class="params">(String route, Throwable cause)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (cause <span class="keyword">instanceof</span> HystrixTimeoutException) &#123;</span><br><span class="line">            <span class="keyword">return</span> response(HttpStatus.GATEWAY_TIMEOUT);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> response(HttpStatus.INTERNAL_SERVER_ERROR);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> ClientHttpResponse <span class="title">response</span><span class="params">(<span class="keyword">final</span> HttpStatus status)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ClientHttpResponse() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> HttpStatus <span class="title">getStatusCode</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> status;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getRawStatusCode</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> status.value();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> String <span class="title">getStatusText</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> status.getReasonPhrase();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> InputStream <span class="title">getBody</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">                Map&lt;String, String&gt; result = Maps.newLinkedHashMap();</span><br><span class="line">                result.put(<span class="string">"code"</span>, <span class="string">""</span> + status.value());</span><br><span class="line">                String msg = HttpStatus.GATEWAY_TIMEOUT == getStatusCode() ? <span class="string">"请求服务超时"</span> : <span class="string">"服务器内部错误"</span>;</span><br><span class="line">                result.put(<span class="string">"message"</span>, msg);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> ByteArrayInputStream(<span class="keyword">new</span> ObjectMapper().writeValueAsString(result).getBytes());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> HttpHeaders <span class="title">getHeaders</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                HttpHeaders headers = <span class="keyword">new</span> HttpHeaders();</span><br><span class="line">                headers.setContentType(MediaType.APPLICATION_JSON);</span><br><span class="line">                <span class="keyword">return</span> headers;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>则当服务请求失败时，统一返回如下格式的响应</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"code"</span>: <span class="string">"500"</span>,</span><br><span class="line">    <span class="attr">"message"</span>: <span class="string">"服务器内部错误"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要对Zuul过滤器相关内容及自定义使用进行了介绍，同时对过滤器运行过程中异常的处理及服务调用失败的降级回调进行了简单说明。出于篇幅，开发过程中更具体的细节我们后续再继续探讨。</p>
-<p><br><br>认真生活，快乐分享<br>欢迎关注微信公众号：空山新雨的技术空间<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
-</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/springcloud-8.html" title="Spring Cloud（八）：使用Spring Cloud Bus来实现配置动态更新" class="prev">PREV</a><a href="/springcloud-6.html" title="Spring Cloud（六）：服务网关zuul" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
-    el: "#vcomments",
+<br>
+认真生活，快乐分享
+欢迎关注微信公众号：空山新雨的技术空间
+![微信公众号](/assets/qrcode-05.jpg) 
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/springcloud-7.html>http://blog.jboost.cn/springcloud-7.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-02-21T12:05:09+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-02-21</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/SpringCloud/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>SpringCloud</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/springcloud-7.html&title=Spring Cloud（七）：服务网关zuul过滤器 - 半路雨歌&summary=上文介绍了Zuul的基本使用与路由功能，本文接着介绍Zuul的核心概念 —— Zuul过滤器（filter）。
+Zuul的功能基本通过Zuul过滤器来实现（类比于Struts的拦截器，只是Struts拦截器用到责任链模式，Zuul则是通过FilterProcessor来控制执行），在不同的阶段，通过不同类型的过滤器来实现相应的功能。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/springcloud-7.html&title=Spring Cloud（七）：服务网关zuul过滤器 - 半路雨歌&summary=上文介绍了Zuul的基本使用与路由功能，本文接着介绍Zuul的核心概念 —— Zuul过滤器（filter）。
+Zuul的功能基本通过Zuul过滤器来实现（类比于Struts的拦截器，只是Struts拦截器用到责任链模式，Zuul则是通过FilterProcessor来控制执行），在不同的阶段，通过不同类型的过滤器来实现相应的功能。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/springcloud-7.html&title=Spring Cloud（七）：服务网关zuul过滤器 - 半路雨歌&summary=上文介绍了Zuul的基本使用与路由功能，本文接着介绍Zuul的核心概念 —— Zuul过滤器（filter）。
+Zuul的功能基本通过Zuul过滤器来实现（类比于Struts的拦截器，只是Struts拦截器用到责任链模式，Zuul则是通过FilterProcessor来控制执行），在不同的阶段，通过不同类型的过滤器来实现相应的功能。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACUElEQVR42u3cS04DQQwFwNz/0rBHQmM/d36e6l2AZFzN5sm28vi56XmAg4ODg4Mvgj/Cc/mA4vuufv7399N6wcHBwcHBN8LLAaBYaBd8BT1VLzg4ODg4+Gb4ZQAoFlINPGmAiesFBwcHBwcHL8OrF3Hqc8HBwcHBwcHPw7uNBHBwcHBwcPA+vN2gDwupFppeHDg4ODg4+J3g8cLcm16/fbMRHBwcHBz8A+DT0x0UTBsL43rBwcHBwcEXwdOAkDYs0mB0qj5wcHBwcPCN8HTAP13YqwajGFrtwICDg4ODg38hfBo8Ti0OpIsExzow4ODg4ODgXwxPFwDSBkUVmj7v338MODg4ODj4Qnj3wen70gWC6YICODg4ODj4Rnh3IP+sgUI6QGi/BgcHBwcHXwjvNh7SBsV0EaH7d5cBBhwcHBwc/AbwbuN+2jhIA015oAAODg4ODr4A3g4AYUOhG0imFxpPUsDBwcHBwb8IPm04nGowdBsY8cABHBwcHBz8hvAu4FRDIX3OsQADDg4ODg6+AH4qgDw7KLUnKeDg4ODg4DeApwsD3UCTLghUBxrg4ODg4OCb4NPTDTzVBYFuUClfDDg4ODg4+CL4IzxdQLXgtFERDxTAwcHBwcEXwLuBZdpYSBcNpgEKHBwcHBx8Mzwd8KeFTxcPnjZJAQcHBwcHvzG8G4DSxkI72ICDg4ODg4OPv2D+1ACi/Tng4ODg4OCL4dOGwbSRMF0MeNkkBRwcHBwc/IPg3VO9uFcvDFzWAw4ODg4Ovgh+twMODg4ODr7g/AJKQYSfKhJw2AAAAABJRU5ErkJggg==">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/springcloud-8.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spring Cloud（八）：使用Spring Cloud Bus来实现配置动态更新</p>
+                <p class='content'>使用Spring Cloud Config我们能实现服务配置的集中化管理，在服务启动时从Config Server获取需要的配置属性。但如果在服务运行过程中，我们需要将某个配置属性进行修改，比如...</p>
+              </a>
+            
+            
+              <a class='next' href='/springcloud-6.html'>
+                <p class='title'>Spring Cloud（六）：服务网关zuul<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>通过前面几篇文章的介绍，Spring Cloud微服务架构可通过Eureka实现服务注册与发现，通过Ribbon或Feign来实现服务间的负载均衡调用，通过Hystrix来为服务调用提供服务降级...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Spring Cloud（七）：服务网关zuul过滤器',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Zuul过滤器"><span class="toc-text">Zuul过滤器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#过滤器类型"><span class="toc-text">过滤器类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EnableZuulProxy-vs-EnableZuulServer"><span class="toc-text">@EnableZuulProxy vs @EnableZuulServer</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自定义Zuul过滤器"><span class="toc-text">自定义Zuul过滤器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zuul的错误处理"><span class="toc-text">Zuul的错误处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zuul的服务降级"><span class="toc-text">Zuul的服务降级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          ，总访客量
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
     appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
-    notify: false,
-    verify: false,
-    avatar: "robohash",
-    visitor: true,
-    placeholder: "随便说点什么～.～",
-});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
-try {
-    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
-} catch(error) {}
-const isExist = (identity) => {
-    identity = identity || getRealPath();
-    let query = new AV.Query('Timer');
-    return new Promise((resolve, reject) => {
-    query.equalTo("identity", identity);
-    query.find().then(results => {
-        resolve(results.length > 0);
-    }, error => reject(error));
-    })
-}
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
-const _get = (identity) => {
-    let query = null;
-    if(identity && identity instanceof Array){
-    let querys = [];
-    for(let i = 0; i < identity.length; ++i) {
-        querys[i] = new AV.Query('Timer');
-        querys[i].equalTo('identity', identity[i]);
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
     }
-    query = AV.Query.or.apply(null ,querys);
-    } else {
-    identity = identity || getRealPath();
-    query = new AV.Query("Timer");
-    query.equalTo("identity", identity);
-    }
+    initCopyCode();
+  }(window, document);
+</script>
 
-    return new Promise((resolve, reject) => {
-    query.find()
-    .then(results => resolve(results))
-    .catch(error => reject(error))
-    })
-}
 
-const create = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let Todo = AV.Object.extend('Timer');
-    let todo = new Todo();
-    todo.set("times", 1);
-    todo.set("identity", identity);
-    todo.save().then(res => resolve(true), error => reject(error));
-    })
-}
 
-const update = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let query = new AV.Query('Timer');
-    query.equalTo("identity", identity);
-    query.find().then(todos => {
-        todos.forEach(todo => {
-        todo.set("times", todo.attributes.times + 1);
-        });
-        return AV.Object.saveAll(todos);
-    }).then(todos => resolve(true), error => reject(error));
-    })
-}
 
-return {
-    isExist,
-    _get,
-    update,
-    create
-}
-})()
+<!-- fancybox -->
 
-const calcAndWriteTimes = () => {
-let isPost = true;
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
 
-let timerAllDOM = document.querySelectorAll(".article-timer");
 
-if(isPost) {
-    let identity = timerAllDOM[0].getAttribute("data-identity");
-    valineAPI.isExist(identity)
-    .then(exist => {
-    if(exist) {
-        return valineAPI.update(identity);
-    }
-    return new Promise(resolve => resolve(true));
-    })
-    .then( succuess => valineAPI._get(identity))
-    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
-    .catch(error => console.log(error.message))
-    return ;
-}
 
-let timerDOMCache = {};
 
-for(let timerDOM of timerAllDOM) {
-    let identity = timerDOM.getAttribute("data-identity");
-    if(timerDOMCache.hasOwnProperty(identity)){
-    timerDOMCache[identity].dom.push(timerDOM);
-    }else{
-    timerDOMCache[identity] = {
-        dom: [timerDOM],
-        times: undefined
-    };
-    }
-}
 
-let identities = Object.keys(timerDOMCache);
-valineAPI._get(identities).then(results => {
-    for(let result of results) {
-    let {identity, times} = result.attributes;
-    timerDOMCache[identity].times = times;
-    timerDOMCache[identity].dom.map(item => item.innerText = times);
-    }
-    for(let identity of identities) {
-    if(timerDOMCache[identity].times){
-        continue;
-    }
-    timerDOMCache[identity].dom.map(item => item.innerText = 1);
-    valineAPI.create(identity);
-    }
-}).catch(error => console.log(error.message))
-}
 
-if(true){
-calcAndWriteTimes();
-}</script></body></html>
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

@@ -1,152 +1,1035 @@
-<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志</h1><div class="post-info">2019-06-27<p class="visit"><i data-identity="springboot-aoplog.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>日志是一个Web项目中必不可少的部分，借助它我们可以做许多事情，比如问题排查、访问统计、监控告警等。一般通过引入slf4j的一些实现框架来做日志功能，如log4j,logback,log4j2，其性能也是依次增强。在springboot中，默认使用的框架是logback。我们经常需要在方法开头或结尾加日志记录传入参数或返回结果，以此来复现当时的请求情况。但是手动添加日志，不仅繁琐重复，也影响代码的美观简洁。本文引入一个基于AOP实现的日志框架，并通过spring-boot-starter的方式完成集成。</p>
-<p>原文地址：<a href="http://blog.jboost.cn/springboot-aoplog.html">http://blog.jboost.cn/springboot-aoplog.html</a><br><a id="more"></a></p>
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志 - 半路雨歌</title>
+  
+    <meta name="keywords" content="java,springboot,logback">
+  
+  
+    <meta name="description" content="日志是一个Web项目中必不可少的部分，借助它我们可以做许多事情，比如问题排查、访问统计、监控告警等。一般通过引入slf4j的一些实现框架来做日志功能，如log4j,logback,log4j2，其性能也是依次增强。在springboot中，默认使用的框架是logback。我们经常需要在方法开头或结尾加日志记录传入...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/springboot-aoplog.html">
+      Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-06-27</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/SpringBoot/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>SpringBoot</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>日志是一个Web项目中必不可少的部分，借助它我们可以做许多事情，比如问题排查、访问统计、监控告警等。一般通过引入slf4j的一些实现框架来做日志功能，如log4j,logback,log4j2，其性能也是依次增强。在springboot中，默认使用的框架是logback。我们经常需要在方法开头或结尾加日志记录传入参数或返回结果，以此来复现当时的请求情况。但是手动添加日志，不仅繁琐重复，也影响代码的美观简洁。本文引入一个基于AOP实现的日志框架，并通过spring-boot-starter的方式完成集成。</p>
+<p>原文地址：<a href="http://blog.jboost.cn/springboot-aoplog.html">http://blog.jboost.cn/springboot-aoplog.html</a></p>
+<a id="more"></a>
+
 <h3 id="1-aop-logging项目"><a href="#1-aop-logging项目" class="headerlink" title="1. aop-logging项目"></a>1. aop-logging项目</h3><p>项目地址： <a href="https://github.com/ronwxy/aop-logging" target="_blank" rel="noopener">https://github.com/ronwxy/aop-logging</a><br>该项目基于 <a href="https://github.com/nickvl/aop-logging.git" target="_blank" rel="noopener">https://github.com/nickvl/aop-logging.git</a> ， 在其基础上添加了ReqId来串联某次客户端请求（参考<code>com.github.nickvl.xspring.core.log.aop.ReqIdFilter</code>）, 添加了方法执行时长（参考<code>com.github.nickvl.xspring.core.log.aop.AOPLogger.logTheMethod</code>方法中elapsedTime）。</p>
 <p>该项目提供了基于注解的AOP日志功能。根据不同的日志级别，提供的注解有LogTrace,LogDebug,LogInfo,LogWarn,LogError,LogFatal,LogException，可修饰于类（等同于该类内所有方法上添加）与方法上，前面六个分别表示在不同日志级别下记录方法被调用的日志，LogException表示在方法抛出异常时，记录相应日志。这些注解都提供了一个LogPoint枚举类型的属性value，取值{IN,OUT,BOTH}，分别表示在方法调用入口、方法调用返回前，以及包含两者的位置打印对应日志，默认为BOTH。</p>
-<h3 id="2-集成"><a href="#2-集成" class="headerlink" title="2. 集成"></a>2. 集成</h3><p>可以通过基于xml或基于java配置的方式来集成AOP日志功能，我这里基于java配置（基于xml的方式参考源码README文件）并且通过spring-boot-starter的形式进行封装（源码地址： <a href="https://github.com/ronwxy/base-spring-boot" target="_blank" rel="noopener">https://github.com/ronwxy/base-spring-boot</a> ），避免每个项目都需要配置。自动配置类如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(AOPLogger.class)</span><br><span class="line"><span class="meta">@ConditionalOnMissingBean</span>(AOPLogger.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AopLoggerAutoConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> SKIP_NULL_FIELDS = <span class="keyword">true</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Set&lt;String&gt; EXCLUDE_SECURE_FIELD_NAMES = Collections.emptySet();</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> AOPLogger <span class="title">aopLogger</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		AOPLogger aopLogger = <span class="keyword">new</span> AOPLogger();</span><br><span class="line">		aopLogger.setLogAdapter(<span class="keyword">new</span> UniversalLogAdapter(SKIP_NULL_FIELDS, EXCLUDE_SECURE_FIELD_NAMES));</span><br><span class="line">		<span class="keyword">return</span> aopLogger;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	* 注册一个过滤器，用来生成一个reqId，标记一次请求，从而将本次请求所产生的日志串联起来</span></span><br><span class="line"><span class="comment">	* <span class="doctag">@param</span></span></span><br><span class="line"><span class="comment">	* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">reqIdFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		ReqIdFilter reqIdFilter = <span class="keyword">new</span> ReqIdFilter();</span><br><span class="line">		FilterRegistrationBean registrationBean = <span class="keyword">new</span> FilterRegistrationBean();</span><br><span class="line">		registrationBean.setFilter(reqIdFilter);</span><br><span class="line">		List&lt;String&gt; urlPatterns = Collections.singletonList(<span class="string">"/*"</span>);</span><br><span class="line">		registrationBean.setUrlPatterns(urlPatterns);</span><br><span class="line">		registrationBean.setOrder(<span class="number">100</span>);</span><br><span class="line">		<span class="keyword">return</span> registrationBean;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>将基础框架base-spring-boot通过<code>mvn clean install</code>进行本地安装后，即可在项目中通过依赖进行引入（基础框架中已在spring-boot-parent中引入，直接继承亦可），如<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>cn.jboost.springboot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aoplog-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="3-使用"><a href="#3-使用" class="headerlink" title="3. 使用"></a>3. 使用</h3><p>引入依赖之后，我们再定义一个日志配置文件logback-spring.xml，为了后面方便地将日志导入ELK做集中的日志分析管理，该配置文件中将日志以json格式输出，并根据日志级别分别写入debug.log,info.log,warn.log,error.log以及interface.log（专用于接口访问日志），配置示例如下（完整配置参考： <a href="https://github.com/ronwxy/springboot-demos/blob/master/springboot-aoplog/src/main/resources/logback-spring.xml）" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/blob/master/springboot-aoplog/src/main/resources/logback-spring.xml）</a><br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">"interfaceLog"</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.RollingFileAppender"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;logPath&#125;/elk/interface.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">class</span>=<span class="string">"net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">providers</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">pattern</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span></span><br><span class="line">                        &#123;</span><br><span class="line">                        "project": "$&#123;projectName&#125;",</span><br><span class="line">                        "timestamp": "%date&#123;\"yyyy-MM-dd'T'HH:mm:ss,SSSZ\"&#125;",</span><br><span class="line">                        "log_level": "%level",</span><br><span class="line">                        "thread": "%thread",</span><br><span class="line">                        "class_name": "%X&#123;callingClass&#125;",</span><br><span class="line">                        "class_method":"%X&#123;callingMethod&#125;",</span><br><span class="line">                        "line_number": null,</span><br><span class="line">                        "message": "%message",</span><br><span class="line">                        "stack_trace": "%exception&#123;5&#125;",</span><br><span class="line">                        "req_id": "%X&#123;reqId&#125;",</span><br><span class="line">                        "elapsed_time": "#asLong&#123;%X&#123;elapsedTime&#125;&#125;"</span><br><span class="line">                        &#125;</span><br><span class="line">                    <span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">providers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.classic.filter.ThresholdFilter"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">level</span>&gt;</span>INFO<span class="tag">&lt;/<span class="name">level</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;logPath&#125;/bak/interface.%d&#123;yyyy-MM-dd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">totalSizeCap</span>&gt;</span>1GB<span class="tag">&lt;/<span class="name">totalSizeCap</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>为了将该日志配置文件可以不经修改地达到复用，将一些参数配置外置了，故需在配置文件applicaiton.yml中配置如下参数<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">logger:</span></span><br><span class="line"><span class="attr">  path:</span> <span class="attr">D:\logs</span> <span class="comment">#默认当前项目路径下的logs目录</span></span><br><span class="line"><span class="attr">  level:</span> <span class="string">info</span> <span class="comment"># 默认info</span></span><br><span class="line"><span class="attr">  apiPackage:</span> <span class="string">cn.jboost.springboot.aoplog.controller</span> <span class="comment">#必须配置, api接口类所在包</span></span><br><span class="line"><span class="attr">  rootPackage:</span> <span class="string">cn.jboost.springboot</span> <span class="comment">#必须配置，项目根包，记录该包内各类通过slf4j输出的日志</span></span><br></pre></td></tr></table></figure></p>
-<p>最后，直接在需要记录访问日志的接口类上加注解@LogInfo就行了，如<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"test"</span>)</span><br><span class="line"><span class="meta">@LogInfo</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AoplogTestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">test</span><span class="params">(@RequestParam String user)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hi "</span> + user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-集成"><a href="#2-集成" class="headerlink" title="2. 集成"></a>2. 集成</h3><p>可以通过基于xml或基于java配置的方式来集成AOP日志功能，我这里基于java配置（基于xml的方式参考源码README文件）并且通过spring-boot-starter的形式进行封装（源码地址： <a href="https://github.com/ronwxy/base-spring-boot" target="_blank" rel="noopener">https://github.com/ronwxy/base-spring-boot</a> ），避免每个项目都需要配置。自动配置类如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(AOPLogger<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnMissingBean</span>(<span class="title">AOPLogger</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">AopLoggerAutoConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> SKIP_NULL_FIELDS = <span class="keyword">true</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Set&lt;String&gt; EXCLUDE_SECURE_FIELD_NAMES = Collections.emptySet();</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> AOPLogger <span class="title">aopLogger</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		AOPLogger aopLogger = <span class="keyword">new</span> AOPLogger();</span><br><span class="line">		aopLogger.setLogAdapter(<span class="keyword">new</span> UniversalLogAdapter(SKIP_NULL_FIELDS, EXCLUDE_SECURE_FIELD_NAMES));</span><br><span class="line">		<span class="keyword">return</span> aopLogger;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	* 注册一个过滤器，用来生成一个reqId，标记一次请求，从而将本次请求所产生的日志串联起来</span></span><br><span class="line"><span class="comment">	* <span class="doctag">@param</span></span></span><br><span class="line"><span class="comment">	* <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">reqIdFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		ReqIdFilter reqIdFilter = <span class="keyword">new</span> ReqIdFilter();</span><br><span class="line">		FilterRegistrationBean registrationBean = <span class="keyword">new</span> FilterRegistrationBean();</span><br><span class="line">		registrationBean.setFilter(reqIdFilter);</span><br><span class="line">		List&lt;String&gt; urlPatterns = Collections.singletonList(<span class="string">"/*"</span>);</span><br><span class="line">		registrationBean.setUrlPatterns(urlPatterns);</span><br><span class="line">		registrationBean.setOrder(<span class="number">100</span>);</span><br><span class="line">		<span class="keyword">return</span> registrationBean;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将基础框架base-spring-boot通过<code>mvn clean install</code>进行本地安装后，即可在项目中通过依赖进行引入（基础框架中已在spring-boot-parent中引入，直接继承亦可），如</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>cn.jboost.springboot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aoplog-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-使用"><a href="#3-使用" class="headerlink" title="3. 使用"></a>3. 使用</h3><p>引入依赖之后，我们再定义一个日志配置文件logback-spring.xml，为了后面方便地将日志导入ELK做集中的日志分析管理，该配置文件中将日志以json格式输出，并根据日志级别分别写入debug.log,info.log,warn.log,error.log以及interface.log（专用于接口访问日志），配置示例如下（完整配置参考： <a href="https://github.com/ronwxy/springboot-demos/blob/master/springboot-aoplog/src/main/resources/logback-spring.xml）" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/blob/master/springboot-aoplog/src/main/resources/logback-spring.xml）</a></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">"interfaceLog"</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.RollingFileAppender"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;logPath&#125;/elk/interface.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">class</span>=<span class="string">"net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">providers</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">pattern</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">pattern</span>&gt;</span></span><br><span class="line">                        &#123;</span><br><span class="line">                        "project": "$&#123;projectName&#125;",</span><br><span class="line">                        "timestamp": "%date&#123;\"yyyy-MM-dd'T'HH:mm:ss,SSSZ\"&#125;",</span><br><span class="line">                        "log_level": "%level",</span><br><span class="line">                        "thread": "%thread",</span><br><span class="line">                        "class_name": "%X&#123;callingClass&#125;",</span><br><span class="line">                        "class_method":"%X&#123;callingMethod&#125;",</span><br><span class="line">                        "line_number": null,</span><br><span class="line">                        "message": "%message",</span><br><span class="line">                        "stack_trace": "%exception&#123;5&#125;",</span><br><span class="line">                        "req_id": "%X&#123;reqId&#125;",</span><br><span class="line">                        "elapsed_time": "#asLong&#123;%X&#123;elapsedTime&#125;&#125;"</span><br><span class="line">                        &#125;</span><br><span class="line">                    <span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">providers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.classic.filter.ThresholdFilter"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">level</span>&gt;</span>INFO<span class="tag">&lt;/<span class="name">level</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;logPath&#125;/bak/interface.%d&#123;yyyy-MM-dd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">totalSizeCap</span>&gt;</span>1GB<span class="tag">&lt;/<span class="name">totalSizeCap</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>为了将该日志配置文件可以不经修改地达到复用，将一些参数配置外置了，故需在配置文件applicaiton.yml中配置如下参数</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">logger:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">D:\logs</span> <span class="comment">#默认当前项目路径下的logs目录</span></span><br><span class="line">  <span class="attr">level:</span> <span class="string">info</span> <span class="comment"># 默认info</span></span><br><span class="line">  <span class="attr">apiPackage:</span> <span class="string">cn.jboost.springboot.aoplog.controller</span> <span class="comment">#必须配置, api接口类所在包</span></span><br><span class="line">  <span class="attr">rootPackage:</span> <span class="string">cn.jboost.springboot</span> <span class="comment">#必须配置，项目根包，记录该包内各类通过slf4j输出的日志</span></span><br></pre></td></tr></table></figure>
+
+<p>最后，直接在需要记录访问日志的接口类上加注解@LogInfo就行了，如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"test"</span>)</span><br><span class="line"><span class="meta">@LogInfo</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AoplogTestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">test</span><span class="params">(@RequestParam String user)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hi "</span> + user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>注意：在pom.xml中默认添加的spring-boot-maven-plugin下需要添加repackage的goal才能自动生成日志目录与日志文件，如下所示</p>
 </blockquote>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">goal</span>&gt;</span>repackage<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>启动程序，调用@LogInfo标注的接口类下的API时，可以看到控制台有打印接口访问日志，如执行demo程序（源码： <a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog</a> ），调用  <a href="http://localhost:8080/test?user=jboost" target="_blank" rel="noopener">http://localhost:8080/test?user=jboost</a> 时，控制台打印日志如下<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[2019-06-27 14:29:59] [INFO ] [http-nio-8080-exec-1] [cn.jboost.springboot.aoplog.controller.AoplogTestController:184] --calling: test(user=jboost)</span><br><span class="line">[2019-06-27 14:29:59] [INFO ] [http-nio-8080-exec-1] [cn.jboost.springboot.aoplog.controller.AoplogTestController:189] --returning: test(1 arguments):Hi jboost</span><br></pre></td></tr></table></figure></p>
-<p>日志文件interface.log中打印日志如下，（其中req_id在本次请求的所有日志都相同，这样就可以将一次请求的所有日志串联起来，便于分析与定位问题；elapsed_time标明了方法执行时长，可用于接口性能监测）<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"project"</span>:<span class="string">"aoplog-test"</span>,<span class="attr">"timestamp"</span>:<span class="string">"2019-06-27T14:29:59,030+0800"</span>,<span class="attr">"log_level"</span>:<span class="string">"INFO"</span>,<span class="attr">"thread"</span>:<span class="string">"http-nio-8080-exec-1"</span>,<span class="attr">"class_name"</span>:<span class="string">"cn.jboost.springboot.aoplog.controller.AoplogTestController"</span>,<span class="attr">"class_method"</span>:<span class="string">"test"</span>,<span class="attr">"line_number"</span>:<span class="literal">null</span>,<span class="attr">"message"</span>:<span class="string">"calling: test(user=jboost)"</span>,<span class="attr">"stack_trace"</span>:<span class="string">""</span>,<span class="attr">"req_id"</span>:<span class="string">"5d146267aa147904bc014e71"</span>,<span class="attr">"elapsed_time"</span>:<span class="literal">null</span>&#125;</span><br><span class="line">&#123;<span class="attr">"project"</span>:<span class="string">"aoplog-test"</span>,<span class="attr">"timestamp"</span>:<span class="string">"2019-06-27T14:29:59,036+0800"</span>,<span class="attr">"log_level"</span>:<span class="string">"INFO"</span>,<span class="attr">"thread"</span>:<span class="string">"http-nio-8080-exec-1"</span>,<span class="attr">"class_name"</span>:<span class="string">"cn.jboost.springboot.aoplog.controller.AoplogTestController"</span>,<span class="attr">"class_method"</span>:<span class="string">"test"</span>,<span class="attr">"line_number"</span>:<span class="literal">null</span>,<span class="attr">"message"</span>:<span class="string">"returning: test(1 arguments):Hi jboost"</span>,<span class="attr">"stack_trace"</span>:<span class="string">""</span>,<span class="attr">"req_id"</span>:<span class="string">"5d146267aa147904bc014e71"</span>,<span class="attr">"elapsed_time"</span>:<span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>启动程序，调用@LogInfo标注的接口类下的API时，可以看到控制台有打印接口访问日志，如执行demo程序（源码： <a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog</a> ），调用  <a href="http://localhost:8080/test?user=jboost" target="_blank" rel="noopener">http://localhost:8080/test?user=jboost</a> 时，控制台打印日志如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[2019-06-27 14:29:59] [INFO ] [http-nio-8080-exec-1] [cn.jboost.springboot.aoplog.controller.AoplogTestController:184] --calling: test(user=jboost)</span><br><span class="line">[2019-06-27 14:29:59] [INFO ] [http-nio-8080-exec-1] [cn.jboost.springboot.aoplog.controller.AoplogTestController:189] --returning: test(1 arguments):Hi jboost</span><br></pre></td></tr></table></figure>
+<p>日志文件interface.log中打印日志如下，（其中req_id在本次请求的所有日志都相同，这样就可以将一次请求的所有日志串联起来，便于分析与定位问题；elapsed_time标明了方法执行时长，可用于接口性能监测）</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"project"</span>:<span class="string">"aoplog-test"</span>,<span class="attr">"timestamp"</span>:<span class="string">"2019-06-27T14:29:59,030+0800"</span>,<span class="attr">"log_level"</span>:<span class="string">"INFO"</span>,<span class="attr">"thread"</span>:<span class="string">"http-nio-8080-exec-1"</span>,<span class="attr">"class_name"</span>:<span class="string">"cn.jboost.springboot.aoplog.controller.AoplogTestController"</span>,<span class="attr">"class_method"</span>:<span class="string">"test"</span>,<span class="attr">"line_number"</span>:<span class="literal">null</span>,<span class="attr">"message"</span>:<span class="string">"calling: test(user=jboost)"</span>,<span class="attr">"stack_trace"</span>:<span class="string">""</span>,<span class="attr">"req_id"</span>:<span class="string">"5d146267aa147904bc014e71"</span>,<span class="attr">"elapsed_time"</span>:<span class="literal">null</span>&#125;</span><br><span class="line">&#123;<span class="attr">"project"</span>:<span class="string">"aoplog-test"</span>,<span class="attr">"timestamp"</span>:<span class="string">"2019-06-27T14:29:59,036+0800"</span>,<span class="attr">"log_level"</span>:<span class="string">"INFO"</span>,<span class="attr">"thread"</span>:<span class="string">"http-nio-8080-exec-1"</span>,<span class="attr">"class_name"</span>:<span class="string">"cn.jboost.springboot.aoplog.controller.AoplogTestController"</span>,<span class="attr">"class_method"</span>:<span class="string">"test"</span>,<span class="attr">"line_number"</span>:<span class="literal">null</span>,<span class="attr">"message"</span>:<span class="string">"returning: test(1 arguments):Hi jboost"</span>,<span class="attr">"stack_trace"</span>:<span class="string">""</span>,<span class="attr">"req_id"</span>:<span class="string">"5d146267aa147904bc014e71"</span>,<span class="attr">"elapsed_time"</span>:<span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><p>Web项目中经常需要通过查看接口请求及返回参数来定位问题，手动编写代码打印显得繁琐而重复。使用aop-logging通过简单的注解即可实现接口日志自动打印。本文介绍的方案与日志配置模板可直接用于实际项目开发。当然，注解不仅可用于Controller层，也可以用于Service等其它层，但一般Controller层加上即可，避免日志打印过多。</p>
-<p>本文示例项目源码地址：<a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog</a><br><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy （欢迎关注，及时获取技术干货分享）<br>——————————————————————————————————</p>
+<p>本文示例项目源码地址：<a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-aoplog</a><br></br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy （欢迎关注，及时获取技术干货分享）<br>——————————————————————————————————</p>
 <p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
-</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/swagger-register.html" title="swagger api文档集中化注册管理" class="prev">PREV</a><a href="/issue-conditiontrack.html" title="案例解析：springboot自动配置未生效问题定位（条件断点）" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
-    el: "#vcomments",
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/springboot-aoplog.html>http://blog.jboost.cn/springboot-aoplog.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-24T09:51:53+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2019-07-24</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/springboot/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>springboot</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/logback/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>logback</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/springboot-aoplog.html&title=Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志 - 半路雨歌&summary=日志是一个Web项目中必不可少的部分，借助它我们可以做许多事情，比如问题排查、访问统计、监控告警等。一般通过引入slf4j的一些实现框架来做日志功能，如log4j,logback,log4j2，其性能也是依次增强。在springboot中，默认使用的框架是logback。我们经常需要在方法开头或结尾加日志记录传入参数或返回结果，以此来复现当时的请求情况。但是手动添加日志，不仅繁琐重复，也影响代码的美观简洁。本文引入一个基于AOP实现的日志框架，并通过spring-boot-starter的方式完成集成。
+原文地址：http://blog.jboost.cn/springboot-aoplog.html"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/springboot-aoplog.html&title=Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志 - 半路雨歌&summary=日志是一个Web项目中必不可少的部分，借助它我们可以做许多事情，比如问题排查、访问统计、监控告警等。一般通过引入slf4j的一些实现框架来做日志功能，如log4j,logback,log4j2，其性能也是依次增强。在springboot中，默认使用的框架是logback。我们经常需要在方法开头或结尾加日志记录传入参数或返回结果，以此来复现当时的请求情况。但是手动添加日志，不仅繁琐重复，也影响代码的美观简洁。本文引入一个基于AOP实现的日志框架，并通过spring-boot-starter的方式完成集成。
+原文地址：http://blog.jboost.cn/springboot-aoplog.html"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/springboot-aoplog.html&title=Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志 - 半路雨歌&summary=日志是一个Web项目中必不可少的部分，借助它我们可以做许多事情，比如问题排查、访问统计、监控告警等。一般通过引入slf4j的一些实现框架来做日志功能，如log4j,logback,log4j2，其性能也是依次增强。在springboot中，默认使用的框架是logback。我们经常需要在方法开头或结尾加日志记录传入参数或返回结果，以此来复现当时的请求情况。但是手动添加日志，不仅繁琐重复，也影响代码的美观简洁。本文引入一个基于AOP实现的日志框架，并通过spring-boot-starter的方式完成集成。
+原文地址：http://blog.jboost.cn/springboot-aoplog.html"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAAC+0lEQVR42u3aQXLCQAwEQP7/6eQBpMqrkZxYpPcGGLNuLlOafX1ZP64XAjBgwIABA2YNzCtcbze8eP/086vrq79XfR4wYMCAAQMGzD6Y4wB0eP3bD15tqHnfqecBAwYMGDBgwOyFqT7A1fdPN5wGyup+Lq8HAwYMGDBgwPw7mGpA6w6wwIABAwYMGDBgpgPeVBCrFmxgwIABAwYMGDBThdfpBlOQxzeRYMCAAQMGDJhfg5keDP316/h5wIABAwYMGDBrYLorDWzdIHbXAgMGDBgwYMDsgZkaKKUBq/rgp/eJ9w8GDBgwYMCAWQeTHriZOliUAqT3KxduYMCAAQMGDJjHwaQHgE4HT+2NNgdf5fuBAQMGDBgwYNbDTBVdaQCcDpzHhSAYMGDAgAEDZg1MdePV4i0dULWDWgoJBgwYMGDAgFkDEwehsHBLDyJ1B2PHYGDAgAEDBgyYNTBTQSkdVFXBqoOz9qAKDBgwYMCAAfNYmG5wqga1LlQ3EF5+HwwYMGDAgAGzDqYalNL37wqCU8UgGDBgwIABA2YPTHXwkxZZ1QKtW/hV3wcDBgwYMGDA7IOZLsLuKu7SgVm5IAQDBgwYMGDAfAxMuvE0eHUPEN3WRIIBAwYMGDBgHg+TBqTuYGm6WEsDJRgwYMCAAQNmD0x1o2kwS38nHVjFgRAMGDBgwIABsxbmFCQdWHUDZfUPKv8xYMCAAQMGDJi1MKcPXg1QU0VadX9x4QYGDBgwYMCAWQ/Tfd0twKYGZsdFHRgwYMCAAQNmDUx3nQ662kVYCFo+UAQGDBgwYMCAWQPzCld3wFR90PT7p98DAwYMGDBgwOyFSQNdd8CUFmbHBVo34IEBAwYMGDBg1sBUi7F0g9Xr0oNJ400kGDBgwIABA+ZjYaoFXHp9+oddvgYDBgwYMGDAgClCdAdQ3YNKYMCAAQMGDJj9MN1BUnqQpzt4GivowIABAwYMGDDrYLrFVVqwpYOmKtDxHwwGDBgwYMCAWQNjgQEDBgwYMGCWrW/kiOI7DExsagAAAABJRU5ErkJggg==">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/swagger-register.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>swagger api文档集中化注册管理</p>
+                <p class='content'>接口文档是前后端开发对接时很重要的一个组件。手动编写接口文档既费时，又存在文档不能随代码及时更新的问题，因此产生了像swagger这样的自动生成接口文档的框架。swagger文档一般是随项目代码...</p>
+              </a>
+            
+            
+              <a class='next' href='/issue-conditiontrack.html'>
+                <p class='title'>案例解析：springboot自动配置未生效问题定位（条件断点）<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Spring Boot在为开发人员提供更高层次的封装，进而提高开发效率的同时，也为出现问题时如何进行定位带来了一定复杂性与难度。但Spring Boot同时又提供了一些诊断工具来辅助开发与分析，...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Spring Boot从入门到实战（八）：集成AOPLog来记录接口访问日志',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-aop-logging项目"><span class="toc-text">1. aop-logging项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-集成"><span class="toc-text">2. 集成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用"><span class="toc-text">3. 使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-总结"><span class="toc-text">4. 总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          ，总访客量
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
     appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
-    notify: false,
-    verify: false,
-    avatar: "robohash",
-    visitor: true,
-    placeholder: "随便说点什么～.～",
-});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
-try {
-    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
-} catch(error) {}
-const isExist = (identity) => {
-    identity = identity || getRealPath();
-    let query = new AV.Query('Timer');
-    return new Promise((resolve, reject) => {
-    query.equalTo("identity", identity);
-    query.find().then(results => {
-        resolve(results.length > 0);
-    }, error => reject(error));
-    })
-}
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
-const _get = (identity) => {
-    let query = null;
-    if(identity && identity instanceof Array){
-    let querys = [];
-    for(let i = 0; i < identity.length; ++i) {
-        querys[i] = new AV.Query('Timer');
-        querys[i].equalTo('identity', identity[i]);
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
     }
-    query = AV.Query.or.apply(null ,querys);
-    } else {
-    identity = identity || getRealPath();
-    query = new AV.Query("Timer");
-    query.equalTo("identity", identity);
-    }
+    initCopyCode();
+  }(window, document);
+</script>
 
-    return new Promise((resolve, reject) => {
-    query.find()
-    .then(results => resolve(results))
-    .catch(error => reject(error))
-    })
-}
 
-const create = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let Todo = AV.Object.extend('Timer');
-    let todo = new Todo();
-    todo.set("times", 1);
-    todo.set("identity", identity);
-    todo.save().then(res => resolve(true), error => reject(error));
-    })
-}
 
-const update = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let query = new AV.Query('Timer');
-    query.equalTo("identity", identity);
-    query.find().then(todos => {
-        todos.forEach(todo => {
-        todo.set("times", todo.attributes.times + 1);
-        });
-        return AV.Object.saveAll(todos);
-    }).then(todos => resolve(true), error => reject(error));
-    })
-}
 
-return {
-    isExist,
-    _get,
-    update,
-    create
-}
-})()
+<!-- fancybox -->
 
-const calcAndWriteTimes = () => {
-let isPost = true;
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
 
-let timerAllDOM = document.querySelectorAll(".article-timer");
 
-if(isPost) {
-    let identity = timerAllDOM[0].getAttribute("data-identity");
-    valineAPI.isExist(identity)
-    .then(exist => {
-    if(exist) {
-        return valineAPI.update(identity);
-    }
-    return new Promise(resolve => resolve(true));
-    })
-    .then( succuess => valineAPI._get(identity))
-    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
-    .catch(error => console.log(error.message))
-    return ;
-}
 
-let timerDOMCache = {};
 
-for(let timerDOM of timerAllDOM) {
-    let identity = timerDOM.getAttribute("data-identity");
-    if(timerDOMCache.hasOwnProperty(identity)){
-    timerDOMCache[identity].dom.push(timerDOM);
-    }else{
-    timerDOMCache[identity] = {
-        dom: [timerDOM],
-        times: undefined
-    };
-    }
-}
 
-let identities = Object.keys(timerDOMCache);
-valineAPI._get(identities).then(results => {
-    for(let result of results) {
-    let {identity, times} = result.attributes;
-    timerDOMCache[identity].times = times;
-    timerDOMCache[identity].dom.map(item => item.innerText = times);
-    }
-    for(let identity of identities) {
-    if(timerDOMCache[identity].times){
-        continue;
-    }
-    timerDOMCache[identity].dom.map(item => item.innerText = 1);
-    valineAPI.create(identity);
-    }
-}).catch(error => console.log(error.message))
-}
 
-if(true){
-calcAndWriteTimes();
-}</script></body></html>
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

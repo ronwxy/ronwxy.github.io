@@ -2,9 +2,51 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/k8s3-cd.html</loc>
+    
+    <lastmod>2020-05-12T00:53:26.937Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s2-concept.html</loc>
+    
+    <lastmod>2020-05-08T03:05:23.443Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/k8s1-installation.html</loc>
     
-    <lastmod>2020-04-28T00:52:34.950Z</lastmod>
+    <lastmod>2020-05-07T06:38:48.101Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/about/index.html</loc>
+    
+    <lastmod>2020-05-07T03:09:25.845Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/code-review.html</loc>
+    
+    <lastmod>2020-05-07T03:09:25.819Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/arch-1.html</loc>
+    
+    <lastmod>2020-05-07T03:09:25.817Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/docker-13.html</loc>
+    
+    <lastmod>2020-05-06T11:05:40.448Z</lastmod>
     
   </url>
   
@@ -12,13 +54,6 @@
     <loc>http://blog.jboost.cn/ansible.html</loc>
     
     <lastmod>2020-04-18T06:28:32.952Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/docker-13.html</loc>
-    
-    <lastmod>2020-04-02T11:47:26.673Z</lastmod>
     
   </url>
   
@@ -135,13 +170,6 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/arch-1.html</loc>
-    
-    <lastmod>2019-11-15T02:04:14.490Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.jboost.cn/springboot-localdatetime.html</loc>
     
     <lastmod>2019-11-01T10:08:21.753Z</lastmod>
@@ -219,14 +247,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
@@ -380,13 +408,6 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/code-review.html</loc>
-    
-    <lastmod>2019-07-09T11:19:28.710Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.jboost.cn/use-nvm.html</loc>
     
     <lastmod>2019-07-09T11:19:28.689Z</lastmod>
@@ -408,13 +429,6 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
-    
-    <lastmod>2019-07-09T11:19:28.488Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
@@ -422,9 +436,9 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/about/index.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
-    <lastmod>2019-07-09T11:18:59.689Z</lastmod>
+    <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   

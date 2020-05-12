@@ -1,157 +1,1044 @@
-<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统</h1><div class="post-info">2019-09-07<p class="visit"><i data-identity="docker-elk.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>一段时间没关注ELK（elasticsearch —— 搜索引擎，可用于存储、索引日志, logstash —— 可用于日志传输、转换，Kibana —— WebUI，将日志可视化），发现最新版已到7.4了。所以别问程序员为什么这么忙？因为不是在加班就是在学习新框架中。本文整理了使用Docker来快速搭建一套ELK日志分析系统的方法。<br><a id="more"></a></p>
-<h2 id="1-部署elk"><a href="#1-部署elk" class="headerlink" title="1. 部署elk"></a>1. 部署elk</h2><p>github上有人整理了一套使用docker compose来部署elk的配置，可直接下载使用。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/deviantony/docker-elk.git</span><br></pre></td></tr></table></figure></p>
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统 - 半路雨歌</title>
+  
+    <meta name="keywords" content="docker,elk">
+  
+  
+    <meta name="description" content="一段时间没关注ELK（elasticsearch —— 搜索引擎，可用于存储、索引日志, logstash —— 可用于日志传输、转换，Kibana —— WebUI，将日志可视化），发现最新版已到7.4了。所以别问程序员为什么这么忙？因为不是在加班就是在学习新框架中。本文整理了使用Docker来快速搭建一套EL...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/docker-elk.html">
+      Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-09-07</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/DevOps/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>DevOps</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>一段时间没关注ELK（elasticsearch —— 搜索引擎，可用于存储、索引日志, logstash —— 可用于日志传输、转换，Kibana —— WebUI，将日志可视化），发现最新版已到7.4了。所以别问程序员为什么这么忙？因为不是在加班就是在学习新框架中。本文整理了使用Docker来快速搭建一套ELK日志分析系统的方法。</p>
+<a id="more"></a>
+
+<h2 id="1-部署elk"><a href="#1-部署elk" class="headerlink" title="1. 部署elk"></a>1. 部署elk</h2><p>github上有人整理了一套使用docker compose来部署elk的配置，可直接下载使用。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/deviantony/docker-elk.git</span><br></pre></td></tr></table></figure>
 <p>如果没有git，那就安装一下（<code>yum install git</code>），或者直接下载github仓库的源码包。</p>
 <p>当前是基于7.2.1版（docker-elk目录下.env文件中定义，可修改）。</p>
 <p>调整一下相应的配置。</p>
-<p>修改docker-compose，设置es密码等，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">vim docker-compose.yml</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 在elasticsearch部分设置环境变量，将jvm堆内存增大到了1g，设置es elastic用户的密码</span></span><br><span class="line">  environment:</span><br><span class="line">        ES_JAVA_OPTS: "-Xmx1g -Xms1g"</span><br><span class="line">        ELASTIC_PASSWORD: Passw0rd</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 将logstash的端口映射从默认的5000改为5044，因为后面会用filebeat，不改也可以，对应就行</span></span><br><span class="line">  ports:</span><br><span class="line">        - "5044:5044"</span><br><span class="line">        - "9600:9600"</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 将jvm内存也增大一点</span></span><br><span class="line">  environment:</span><br><span class="line">        LS_JAVA_OPTS: "-Xmx512m -Xms512m"</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 在volumes部分增加es数据目录的挂载，对es数据持久化，避免容器销毁数据丢失</span></span><br><span class="line">  volumes:</span><br><span class="line">      - /mnt/elk/esdata:/usr/share/elasticsearch/data</span><br></pre></td></tr></table></figure></p>
+<p>修改docker-compose，设置es密码等，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">vim docker-compose.yml</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 在elasticsearch部分设置环境变量，将jvm堆内存增大到了1g，设置es elastic用户的密码</span></span><br><span class="line">  environment:</span><br><span class="line">        ES_JAVA_OPTS: "-Xmx1g -Xms1g"</span><br><span class="line">        ELASTIC_PASSWORD: Passw0rd</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 将logstash的端口映射从默认的5000改为5044，因为后面会用filebeat，不改也可以，对应就行</span></span><br><span class="line">  ports:</span><br><span class="line">        - "5044:5044"</span><br><span class="line">        - "9600:9600"</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 将jvm内存也增大一点</span></span><br><span class="line">  environment:</span><br><span class="line">        LS_JAVA_OPTS: "-Xmx512m -Xms512m"</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 在volumes部分增加es数据目录的挂载，对es数据持久化，避免容器销毁数据丢失</span></span><br><span class="line">  volumes:</span><br><span class="line">      - /mnt/elk/esdata:/usr/share/elasticsearch/data</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>注意： 因为es容器内部是以elasticsearch用户启动进程的，所以在做持久化数据目录挂载的时候，需要将目录权限进行设置，否则会因为没有访问权限而启动失败。elasticsearch的uid是1000，可以建一个uid为1000的用户，然后将目录所有者赋予该用户。</p>
 </blockquote>
-<p>修改es配置文件，将xpack从trial改为basic，禁用付费功能<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim elasticsearch/config/elasticsearch.yml</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash">xpack.license.self_generated.type: trial</span></span><br><span class="line">  xpack.license.self_generated.type: basic</span><br></pre></td></tr></table></figure></p>
-<p>修改logstash配置文件，设置es的用户名密码<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim logstash/config/logstash.yml</span><br><span class="line"></span><br><span class="line">  xpack.monitoring.elasticsearch.username: elastic</span><br><span class="line">  xpack.monitoring.elasticsearch.password: Passw0rd</span><br></pre></td></tr></table></figure></p>
-<p>修改logstash的pipeline配置<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">vim logstash/pipeline/logstash.conf</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 这里codec根据具体情况配置 </span></span><br><span class="line">  input &#123;</span><br><span class="line">          beats &#123;</span><br><span class="line">                  port =&gt; 5044</span><br><span class="line">                  codec =&gt; "json" </span><br><span class="line">          &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># Add your filters / logstash plugins configuration here</span></span></span><br><span class="line">  output &#123;</span><br><span class="line">          elasticsearch &#123;</span><br><span class="line">                  hosts =&gt; "elasticsearch:9200"</span><br><span class="line">                  index =&gt; "%&#123;[@metadata][beat]&#125;-%&#123;[@metadata][version]&#125;-%&#123;+YYYY.MM.dd&#125;"</span><br><span class="line">                  user =&gt; "elastic"</span><br><span class="line">                  password =&gt; "Passw0rd"</span><br><span class="line">          &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
-<p>修改kibana配置，设置es密码<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vim kibana/config/kibana.yml</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># X-Pack security credentials</span></span></span><br><span class="line">  elasticsearch.username: elastic</span><br><span class="line">  elasticsearch.password: Passw0rd</span><br></pre></td></tr></table></figure></p>
+<p>修改es配置文件，将xpack从trial改为basic，禁用付费功能</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim elasticsearch/config/elasticsearch.yml</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash">xpack.license.self_generated.type: trial</span></span><br><span class="line">  xpack.license.self_generated.type: basic</span><br></pre></td></tr></table></figure>
+
+<p>修改logstash配置文件，设置es的用户名密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim logstash/config/logstash.yml</span><br><span class="line"></span><br><span class="line">  xpack.monitoring.elasticsearch.username: elastic</span><br><span class="line">  xpack.monitoring.elasticsearch.password: Passw0rd</span><br></pre></td></tr></table></figure>
+
+<p>修改logstash的pipeline配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">vim logstash/pipeline/logstash.conf</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"> 这里codec根据具体情况配置 </span></span><br><span class="line">  input &#123;</span><br><span class="line">          beats &#123;</span><br><span class="line">                  port =&gt; 5044</span><br><span class="line">                  codec =&gt; "json" </span><br><span class="line">          &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># Add your filters / logstash plugins configuration here</span></span></span><br><span class="line">  output &#123;</span><br><span class="line">          elasticsearch &#123;</span><br><span class="line">                  hosts =&gt; "elasticsearch:9200"</span><br><span class="line">                  index =&gt; "%&#123;[@metadata][beat]&#125;-%&#123;[@metadata][version]&#125;-%&#123;+YYYY.MM.dd&#125;"</span><br><span class="line">                  user =&gt; "elastic"</span><br><span class="line">                  password =&gt; "Passw0rd"</span><br><span class="line">          &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改kibana配置，设置es密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vim kibana/config/kibana.yml</span><br><span class="line"></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># X-Pack security credentials</span></span></span><br><span class="line">  elasticsearch.username: elastic</span><br><span class="line">  elasticsearch.password: Passw0rd</span><br></pre></td></tr></table></figure>
+
 <p>配置调整后，使用 <code>docker-compose up -d</code> 即可启动es，logstash，kibana三个容器。第一次启动需要下载所有镜像，会比较慢，启动完后，访问 elk所在服务器IP:5601即可进入kibana页面。</p>
 <p>这里默认是起一个es容器，如果想起多个，参考： <a href="https://github.com/deviantony/docker-elk/wiki/Elasticsearch-cluster" target="_blank" rel="noopener">https://github.com/deviantony/docker-elk/wiki/Elasticsearch-cluster</a></p>
-<h2 id="2-部署filebeat"><a href="#2-部署filebeat" class="headerlink" title="2. 部署filebeat"></a>2. 部署filebeat</h2><p>filebeat部署在产生日志的服务器上。先下载镜像，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull docker.elastic.co/kibana/kibana:7.3.1</span><br></pre></td></tr></table></figure></p>
-<p>下载一个示例配置文件<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -L -O https://raw.githubusercontent.com/elastic/beats/7.3/deploy/docker/filebeat.docker.yml</span><br></pre></td></tr></table></figure></p>
-<p>修改配置文件<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">vim filebeat.docker.yml</span><br><span class="line"></span><br><span class="line">filebeat.config:</span><br><span class="line">  modules:</span><br><span class="line">    path: $&#123;path.config&#125;/modules.d/*.yml</span><br><span class="line">    reload.enabled: false</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">filebeat.autodiscover:</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  providers:</span></span><br><span class="line"><span class="meta">#</span><span class="bash">    - <span class="built_in">type</span>: docker</span></span><br><span class="line"><span class="meta">#</span><span class="bash">      hints.enabled: <span class="literal">true</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">processors:</span></span><br><span class="line"><span class="meta">#</span><span class="bash">- add_cloud_metadata: ~</span></span><br><span class="line"><span class="meta">#</span><span class="bash">- add_host_metadata: ~</span></span><br><span class="line"></span><br><span class="line">filebeat.inputs:</span><br><span class="line">- type: log</span><br><span class="line">  enabled: true</span><br><span class="line">  paths:</span><br><span class="line">  - /var/log/elk/*.log</span><br><span class="line"></span><br><span class="line">output.logstash:</span><br><span class="line">  hosts: ["你的elk服务器IP:5044"]</span><br></pre></td></tr></table></figure></p>
+<h2 id="2-部署filebeat"><a href="#2-部署filebeat" class="headerlink" title="2. 部署filebeat"></a>2. 部署filebeat</h2><p>filebeat部署在产生日志的服务器上。先下载镜像，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull docker.elastic.co/kibana/kibana:7.3.1</span><br></pre></td></tr></table></figure>
+
+<p>下载一个示例配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -L -O https://raw.githubusercontent.com/elastic/beats/7.3/deploy/docker/filebeat.docker.yml</span><br></pre></td></tr></table></figure>
+<p>修改配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">vim filebeat.docker.yml</span><br><span class="line"></span><br><span class="line">filebeat.config:</span><br><span class="line">  modules:</span><br><span class="line">    path: $&#123;path.config&#125;/modules.d/*.yml</span><br><span class="line">    reload.enabled: false</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">filebeat.autodiscover:</span></span><br><span class="line"><span class="meta">#</span><span class="bash">  providers:</span></span><br><span class="line"><span class="meta">#</span><span class="bash">    - <span class="built_in">type</span>: docker</span></span><br><span class="line"><span class="meta">#</span><span class="bash">      hints.enabled: <span class="literal">true</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">processors:</span></span><br><span class="line"><span class="meta">#</span><span class="bash">- add_cloud_metadata: ~</span></span><br><span class="line"><span class="meta">#</span><span class="bash">- add_host_metadata: ~</span></span><br><span class="line"></span><br><span class="line">filebeat.inputs:</span><br><span class="line">- type: log</span><br><span class="line">  enabled: true</span><br><span class="line">  paths:</span><br><span class="line">  - /var/log/elk/*.log</span><br><span class="line"></span><br><span class="line">output.logstash:</span><br><span class="line">  hosts: ["你的elk服务器IP:5044"]</span><br></pre></td></tr></table></figure>
 <p>去掉了一些不必要的配置，基本就是一个input, 一个output。input paths部分配置你日志所在目录，注意这里是容器内的目录，真正服务器的日志目录需要在启动容器时挂载到这里配置的目录。</p>
-<p>启动容器<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name filebeat --user=root -v $(pwd)/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro \</span><br><span class="line">  -v /mnt/logs/elk/:/var/log/elk/ docker.elastic.co/beats/filebeat:7.3.1 filebeat -e -strict.perms=false</span><br></pre></td></tr></table></figure></p>
+<p>启动容器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name filebeat --user=root -v $(pwd)/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro \</span><br><span class="line">  -v /mnt/logs/elk/:/var/log/elk/ docker.elastic.co/beats/filebeat:7.3.1 filebeat -e -strict.perms=false</span><br></pre></td></tr></table></figure>
 <p>对配置文件及实际日志目录与容器日志目录进行了挂载。</p>
 <p>启动成功后，对应目录下的日志就会通过filebeat，logstash传输到es，进入kibana对日志数据建立索引进行查询了。</p>
-<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>前面用elk来搭建日志分析系统还是5.1版，两年时间已到7.4，配置方式，包括UI风格都做了很大的调整，很有一种人间一年，技术圈十载的感觉。<br>本文整理了基于Docker来搭建ELK框架的整个过程，供参考。<br><br><br>—————————————————————————————<br>作者：空山新雨<br>欢迎关注我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号）<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
-</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/jdk8.html" title="JDK13，不如温习下Java8" class="prev">PREV</a><a href="/docker-9.html" title="Docker笔记（九）：网络管理" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
-    el: "#vcomments",
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>前面用elk来搭建日志分析系统还是5.1版，两年时间已到7.4，配置方式，包括UI风格都做了很大的调整，很有一种人间一年，技术圈十载的感觉。<br>本文整理了基于Docker来搭建ELK框架的整个过程，供参考。<br></br><br>—————————————————————————————<br>作者：空山新雨<br>欢迎关注我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号）<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"> </p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/docker-elk.html>http://blog.jboost.cn/docker-elk.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-07T11:59:50+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2019-09-07</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/docker/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>docker</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/elk/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>elk</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/docker-elk.html&title=Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统 - 半路雨歌&summary=一段时间没关注ELK（elasticsearch —— 搜索引擎，可用于存储、索引日志, logstash —— 可用于日志传输、转换，Kibana —— WebUI，将日志可视化），发现最新版已到7.4了。所以别问程序员为什么这么忙？因为不是在加班就是在学习新框架中。本文整理了使用Docker来快速搭建一套ELK日志分析系统的方法。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/docker-elk.html&title=Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统 - 半路雨歌&summary=一段时间没关注ELK（elasticsearch —— 搜索引擎，可用于存储、索引日志, logstash —— 可用于日志传输、转换，Kibana —— WebUI，将日志可视化），发现最新版已到7.4了。所以别问程序员为什么这么忙？因为不是在加班就是在学习新框架中。本文整理了使用Docker来快速搭建一套ELK日志分析系统的方法。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/docker-elk.html&title=Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统 - 半路雨歌&summary=一段时间没关注ELK（elasticsearch —— 搜索引擎，可用于存储、索引日志, logstash —— 可用于日志传输、转换，Kibana —— WebUI，将日志可视化），发现最新版已到7.4了。所以别问程序员为什么这么忙？因为不是在加班就是在学习新框架中。本文整理了使用Docker来快速搭建一套ELK日志分析系统的方法。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACSElEQVR42u3aMVLEQAwEQP//05BD4B1JUGe5nR1wtnpJpka+vl56XeDg4ODg4IvgV/H6+f1fD7j5+/R+Y/OCg4ODg4MvhB8HgBvo6QF071edFxwcHBwcfDN8KmDEA93MMTUvODg4ODg4+BUXGekBnAYYcHBwcHBw8D68Wkx0nwcODg4ODg7eKOiLwaUaZD5mkwIODg4ODv5B8KkX/P7r89gLfuDg4ODg4A+Gd69qMfFXQeh2XnBwcHBw8EXw7uI+Bd0tGKoLiOMDBwcHBwcHfwE8vWG3OEj/EWMNDDg4ODg4+IPhp+B00G5wqc5zHGDAwcHBwcEXwKcXAOnA3WCTHiw4ODg4OPhm+FRxny7804NNX1gABwcHBwffCJ8GV4uKcrGQBihwcHBwcPCF8OnF/xQ0XWjcfgYHBwcHB18ETwNDtWBIXwCYKiLAwcHBwcE3w08PYOpFgm5hkRYUxwsFcHBwcHDwB8LTFwOqAWJ6QZEWH+Dg4ODg4BvhaXFfLRSqC/7qAcebFHBwcHBw8EXw04FOH1gNJFMLD3BwcHBw8I3w6uDVwmD6+3FQAgcHBwcHXwTvXtUFRHXh3/09ODg4ODj4Jng3KFSDz1TBUV4ogIODg4ODL4KngaUadNLP3SAEDg4ODg7+Jni3+J+6z3SwAgcHBwcHB8+LhrSQOA0i5eICHBwcHBwcfHzh34Ufzw8ODg4ODr4YXl0odH/eDTTHBQk4ODg4OPhC+FRxf7pgSA+oOsftQgEcHBwcHPzB8Ldd4ODg4ODgC65vLoiHcqcd5yAAAAAASUVORK5CYII=">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/jdk8.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>JDK13，不如温习下Java8</p>
+                <p class='content'>JDK13于昨天正式GA，版本新特性可参考： https://www.oschina.net/news/109934/jdk-13-released 
+
+
+虽然JDK更新迅速，但开发者貌似并不买...</p>
+              </a>
+            
+            
+              <a class='next' href='/docker-9.html'>
+                <p class='title'>Docker笔记（九）：网络管理<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Docker的应用运行在容器中，其相互之间或与外部之间是如何通信的，涉及到哪些知识点，本文对相关内容进行整理。因网络这块牵涉的面较多，因此只从日常使用或理解的角度出发，过于专业的就不深入探讨了。...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-部署elk"><span class="toc-text">1. 部署elk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-部署filebeat"><span class="toc-text">2. 部署filebeat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-总结"><span class="toc-text">3. 总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          ，总访客量
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
     appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
-    notify: false,
-    verify: false,
-    avatar: "robohash",
-    visitor: true,
-    placeholder: "随便说点什么～.～",
-});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
-try {
-    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
-} catch(error) {}
-const isExist = (identity) => {
-    identity = identity || getRealPath();
-    let query = new AV.Query('Timer');
-    return new Promise((resolve, reject) => {
-    query.equalTo("identity", identity);
-    query.find().then(results => {
-        resolve(results.length > 0);
-    }, error => reject(error));
-    })
-}
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
-const _get = (identity) => {
-    let query = null;
-    if(identity && identity instanceof Array){
-    let querys = [];
-    for(let i = 0; i < identity.length; ++i) {
-        querys[i] = new AV.Query('Timer');
-        querys[i].equalTo('identity', identity[i]);
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
     }
-    query = AV.Query.or.apply(null ,querys);
-    } else {
-    identity = identity || getRealPath();
-    query = new AV.Query("Timer");
-    query.equalTo("identity", identity);
-    }
+    initCopyCode();
+  }(window, document);
+</script>
 
-    return new Promise((resolve, reject) => {
-    query.find()
-    .then(results => resolve(results))
-    .catch(error => reject(error))
-    })
-}
 
-const create = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let Todo = AV.Object.extend('Timer');
-    let todo = new Todo();
-    todo.set("times", 1);
-    todo.set("identity", identity);
-    todo.save().then(res => resolve(true), error => reject(error));
-    })
-}
 
-const update = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let query = new AV.Query('Timer');
-    query.equalTo("identity", identity);
-    query.find().then(todos => {
-        todos.forEach(todo => {
-        todo.set("times", todo.attributes.times + 1);
-        });
-        return AV.Object.saveAll(todos);
-    }).then(todos => resolve(true), error => reject(error));
-    })
-}
 
-return {
-    isExist,
-    _get,
-    update,
-    create
-}
-})()
+<!-- fancybox -->
 
-const calcAndWriteTimes = () => {
-let isPost = true;
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
 
-let timerAllDOM = document.querySelectorAll(".article-timer");
 
-if(isPost) {
-    let identity = timerAllDOM[0].getAttribute("data-identity");
-    valineAPI.isExist(identity)
-    .then(exist => {
-    if(exist) {
-        return valineAPI.update(identity);
-    }
-    return new Promise(resolve => resolve(true));
-    })
-    .then( succuess => valineAPI._get(identity))
-    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
-    .catch(error => console.log(error.message))
-    return ;
-}
 
-let timerDOMCache = {};
 
-for(let timerDOM of timerAllDOM) {
-    let identity = timerDOM.getAttribute("data-identity");
-    if(timerDOMCache.hasOwnProperty(identity)){
-    timerDOMCache[identity].dom.push(timerDOM);
-    }else{
-    timerDOMCache[identity] = {
-        dom: [timerDOM],
-        times: undefined
-    };
-    }
-}
 
-let identities = Object.keys(timerDOMCache);
-valineAPI._get(identities).then(results => {
-    for(let result of results) {
-    let {identity, times} = result.attributes;
-    timerDOMCache[identity].times = times;
-    timerDOMCache[identity].dom.map(item => item.innerText = times);
-    }
-    for(let identity of identities) {
-    if(timerDOMCache[identity].times){
-        continue;
-    }
-    timerDOMCache[identity].dom.map(item => item.innerText = 1);
-    valineAPI.create(identity);
-    }
-}).catch(error => console.log(error.message))
-}
 
-if(true){
-calcAndWriteTimes();
-}</script></body></html>
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

@@ -1,18 +1,361 @@
-<!DOCTYPE html><html lang="zh"><head><meta name="generator" content="Hexo 3.8.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="baidu-site-verification" content="erIKW497yS"><meta name="google-site-verification" content="UgdHTfiMSYvSc5WkTMWIBaRheQv9f_np2Dm0RUlPFco"><title> ubuntu18.04上搭建KVM虚拟机环境超完整过程 · 空山新雨的技术空间</title><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="ubuntu18.04上搭建KVM虚拟机环境超完整过程 - 空山新雨"><meta name="keywords" content="Spring,DevOps,技术管理"><meta name="author" content="空山新雨"><link rel="short icon" href="/images/favicon.ico"><link rel="stylesheet" href="/css/bubuzou.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.jboost.cn/atom.xml" title="空山新雨的技术空间"><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-<script src="//unpkg.com/valine/dist/Valine.min.js"></script></head><body><header><div class="header row"> <a href="/" class="logo-link"><img src="/images/logo.png"></a><ul id="nav_list" class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" data-hover="博文" class="nav-list-link">博文</a></li><li class="nav-list-item"><a href="/archives/" target="_self" data-hover="归档" class="nav-list-link">归档</a></li><li class="nav-list-item"><a href="/about/" target="_self" data-hover="关于" class="nav-list-link">关于</a></li></ul><div class="search"><a id="search_btn" href="#search"></a></div><div id="nav_btn" class="nav-btn"><span></span><span></span><span></span></div></div></header><div class="row scroll-con"><section class="container"><!-- for archive page--><div id="postAr" class="post"><article class="post-block"><h1 class="post-title">ubuntu18.04上搭建KVM虚拟机环境超完整过程</h1><div class="post-info">2019-07-11<p class="visit"><i data-identity="ubuntu-kvm.html" class="article-timer"></i><span>次访问</span></p></div><div class="post-content"><p>看标题这是篇纯运维的文章。在中小型企业中，一般很少配置专业的运维人员，都是由开发人员兼着。同时，对有志于技术管理的开发人员来说，多了解一些运维及整个软件生命周期的知识，是很有帮助的，因为带团队不仅仅是个管人的活，更多的是在你的部下遇到难题或者无人能上的时候，你能协助他解决或亲自上阵，这比只会“吆五喝六”的管理者将能获得更高的敬重与威信。闲话不多说了，记录下整个KVM虚拟机的搭建过程吧。<br><a id="more"></a></p>
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>ubuntu18.04上搭建KVM虚拟机环境超完整过程 - 半路雨歌</title>
+  
+    <meta name="keywords" content="kvm">
+  
+  
+    <meta name="description" content="看标题这是篇纯运维的文章。在中小型企业中，一般很少配置专业的运维人员，都是由开发人员兼着。同时，对有志于技术管理的开发人员来说，多了解一些运维及整个软件生命周期的知识，是很有帮助的，因为带团队不仅仅是个管人的活，更多的是在你的部下遇到难题或者无人能上的时候，你能协助他解决或亲自上阵，这比只会“吆五喝六”的管理者将...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/ubuntu-kvm.html">
+      ubuntu18.04上搭建KVM虚拟机环境超完整过程
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-07-11</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/%E9%AB%98%E6%95%88%E5%AE%9E%E8%B7%B5/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>高效实践</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>看标题这是篇纯运维的文章。在中小型企业中，一般很少配置专业的运维人员，都是由开发人员兼着。同时，对有志于技术管理的开发人员来说，多了解一些运维及整个软件生命周期的知识，是很有帮助的，因为带团队不仅仅是个管人的活，更多的是在你的部下遇到难题或者无人能上的时候，你能协助他解决或亲自上阵，这比只会“吆五喝六”的管理者将能获得更高的敬重与威信。闲话不多说了，记录下整个KVM虚拟机的搭建过程吧。</p>
+<a id="more"></a>
+
 <h2 id="1-KVM安装"><a href="#1-KVM安装" class="headerlink" title="1. KVM安装"></a>1. KVM安装</h2><h3 id="1-1-配置确认"><a href="#1-1-配置确认" class="headerlink" title="1.1 配置确认"></a>1.1 配置确认</h3><p>首先需要确认服务器的硬件是否支持虚拟化，执行如下命令确认</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ egrep -c '(vmx|svm)' /proc/cpuinfo</span><br><span class="line">48</span><br></pre></td></tr></table></figure>
 <p>如果输出结果大于0，意味着服务器硬件是支持虚拟化的。否则，重启进入BIOS设置中启用VT技术。<br>执行如下命令安装kvm-ok程序，来确定服务器是否能够运行硬件加速的KVM虚拟机</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo apt install cpu-checker</span><br><span class="line"></span><br><span class="line">devuser@server_01:~$ sudo kvm-ok</span><br><span class="line">INFO: /dev/kvm exists</span><br><span class="line">KVM acceleration can be used</span><br></pre></td></tr></table></figure>
-<h3 id="1-2-安装KVM"><a href="#1-2-安装KVM" class="headerlink" title="1.2 安装KVM"></a>1.2 安装KVM</h3><p>安装KVM及依赖项<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo apt update</span><br><span class="line">devuser@server_01:~$ sudo apt install qemu qemu-kvm libvirt-bin  bridge-utils  virt-manager</span><br></pre></td></tr></table></figure></p>
-<p>启动libvirtd服务，并设置开机自动启动<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo systemctl start libvirtd.service</span><br><span class="line">devuser@server_01:~$ sudo systemctl enable libvirtd.service</span><br></pre></td></tr></table></figure></p>
+
+<h3 id="1-2-安装KVM"><a href="#1-2-安装KVM" class="headerlink" title="1.2 安装KVM"></a>1.2 安装KVM</h3><p>安装KVM及依赖项</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo apt update</span><br><span class="line">devuser@server_01:~$ sudo apt install qemu qemu-kvm libvirt-bin  bridge-utils  virt-manager</span><br></pre></td></tr></table></figure>
+<p>启动libvirtd服务，并设置开机自动启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ sudo systemctl start libvirtd.service</span><br><span class="line">devuser@server_01:~$ sudo systemctl enable libvirtd.service</span><br></pre></td></tr></table></figure>
 <p>执行<code>service libvirtd status</code>查看libvirtd服务状态，如图<br><img src="/assets/kvm1.png" alt="libvirtd-status"></p>
 <h3 id="1-3-桥接网络配置"><a href="#1-3-桥接网络配置" class="headerlink" title="1.3 桥接网络配置"></a>1.3 桥接网络配置</h3><p>一般虚拟机网络配置有Bridge、NAT等几种模式。NAT模式下，虚拟机不需要配置自己的IP，通过宿主机来访问外部网络；Bridge模式下， 虚拟机需要配置自己的IP，然后虚拟出一个网卡， 与宿主机的网卡一起挂到一个虚拟网桥上（类似于交换机）来访问外部网络，这种模式下，虚拟机拥有独立的IP，局域网其它主机能直接通过IP与其通信。简单理解，就是NAT模式下，虚机隐藏在宿主机后面了，虚机能通过宿主机访问外网，但局域网其它主机访问不到它，Bridge模式下，虚机跟宿主机一样平等地存在，局域网其它主机可直接通过IP与其通信。一般我们创建虚机是用来部署服务供使用的， 所以都是用Bridge模式。</p>
 <p>ubuntu 18中，网络配置通过netplan来实现了，如下，更改配置文件 /etc/netplan/50-cloud-init.yaml</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">devuser@cserver_01:~$ sudo vim /etc/netplan/50-cloud-init.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> This file is generated from information provided by</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> the datasource.  Changes to it will not persist across an instance.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> To <span class="built_in">disable</span> cloud-init<span class="string">'s network configuration capabilities, write a file</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> network: &#123;config: disabled&#125;</span></span><br><span class="line">network:</span><br><span class="line">    ethernets:</span><br><span class="line">        enp6s0:</span><br><span class="line">            dhcp4: true</span><br><span class="line">        enp7s0:</span><br><span class="line">            dhcp4: no</span><br><span class="line">            dhcp6: no</span><br><span class="line">    version: 2</span><br><span class="line"></span><br><span class="line">    bridges:</span><br><span class="line">         br0:</span><br><span class="line">             interfaces: [enp7s0]</span><br><span class="line">             dhcp4: no</span><br><span class="line">             addresses: [192.168.40.241/24]</span><br><span class="line">             gateway4: 192.168.40.1</span><br><span class="line">             nameservers:</span><br><span class="line">                 addresses: [114.114.114.114,8.8.8.8]</span><br></pre></td></tr></table></figure>
-<p>将宿主机原有网卡enp7s0挂到网桥br0上，并指定IP地址为192.168.40.241，nameservers指定DNS服务器。修改完后，通过<code>sudo netplan apply</code>重启网络服务生效，然后通过<code>ifconfig</code>查看，<br><img src="/assets/kvm2.png" alt="kvm2"><br>原来挂在enp7s0网卡下的IP现在挂到了br0上，宿主机及所有其它虚拟机都通过该网桥来与外部通讯。我们也可以通过<code>brctl show</code>来直观地查看，<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ brctl show</span><br><span class="line">bridge name	    bridge id		STP enabled	    interfaces</span><br><span class="line">br0		    8000.2a5be3ec2698	no		        enp7s0</span><br><span class="line">docker0		8000.02424524dcce	no		        veth580af8e</span><br><span class="line">							        veth74119f3</span><br><span class="line">							        vethe7a2b0f</span><br><span class="line">							        vethfe89039</span><br></pre></td></tr></table></figure></p>
+<p>将宿主机原有网卡enp7s0挂到网桥br0上，并指定IP地址为192.168.40.241，nameservers指定DNS服务器。修改完后，通过<code>sudo netplan apply</code>重启网络服务生效，然后通过<code>ifconfig</code>查看，<br><img src="/assets/kvm2.png" alt="kvm2"><br>原来挂在enp7s0网卡下的IP现在挂到了br0上，宿主机及所有其它虚拟机都通过该网桥来与外部通讯。我们也可以通过<code>brctl show</code>来直观地查看，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ brctl show</span><br><span class="line">bridge name	    bridge id		STP enabled	    interfaces</span><br><span class="line">br0		    8000.2a5be3ec2698	no		        enp7s0</span><br><span class="line">docker0		8000.02424524dcce	no		        veth580af8e</span><br><span class="line">							        veth74119f3</span><br><span class="line">							        vethe7a2b0f</span><br><span class="line">							        vethfe89039</span><br></pre></td></tr></table></figure>
 <p>目前因为还没虚机，所以只有宿主机的网卡enp7s0挂在网桥br0上。同时也可以看到docker容器也是通过网桥docker0来通讯的。</p>
-<h2 id="2-虚拟机安装"><a href="#2-虚拟机安装" class="headerlink" title="2. 虚拟机安装"></a>2. 虚拟机安装</h2><h3 id="2-1-安装虚拟机"><a href="#2-1-安装虚拟机" class="headerlink" title="2.1 安装虚拟机"></a>2.1 安装虚拟机</h3><p>安装命令<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo virt-install --name=dev-server1 --memory=16384,maxmemory=16384 \</span><br><span class="line">--vcpus=4,maxvcpus=4 --os-type=linux --os-variant=rhel7 \</span><br><span class="line">--location=/home/devuser/tools/CentOS-7-x86_64-DVD-1810.iso \</span><br><span class="line">--disk path=/var/lib/libvirt/images/devserver1.img,size=300 \</span><br><span class="line">--bridge=br0 --graphics=none --console=pty,target_type=serial \</span><br><span class="line">--extra-args="console=tty0 console=ttyS0"</span><br></pre></td></tr></table></figure></p>
+<h2 id="2-虚拟机安装"><a href="#2-虚拟机安装" class="headerlink" title="2. 虚拟机安装"></a>2. 虚拟机安装</h2><h3 id="2-1-安装虚拟机"><a href="#2-1-安装虚拟机" class="headerlink" title="2.1 安装虚拟机"></a>2.1 安装虚拟机</h3><p>安装命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo virt-install --name=dev-server1 --memory=16384,maxmemory=16384 \</span><br><span class="line">--vcpus=4,maxvcpus=4 --os-type=linux --os-variant=rhel7 \</span><br><span class="line">--location=/home/devuser/tools/CentOS-7-x86_64-DVD-1810.iso \</span><br><span class="line">--disk path=/var/lib/libvirt/images/devserver1.img,size=300 \</span><br><span class="line">--bridge=br0 --graphics=none --console=pty,target_type=serial \</span><br><span class="line">--extra-args="console=tty0 console=ttyS0"</span><br></pre></td></tr></table></figure>
 <p>其中–name指定虚机名称；–memory=16384,maxmemory=16384配置了16G内存；–vcpus=4,maxvcpus=4配置了4个CPU内核；centos7需要指定–os-variant=rhel7；–disk path=xx,size=300指定了磁盘路径与大小，这里是300G。</p>
 <p>如果执行上述命令出现<code>qemu-kvm: could not open &#39;xx/CentOS-7-x86_64-DVD-1810.iso&#39;: Permission denied</code>异常退出时，可通过修改<code>/etc/libvirt/qemu.conf</code>文件将<code>user = &quot;root&quot;</code>，<code>group = &quot;root&quot;</code>前面的注释去掉解决（<a href="https://github.com/jedi4ever/veewee/issues/996）" target="_blank" rel="noopener">https://github.com/jedi4ever/veewee/issues/996）</a></p>
 <p>如无问题，安装程序将出现如下配置界面<br><img src="/assets/kvm3.png" alt="kvm3"></p>
@@ -26,25 +369,30 @@
 <p>这时候的eth0下面空空如也，什么都没有。在<code>/etc/sysconfig/network-scripts/ifcfg-eth0</code>文件中添加如下内容</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vi /etc/sysconfig/network-scripts/ifcfg-eth0</span><br><span class="line">TYPE=Ethernet</span><br><span class="line">PROXY_METHOD=none</span><br><span class="line">BROWSER_ONLY=no</span><br><span class="line">BOOTPROTO=static #静态指定IP</span><br><span class="line">DEFROUTE=yes</span><br><span class="line"><span class="meta">#</span><span class="bash">IPV4_FAILURE_FATAL=no</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6INIT=yes</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_AUTOCONF=yes</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_DEFROUTE=yes</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_FAILURE_FATAL=no</span></span><br><span class="line"><span class="meta">#</span><span class="bash">IPV6_ADDR_GEN_MODE=stable-privacy</span></span><br><span class="line">NAME=eth0</span><br><span class="line">UUID=449ed621-97a8-45b9-902f-0d347e27de98</span><br><span class="line">DEVICE=eth0</span><br><span class="line">ONBOOT=yes  #开机自动启动</span><br><span class="line">IPADDR=192.168.40.96</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">GATEWAY=192.168.40.1</span><br><span class="line">DNS1=192.168.40.1</span><br></pre></td></tr></table></figure>
 <p>并通过<code>systemctl restart network</code>重启网络生效，这时候再运行<code>ip a</code>查看，eth0下面已经有配置的IP了。不出意外的话，局域网其它主机就可以通过该IP来远程SSH连接了。<br><img src="/assets/kvm10.png" alt="kvm10"></p>
-<p>这时候我们再通过<code>brctl show</code>来查看网桥挂载情况，br0下面已经多了一个vnet0虚拟网卡了。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ brctl show</span><br><span class="line">bridge name	    bridge id		STP enabled	    interfaces</span><br><span class="line">br0		    8000.2a5be3ec2698	no		        enp7s0</span><br><span class="line">							        vnet0</span><br><span class="line">docker0		8000.02424524dcce	no		        veth580af8e</span><br><span class="line">							        veth74119f3</span><br><span class="line">							        vethd270ee8</span><br><span class="line">							        vethe7a2b0f</span><br><span class="line">							        vethfe89039</span><br></pre></td></tr></table></figure></p>
-<p>虚拟机装完后，默认的hostname是localhost，针对centos7，我们可以通过如下命令来修改hostname<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# hostnamectl set-hostname dev-server1</span><br></pre></td></tr></table></figure></p>
-<p>然后在/etc/hosts文件中添加127.0.0.1的host映射 dev-server1<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vi /etc/hosts</span><br><span class="line">127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 dev-server1</span><br><span class="line">::1         localhost localhost.localdomain localhost6 localhost6.localdomain6</span><br></pre></td></tr></table></figure></p>
+<p>这时候我们再通过<code>brctl show</code>来查看网桥挂载情况，br0下面已经多了一个vnet0虚拟网卡了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ brctl show</span><br><span class="line">bridge name	    bridge id		STP enabled	    interfaces</span><br><span class="line">br0		    8000.2a5be3ec2698	no		        enp7s0</span><br><span class="line">							        vnet0</span><br><span class="line">docker0		8000.02424524dcce	no		        veth580af8e</span><br><span class="line">							        veth74119f3</span><br><span class="line">							        vethd270ee8</span><br><span class="line">							        vethe7a2b0f</span><br><span class="line">							        vethfe89039</span><br></pre></td></tr></table></figure>
+
+<p>虚拟机装完后，默认的hostname是localhost，针对centos7，我们可以通过如下命令来修改hostname</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# hostnamectl set-hostname dev-server1</span><br></pre></td></tr></table></figure>
+<p>然后在/etc/hosts文件中添加127.0.0.1的host映射 dev-server1</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# vi /etc/hosts</span><br><span class="line">127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 dev-server1</span><br><span class="line">::1         localhost localhost.localdomain localhost6 localhost6.localdomain6</span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>Note: 如果出现虚拟机中无法访问外网，外部主机也无法ping通虚拟机的情况，则尝试如下处理</p>
 </blockquote>
-<p>向文件/etc/sysctl.conf添加以下代码，禁用网络过滤器:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net.bridge.bridge-nf-call-ip6tables = 0</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 0</span><br><span class="line">net.bridge.bridge-nf-call-arptables = 0</span><br></pre></td></tr></table></figure></p>
-<p>重新加载kernel参数：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01: sudo sysctl -p</span><br><span class="line">net.ipv4.ip_forward = 0</span><br><span class="line">...</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 0</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 0</span><br><span class="line">net.bridge.bridge-nf-call-arptables = 0</span><br></pre></td></tr></table></figure></p>
+<p>向文件/etc/sysctl.conf添加以下代码，禁用网络过滤器: </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net.bridge.bridge-nf-call-ip6tables = 0</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 0</span><br><span class="line">net.bridge.bridge-nf-call-arptables = 0</span><br></pre></td></tr></table></figure>
+<p>重新加载kernel参数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01: sudo sysctl -p</span><br><span class="line">net.ipv4.ip_forward = 0</span><br><span class="line">...</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 0</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 0</span><br><span class="line">net.bridge.bridge-nf-call-arptables = 0</span><br></pre></td></tr></table></figure>
 <h2 id="3-虚拟机管理"><a href="#3-虚拟机管理" class="headerlink" title="3. 虚拟机管理"></a>3. 虚拟机管理</h2><ol>
-<li>列出当前运行的虚拟机<code>virsh list</code><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh list</span><br><span class="line"> Id    Name                           State</span><br><span class="line">----------------------------------------------------</span><br><span class="line"> 5     dev-server1                    running</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
+<li><p>列出当前运行的虚拟机<code>virsh list</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh list</span><br><span class="line"> Id    Name                           State</span><br><span class="line">----------------------------------------------------</span><br><span class="line"> 5     dev-server1                    running</span><br></pre></td></tr></table></figure>
 <p>如果列出所有的，则<code>virsh list --all</code></p>
-<ol start="2">
-<li>从宿主机进入虚拟机<code>virsh console</code>，后面接虚拟机ID或名称<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh console 5</span><br><span class="line">Connected to domain dev-server1</span><br><span class="line">Escape character is ^]</span><br><span class="line"></span><br><span class="line">CentOS Linux 7 (Core)</span><br><span class="line">Kernel 3.10.0-957.el7.x86_64 on an x86_64</span><br><span class="line"></span><br><span class="line">dev-server1 login:</span><br></pre></td></tr></table></figure>
 </li>
-</ol>
+<li><p>从宿主机进入虚拟机<code>virsh console</code>，后面接虚拟机ID或名称</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh console 5</span><br><span class="line">Connected to domain dev-server1</span><br><span class="line">Escape character is ^]</span><br><span class="line"></span><br><span class="line">CentOS Linux 7 (Core)</span><br><span class="line">Kernel 3.10.0-957.el7.x86_64 on an x86_64</span><br><span class="line"></span><br><span class="line">dev-server1 login:</span><br></pre></td></tr></table></figure>
 <p>输入用户名，密码即可登录虚拟机，按<code>Ctrl+]</code>可退出。</p>
-<ol start="3">
+</li>
 <li><p>启动与关闭虚拟机<code>virsh start|shutdown</code></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">devuser@cserver_01:~$ virsh start dev-server1</span><br><span class="line">Domain dev-server1 started</span><br><span class="line"></span><br><span class="line">devuser@server_01:~$ virsh shutdown 5</span><br><span class="line">Domain 5 is being shutdown</span><br></pre></td></tr></table></figure>
 </li>
@@ -56,139 +404,674 @@
 </li>
 <li><p>销毁虚拟机</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">devuser@server_01:~$ virsh undefine dev-server1   # 彻底销毁虚拟机，会删除虚拟机配置文件，但不会删除虚拟磁盘</span><br></pre></td></tr></table></figure>
+
 </li>
 </ol>
-<p><br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号">  </p>
-</div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/docker-1.html" title="Docker笔记（一）：什么是Docker" class="prev">PREV</a><a href="/project-process.html" title="软件项目研发流程该怎么规范" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
-    el: "#vcomments",
+</br>
+我的个人博客地址：http://blog.jboost.cn         
+我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注，及时获取更新内容）
+———————————————————————————————————————————————————————————————
+![微信公众号](/assets/qrcode-05.jpg)  
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/ubuntu-kvm.html>http://blog.jboost.cn/ubuntu-kvm.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-08-26T10:05:42+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2019-08-26</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/kvm/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>kvm</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/ubuntu-kvm.html&title=ubuntu18.04上搭建KVM虚拟机环境超完整过程 - 半路雨歌&summary=看标题这是篇纯运维的文章。在中小型企业中，一般很少配置专业的运维人员，都是由开发人员兼着。同时，对有志于技术管理的开发人员来说，多了解一些运维及整个软件生命周期的知识，是很有帮助的，因为带团队不仅仅是个管人的活，更多的是在你的部下遇到难题或者无人能上的时候，你能协助他解决或亲自上阵，这比只会“吆五喝六”的管理者将能获得更高的敬重与威信。闲话不多说了，记录下整个KVM虚拟机的搭建过程吧。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/ubuntu-kvm.html&title=ubuntu18.04上搭建KVM虚拟机环境超完整过程 - 半路雨歌&summary=看标题这是篇纯运维的文章。在中小型企业中，一般很少配置专业的运维人员，都是由开发人员兼着。同时，对有志于技术管理的开发人员来说，多了解一些运维及整个软件生命周期的知识，是很有帮助的，因为带团队不仅仅是个管人的活，更多的是在你的部下遇到难题或者无人能上的时候，你能协助他解决或亲自上阵，这比只会“吆五喝六”的管理者将能获得更高的敬重与威信。闲话不多说了，记录下整个KVM虚拟机的搭建过程吧。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/ubuntu-kvm.html&title=ubuntu18.04上搭建KVM虚拟机环境超完整过程 - 半路雨歌&summary=看标题这是篇纯运维的文章。在中小型企业中，一般很少配置专业的运维人员，都是由开发人员兼着。同时，对有志于技术管理的开发人员来说，多了解一些运维及整个软件生命周期的知识，是很有帮助的，因为带团队不仅仅是个管人的活，更多的是在你的部下遇到难题或者无人能上的时候，你能协助他解决或亲自上阵，这比只会“吆五喝六”的管理者将能获得更高的敬重与威信。闲话不多说了，记录下整个KVM虚拟机的搭建过程吧。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACUElEQVR42u3cUZLCIBAE0Nz/0rsnSGV6ADXw+NOKkZevdpry+jt0XeDg4ODg4BvBr+a6vfHNdXefe3r/7j7d/YKDg4ODg+8ILweAIvzpdfogZ+0XHBwcHBx8Z/hjAGgGimpASYNQvF9wcHBwcHDwa1bASO8DDg4ODg4O/nl4FwIODg4ODg6+rlCoDhKqG0wLhq81KeDg4ODg4D8Ebx+Y+9LraQf8wMHBwcHBXwwfXdUgkl5XDTTxfsHBwcHBwTeCrzqwl8JWDTjAwcHBwcFPgKeD/u516YGBYWg6gQEHBwcHB38RPB0AdIHdgn/2YAIcHBwcHHwn+OzBfTVQxMFjMLiAg4ODg4OfBF81CBi9bviBgoODg4ODHwCfvdFZD7habMRNCjg4ODg4+AvhaRBYffAvHUzEgxBwcHBwcPAN4dUDe90vrr4/GmjKhQI4ODg4OPgG8NEf/mlxnz6A6QcTwMHBwcHBN4QPF+7NgwPp4GG4cAAHBwcHB98YvuoLuw+0e8AgDjDg4ODg4OAbwNMf9t1BRDlwdIHVQgEcHBwcHHwjeDcgdDfYLSqq+4wHEeDg4ODg4C+Cj67uhtPPd4sMcHBwcHDwneFXc80q9rvFQfu+4ODg4ODgG8K7gaVbHKwKMI/7BwcHBwcH3xg+WtynxUS3IEgHG+Dg4ODg4ODz/iinC0uDVvtEBDg4ODg4+EHw7gAiLSjSwPOx5AYODg4ODv4D8LRQWPW50QAFDg4ODg5+Erx7wG/VwKIbfOJCARwcHBwc/MXw0xY4ODg4OPgG6x8GyYHM31/09gAAAABJRU5ErkJggg==">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/docker-1.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Docker笔记（一）：什么是Docker</p>
+                <p class='content'>1. 前言接触Docker也有两年多了，断断续续玩过一些应用场景，如安装一些常用工具服务，部署业务项目，基于gitlab+jenkins pipeline+docker的CI/CD实现等。了解其...</p>
+              </a>
+            
+            
+              <a class='next' href='/project-process.html'>
+                <p class='title'>软件项目研发流程该怎么规范<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>在软件项目研发管理过程中，是否经常出现这样的场景：开发人员不知道什么时候转测；项目经理拿个Excel文档群里一发，某任务前天就应该完成的，怎么现在还没开始搞；前端问这部分UI是谁在做，什么时候能...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'ubuntu18.04上搭建KVM虚拟机环境超完整过程',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-KVM安装"><span class="toc-text">1. KVM安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-配置确认"><span class="toc-text">1.1 配置确认</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-安装KVM"><span class="toc-text">1.2 安装KVM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-桥接网络配置"><span class="toc-text">1.3 桥接网络配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-虚拟机安装"><span class="toc-text">2. 虚拟机安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-安装虚拟机"><span class="toc-text">2.1 安装虚拟机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-虚拟机网络配置"><span class="toc-text">2.2 虚拟机网络配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-虚拟机管理"><span class="toc-text">3. 虚拟机管理</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          ，总访客量
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
     appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
     appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
-    notify: false,
-    verify: false,
-    avatar: "robohash",
-    visitor: true,
-    placeholder: "随便说点什么～.～",
-});</script><div class="copyright"><p>© 2019 - 2020 <a target="_blank">空山新雨</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> <br> and <a href="https://github.com/Bulandent/hexo-theme-bubuzou" target="_blank">hexo-theme-bubuzou</a></p><p> <span style="padding-right: 6px;"> </span></p></div><div class="totop"><i></i></div></div></footer><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script src="/scripts/jquery-1.8.2.min.js"></script><script src="/scripts/ar-anchor.js"></script><script src="/scripts/main.js"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>const valineAPI = (() => {
-try {
-    AV.init("g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz", "PhFNiYoBJ1Fge6n8stpsfggG");
-} catch(error) {}
-const isExist = (identity) => {
-    identity = identity || getRealPath();
-    let query = new AV.Query('Timer');
-    return new Promise((resolve, reject) => {
-    query.equalTo("identity", identity);
-    query.find().then(results => {
-        resolve(results.length > 0);
-    }, error => reject(error));
-    })
-}
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
-const _get = (identity) => {
-    let query = null;
-    if(identity && identity instanceof Array){
-    let querys = [];
-    for(let i = 0; i < identity.length; ++i) {
-        querys[i] = new AV.Query('Timer');
-        querys[i].equalTo('identity', identity[i]);
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
     }
-    query = AV.Query.or.apply(null ,querys);
-    } else {
-    identity = identity || getRealPath();
-    query = new AV.Query("Timer");
-    query.equalTo("identity", identity);
-    }
+    initCopyCode();
+  }(window, document);
+</script>
 
-    return new Promise((resolve, reject) => {
-    query.find()
-    .then(results => resolve(results))
-    .catch(error => reject(error))
-    })
-}
 
-const create = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let Todo = AV.Object.extend('Timer');
-    let todo = new Todo();
-    todo.set("times", 1);
-    todo.set("identity", identity);
-    todo.save().then(res => resolve(true), error => reject(error));
-    })
-}
 
-const update = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-    let query = new AV.Query('Timer');
-    query.equalTo("identity", identity);
-    query.find().then(todos => {
-        todos.forEach(todo => {
-        todo.set("times", todo.attributes.times + 1);
-        });
-        return AV.Object.saveAll(todos);
-    }).then(todos => resolve(true), error => reject(error));
-    })
-}
 
-return {
-    isExist,
-    _get,
-    update,
-    create
-}
-})()
+<!-- fancybox -->
 
-const calcAndWriteTimes = () => {
-let isPost = true;
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
 
-let timerAllDOM = document.querySelectorAll(".article-timer");
 
-if(isPost) {
-    let identity = timerAllDOM[0].getAttribute("data-identity");
-    valineAPI.isExist(identity)
-    .then(exist => {
-    if(exist) {
-        return valineAPI.update(identity);
-    }
-    return new Promise(resolve => resolve(true));
-    })
-    .then( succuess => valineAPI._get(identity))
-    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
-    .catch(error => console.log(error.message))
-    return ;
-}
 
-let timerDOMCache = {};
 
-for(let timerDOM of timerAllDOM) {
-    let identity = timerDOM.getAttribute("data-identity");
-    if(timerDOMCache.hasOwnProperty(identity)){
-    timerDOMCache[identity].dom.push(timerDOM);
-    }else{
-    timerDOMCache[identity] = {
-        dom: [timerDOM],
-        times: undefined
-    };
-    }
-}
 
-let identities = Object.keys(timerDOMCache);
-valineAPI._get(identities).then(results => {
-    for(let result of results) {
-    let {identity, times} = result.attributes;
-    timerDOMCache[identity].times = times;
-    timerDOMCache[identity].dom.map(item => item.innerText = times);
-    }
-    for(let identity of identities) {
-    if(timerDOMCache[identity].times){
-        continue;
-    }
-    timerDOMCache[identity].dom.map(item => item.innerText = 1);
-    valineAPI.create(identity);
-    }
-}).catch(error => console.log(error.message))
-}
 
-if(true){
-calcAndWriteTimes();
-}</script></body></html>
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
