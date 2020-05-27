@@ -288,6 +288,107 @@
         
           
   <h2 class="title">
+    <a href="/session-redis.html">
+      redission-tomcat 快速实现从单机部署到多机部署
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-06-29</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/%E9%AB%98%E6%95%88%E5%AE%9E%E8%B7%B5/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>高效实践</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>1.1k words</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>4 min</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>一些项目初期出于简单快速，都是做单机开发与部署，但是随着业务的扩展或对可用性要求的提高，单机环境已不满足需求。单机部署往多机部署切换，其中可能存在的一个重要环节就是session的共享（如果一开始就是基于token的认证则可忽略）。本文介绍一个基于redis的tomcat session管理开源项目：redission-tomcat，可无代码侵入式地快速实现session共享。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/session-redis.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
     <a href="/swagger-register.html">
       swagger api文档集中化注册管理
     </a>
@@ -1184,109 +1285,6 @@
           </div>
         
       
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/issue-threadpool.html">
-      案例解析：线程池使用不当导致系统崩溃
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-06-15</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>案例解析</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.3k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>5 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>前几天，发现一台阿里云服务器上的Web服务不可用。远程SSH登录不上，尝试几次登录上去之后，执行命令都显示</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-bash: fork: Cannot allocate memory</span><br></pre></td></tr></table></figure>
-<p>一看以为是内存泄漏导致溢出。因为执行不了任何命令， 只能通过控制台重启服务器恢复服务。</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/issue-threadpool.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
     
   </section>
   
@@ -1379,7 +1377,7 @@
           <li><a class="flat-box"
             title="/categories/DevOps/" href="/categories/DevOps/"
             id="categoriesDevOps"
-            ><div class='name'>DevOps</div><div class='badge'>(23)</div></a></li>
+            ><div class='name'>DevOps</div><div class='badge'>(24)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/Java/" href="/categories/Java/"
@@ -1438,7 +1436,7 @@
 
 
     <div class='content'>
-      <a href="/tags/SpringCloud/" style="font-size: 19.71px; color: #727272">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.43px; color: #8f8f8f">ansible</a> <a href="/tags/arch/" style="font-size: 15.43px; color: #8f8f8f">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/docker/" style="font-size: 22.57px; color: #5f5f5f">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.86px; color: #868686">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 18.29px; color: #7c7c7c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 16.86px; color: #868686">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.43px; color: #8f8f8f">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/nginx/" style="font-size: 14px; color: #999">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 15.43px; color: #8f8f8f">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.14px; color: #686868">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">单例模式</a>
+      <a href="/tags/LimitRange/" style="font-size: 14px; color: #999">LimitRange</a> <a href="/tags/ResourceQuota/" style="font-size: 14px; color: #999">ResourceQuota</a> <a href="/tags/SpringCloud/" style="font-size: 20.25px; color: #6f6f6f">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.25px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.25px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/docker/" style="font-size: 22.75px; color: #5e5e5e">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.5px; color: #888">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 19px; color: #777">k8s</a> <a href="/tags/kubernetes/" style="font-size: 17.75px; color: #808080">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.25px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/nginx/" style="font-size: 14px; color: #999">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 15.25px; color: #919191">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.5px; color: #666">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">单例模式</a>
     </div>
   </section>
 
