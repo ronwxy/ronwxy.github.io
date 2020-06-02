@@ -461,7 +461,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 创建LimitRange</span></span><br><span class="line">[root@kmaster ~]# kubectl apply -f lr-test.yaml</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看</span></span><br><span class="line">[root@kmaster ~]# kubectl describe limits lr-test</span><br><span class="line">Name:                  lr-test</span><br><span class="line">Namespace:             test-limitrange</span><br><span class="line">Type                   Resource  Min    Max  Default Request  Default Limit  Max Limit/Request Ratio</span><br><span class="line">----                   --------  ---    ---  ---------------  -------------  -----------------------</span><br><span class="line">Container              cpu       100m   1    200m             900m           2</span><br><span class="line">Container              memory    100Mi  1Gi  200Mi            800Mi          1500m</span><br><span class="line">Pod                    cpu       -      2    -                -              -</span><br><span class="line">Pod                    memory    -      2Gi  -                -              -</span><br><span class="line">PersistentVolumeClaim  storage   1Gi    2Gi  -                -              -</span><br></pre></td></tr></table></figure>
 
 <p>我们可以创建不同配置的容器或Pod对象来验证，出于篇幅不再列出验证步骤。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文对K8s的Namespace及针对Namespace的资源限制管理ResourceQuota，LimitRange进行了较为深入的探索，其中ResourceQuota对整个Namespace的资源使用情况进行限制，LimitRange则对单个的Pod或容器的资源使用进行限制。Namespace的权限控制可基于RBAC来实现，后续再单独进行梳理。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文对K8s的Namespace及针对Namespace的资源限制管理ResourceQuota，LimitRange进行了较为深入的探索，其中ResourceQuota对整个Namespace的资源使用情况进行限制，LimitRange则对单个的Pod或容器的资源使用进行限制。Namespace的权限控制可基于RBAC来实现，后续再单独进行梳理介绍。</p>
 
           
             <div class='article_footer'>
@@ -558,7 +558,7 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-05-27T11:55:16+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-05-27T11:59:51+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：2020-05-27</p>
@@ -645,6 +645,12 @@
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/nginx-proxy.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>nginx反向代理导致session失效的问题处理</p>
+                <p class='content'>一同事求援：后台系统的登录成功了，但不能成功登进系统，仍然跳转到登录页，但同一套代码另一个环境却没有问题。
+背景经了解，他对同一个项目使用tomcat部署了两个环境，一个在开发服务器上，一个在他...</p>
+              </a>
             
             
               <a class='next' href='/k8s-netdevice-issue.html'>
