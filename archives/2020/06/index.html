@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>歸檔：2020/6 - 半路雨歌</title>
+    <title>归档：2020/6 - 半路雨歌</title>
   
   
 
@@ -275,9 +275,113 @@
         
           
         
+          
+        
       
     
     
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/issue-cpu-high.html">
+      记一次线上Java服务CPU 100%处理过程
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-06-16</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>案例解析</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：1.1k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：4分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="告警"><a href="#告警" class="headerlink" title="告警"></a>告警</h2><p>正在开会，突然钉钉告警声响个不停，同时市场人员反馈客户在投诉系统登不进了，报504错误。查看钉钉上的告警信息，几台业务服务器节点全部报CPU超过告警阈值，达100%。</p>
+<p>赶紧从会上下来，SSH登录服务器，使用 <code>top</code> 命令查看，几个Java进程CPU占用达到180%，190%，这几个Java进程对应同一个业务服务的几个Pod（或容器）。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/issue-cpu-high.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
       
         
           <div class='post-wrapper'>
@@ -332,13 +436,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>字數：746字</p>
+      <p>字数：746字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>時長：2分鐘</p>
+      <p>时长：2分钟</p>
     </a>
   </div>
 
@@ -477,7 +581,7 @@
           <li><a class="flat-box"
             title="/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/" href="/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/"
             id="categoriesE6A188E4BE8BE8A7A3E69E90"
-            ><div class='name'>案例解析</div><div class='badge'>(4)</div></a></li>
+            ><div class='name'>案例解析</div><div class='badge'>(5)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
@@ -561,18 +665,18 @@
       
     
       
-        <div><p>博客內容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh_TW" target="_blank" rel="noopener">姓名標示-非商業性-相同方式分享 4.0 國際 (CC BY-NC-SA 4.0) 協議</a></p>
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
 </div>
       
     
       
         本站使用
         <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
-        作為主題<span id="busuanzi_container_site_pv" style='display:none'>，總訪問量為
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
           <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
           次</span>
           <span id="busuanzi_container_site_uv" style='display:none'>
-          ，總訪客量為
+          ，总访客量
           <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
           次</span>
         
