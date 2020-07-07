@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>标签：redission - 半路雨歌</title>
+    <title>归档：2020/7 - 半路雨歌</title>
   
   
 
@@ -266,11 +266,9 @@
     <div class='body-wrapper'>
       
 
-
 <div class='l_main'>
-  
-    
-      
+	
+		
   <section class="post-list ">
     
       
@@ -295,8 +293,8 @@
         
           
   <h2 class="title">
-    <a href="/session-redis.html">
-      redission-tomcat 快速实现从单机部署到多机部署
+    <a href="/distributedlock.html">
+      基于Redis分布式锁的正确打开方式
     </a>
   </h2>
 
@@ -310,7 +308,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-06-29</p>
+    <p>2020-07-01</p>
   </a>
 </div>
 
@@ -320,9 +318,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/%E9%AB%98%E6%95%88%E5%AE%9E%E8%B7%B5/' rel="nofollow">
+    <a href='/categories/DevOps/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>高效实践</p>
+      <p>DevOps</p>
     </a>
   </div>
 
@@ -334,13 +332,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>字数：1.1k字</p>
+      <p>字数：1.8k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>时长：4分钟</p>
+      <p>时长：7分钟</p>
     </a>
   </div>
 
@@ -364,13 +362,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>一些项目初期出于简单快速，都是做单机开发与部署，但是随着业务的扩展或对可用性要求的提高，单机环境已不满足需求。单机部署往多机部署切换，其中可能存在的一个重要环节就是session的共享（如果一开始就是基于token的认证则可忽略）。本文介绍一个基于redis的tomcat session管理开源项目：redission-tomcat，可无代码侵入式地快速实现session共享。</p>
+        <p>分布式锁是在分布式环境下（多个JVM进程）控制多个客户端对某一资源的同步访问的一种实现，与之相对应的是线程锁，线程锁控制的是同一个JVM进程内多个线程之间的同步。分布式锁的一般实现方法是在应用服务器之外通过一个共享的存储服务器存储锁资源，同一时刻只有一个客户端能占有锁资源来完成。通常有基于Zookeeper，Redis，或数据库三种实现形式。本文介绍基于Redis的实现方案。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/session-redis.html">
+          <a href="/distributedlock.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -393,8 +391,7 @@
   
 
 
-    
-  
+	
 </div>
 <aside class='l_side'>
   
@@ -612,6 +609,14 @@ $(document).ready(function() {
        	
 });  
 </script>
+
+
+
+
+	<!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
+	
+
+	
 
 
       <script>setLoadingBarProgress(60);</script>

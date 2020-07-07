@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/distributedlock.html</loc>
+    
+    <lastmod>2020-07-07T11:13:02.222Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/issue-cpu-high.html</loc>
     
     <lastmod>2020-06-16T12:31:21.032Z</lastmod>
@@ -282,14 +289,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
@@ -464,14 +471,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     

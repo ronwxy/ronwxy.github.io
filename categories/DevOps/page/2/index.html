@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>Category: DevOps - 半路雨歌</title>
+    <title>分类：DevOps - 半路雨歌</title>
   
   
 
@@ -289,6 +289,198 @@
         
           
   <h2 class="title">
+    <a href="/docker-12.html">
+      Docker笔记（十二）：Docker Compose入门
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-11-20</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/DevOps/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>DevOps</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：1.8k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：7分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-Compose简介"><a href="#1-Compose简介" class="headerlink" title="1. Compose简介"></a>1. Compose简介</h2><p>Docker Compose是Docker官方的用于对Docker容器集群实现编排，快速部署分布式应用的开源项目。Docker Compose通过docker-compose.yml文件来定义一组相关联的应用容器的编排，这组相关联的应用容器一般通过互相交互作为一个整体项目提供服务，比如一个Web项目，既包含业务服务容器，也包含数据库服务容器与缓存服务容器等。</p>
+<p>Compose中两个重要的概念：</p>
+<ul>
+<li>服务（service）： 包含多个运行相同镜像的容器实例</li>
+<li>项目（project）： 由一组关联的应用容器（服务）组成一个完整的业务服务单元，在docker-compose.yml（即Compose的模板文件）中定义</li>
+</ul>
+<p>Copmpose项目由Python编写，通过调用Docker服务提供的API来对容器进行管理。Compose默认的管理对象是项目，可以通过子命令对项目中的一组容器进行生命周期管理。</p>
+<h2 id="2-Compose安装"><a href="#2-Compose安装" class="headerlink" title="2. Compose安装"></a>2. Compose安装</h2><p>在macOS与Win10下，Docker安装自带了docker-compose的二进制文件，可以直接使用。<br>Linux下，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@iZwz ~]# curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose</span><br><span class="line"></span><br><span class="line">[root@iZwz ~]# chmod +x /usr/local/bin/docker-compose</span><br></pre></td></tr></table></figure>
+
+<p>验证</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@iZwz ~]# docker-compose version</span><br><span class="line">docker-compose version 1.24.1, build 4667896b</span><br><span class="line">docker-py version: 3.7.3</span><br><span class="line">CPython version: 3.6.8</span><br><span class="line">OpenSSL version: OpenSSL 1.1.0j  20 Nov 2018</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Compose模板文件"><a href="#3-Compose模板文件" class="headerlink" title="3. Compose模板文件"></a>3. Compose模板文件</h2><p>模板文件是使用Compose的核心，定义了一组相关联的应用容器，使之构成一个项目，里面大部分指令跟docker run相关参数的含义是类似的。默认的模板文件名称为docker-compose.yml，为YAML格式，如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">'3'</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">    <span class="attr">web:</span></span><br><span class="line">        <span class="attr">build:</span> <span class="string">.</span></span><br><span class="line">        <span class="attr">depends_on:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">db</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">redis</span></span><br><span class="line">    </span><br><span class="line">    <span class="attr">redis:</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">redis</span></span><br><span class="line">    </span><br><span class="line">    <span class="attr">db:</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">mysql</span></span><br></pre></td></tr></table></figure>
+<p>Compose模板文件可以动态读取主机的系统环境变量与当前目录下.env文件中的变量，通过${xx}引用。</p>
+<p>模板文件中的常用指令说明</p>
+<ul>
+<li><p>build<br>指定Dockerfile所在文件夹的路径，可以是绝对路径或相对模板文件的路径。Compose将会自动构建镜像，然后使用该镜像。也可以通过如下方式详细指定。cache_from指定构建镜像的缓存</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">build:</span></span><br><span class="line">    <span class="attr">context:</span> <span class="string">./dir</span></span><br><span class="line">    <span class="attr">dockerfile:</span> <span class="string">Dockerfile-alternate</span></span><br><span class="line">    <span class="attr">args:</span></span><br><span class="line">        <span class="attr">buildno:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">cache_from:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">alpine:latest</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">corp/web_app:3.14</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>command<br>覆盖容器启动后默认执行的命令。</p>
+</li>
+<li><p>container_name<br>Compose默认会使用 项目名称_服务名称_序号的格式作为容器名称。一般不需要特别指定，因为指定具体名称后，服务将无法进行扩展（scale），因为不允许多个容器具有相同的名称。</p>
+</li>
+<li><p>depends_on<br>解决容器的依赖、启动先后顺序的问题，但是服务不会等待依赖的服务“完全启动”之后才启动。</p>
+</li>
+<li><p>env_file<br>指定环境变量定义文件，可以为单独文件路径或列表，当与environment中有同名冲突时，以environment为准。</p>
+</li>
+<li><p>environment<br>设置环境变量，支持数组或字典两种格式。只有名称的变量会自动获取运行Compose主机上的对应变量的值，以防止信息泄露</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">environment:</span></span><br><span class="line">    <span class="attr">RACK_ENV:</span> <span class="string">development</span></span><br><span class="line">    <span class="attr">SESSION_SECRET:</span></span><br><span class="line"></span><br><span class="line"><span class="attr">environment:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">RACK_ENV=development</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">SESSION_SECRET</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>expose<br>暴露端口，不映射到宿主机，只被连接的服务访问</p>
+</li>
+<li><p>healthcheck<br>通过命令检查容器是否健康运行，如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">healthcheck:</span></span><br><span class="line">    <span class="attr">test:</span> <span class="string">["CMD",</span> <span class="string">"curl"</span><span class="string">,</span> <span class="string">"-f"</span><span class="string">,</span> <span class="string">"http://localhost"</span><span class="string">]</span></span><br><span class="line">    <span class="attr">interval:</span> <span class="string">1m30s</span></span><br><span class="line">    <span class="attr">timeout:</span> <span class="string">10s</span></span><br><span class="line">    <span class="attr">retries:</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>image<br>指定镜像名称或镜像ID，所有服务都必要要么通过build，要么通过image来指定镜像。</p>
+</li>
+<li><p>labels<br>为容器添加Docker元数据信息</p>
+</li>
+<li><p>network_mode<br>设置网络模式，与docker run的–network一样，如bridge，host，none等，也可以是如下形式</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network_mode:</span> <span class="string">"service:[service name]"</span></span><br><span class="line"><span class="attr">network_mode:</span> <span class="string">"container:[container name/id]"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>networks<br>配置容器连接的网络，如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">    <span class="attr">service1:</span></span><br><span class="line">        <span class="attr">networks:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">some-network</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">other-network</span></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">    <span class="attr">some-network:</span></span><br><span class="line">    <span class="attr">other-network:</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ports<br>暴露端口信息，遵循端口映射规则。</p>
+</li>
+<li><p>secrets<br>存储敏感数据，如密码等信息</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mysql:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">mysql</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">        <span class="attr">MYSQL_ROOT_PASSWORD_FILE:</span> <span class="string">/run/secrets/db_root_password</span></span><br><span class="line">    <span class="attr">secrets:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">db_root_password</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">my_other_secret</span></span><br><span class="line"></span><br><span class="line"><span class="attr">secrets:</span></span><br><span class="line">    <span class="attr">my_secret:</span></span><br><span class="line">        <span class="attr">file:</span> <span class="string">./my_secret.txt</span></span><br><span class="line">    <span class="attr">my_other_secret:</span></span><br><span class="line">        <span class="attr">external:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>volumes<br>容器的数据卷挂在路径设置，可以设置多个，与docker -v类似，如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">/var/lib/mysql</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">cache/:/tmp/cache</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">~/configs:/etc/configs/:ro</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<h2 id="4-Compose命令"><a href="#4-Compose命令" class="headerlink" title="4. Compose命令"></a>4. Compose命令</h2><p>Compose命令默认是针对项目本身，也可以指定为项目中的服务或容器。<br>docker-compose 命令的基本使用格式为</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose [-f=&lt;arg&gt;...] [options] [COMMAND] [ARGS...]</span><br></pre></td></tr></table></figure>
+<p>命令选项</p>
+<ul>
+<li>-f, –file 指定模板文件，默认为docker-compose.yml，可多次指定</li>
+<li>-p, –project-name 指定项目名称，默认为所在目录名称</li>
+<li>–x-networking 使用Docker的可插拔网络特性</li>
+<li>–x-networking-driver 指定网络驱动，默认为bridge</li>
+<li>–verbose 输出更多调试信息</li>
+<li>-v, –version 打印版本信息</li>
+</ul>
+<p>命令使用说明</p>
+<ul>
+<li>build 格式为<code>docker-compose build [options] [SERVICE...]</code>，构建项目中的服务容器，选项包括 –force-rm（删除构建过程中的临时容器），–no-cache（构建镜像过程不使用cache），–pull（始终尝试通过pull来获取最新版本镜像）</li>
+<li>config 验证模板文件格式是否正确</li>
+<li>down 停止up命令启动的容器，并移除网络</li>
+<li>exec 进入指定的容器</li>
+<li>images 列出compose文件中包含的镜像</li>
+<li>kill 格式为<code>docker-compose kill [options] [SERVICE...]</code>，强制停止服务容器</li>
+<li>logs 格式为<code>docker-compose logs [options] [SERVICE...]</code>，查看服务容器的输出</li>
+<li>pause 格式为<code>docker-compose pause [SERVICE...]</code>， 暂停一个服务容器</li>
+<li>port 格式为<code>docker-compose port [options] SERVICE PRIVATE_PORT</code>，打印容器端口所映射的公共端口，–index=index（指定容器序号，默认为1）</li>
+<li>ps 格式为<code>docker-compose ps [options] [SERVICE...]</code>，列出项目中目前的所有容器</li>
+<li>pull 格式为<code>docker-compose pull [options] [SERVICE...]</code>，拉去服务依赖的镜像</li>
+<li>push 推送服务依赖的镜像到Docker镜像仓库</li>
+<li>restart 重启项目中服务，格式为<code>docker-compose restart [options] [SERVICE...]</code></li>
+<li>rm 删除所有停止的服务容器，格式<code>docker-compose rm [options] [SERVICE...]</code>， -f（强制直接删除）</li>
+<li>run 在指定服务上执行一个命令，不会自动创建端口，以避免冲突</li>
+<li>scale 格式<code>docker-compose scale [options] [SERVICE=NUM...]</code>，设置指定服务运行的容器个数，少则新建，多则删除</li>
+<li>start 格式<code>docker-compose start [SERVICE...]</code>，启动已经存在的服务容器</li>
+<li>stop 停止运行中的容器</li>
+<li>top 查看各个服务容器内运行的进程</li>
+<li>unpause 格式<code>docker-compose unpause [SERVICE...]</code>，恢复处于暂停状态的服务</li>
+<li>up 格式<code>docker-compose up [options] [SERVICE...]</code>，尝试自动完成包括构建镜像，创建服务，启动服务，关联服务相关容器的一系列操作，大部分时候都可以通过该命令来启动一个项目，-d（在后台启动所有容器）。<code>docker-compose up --no-recreate</code>只启动处于停止状态的容器，忽略已经运行的服务，<code>docker-compose up --no-deps -d &lt;SERVICE_NAME&gt;</code>重新创建服务，但不影响到它所依赖的服务</li>
+</ul>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>Compose是Docker官方的服务容器编排工具，对一些简单的但包含多个组件的服务可以借助Compose来快速搭建环境，如开源的错误监控系统sentry，包括sentry服务本身，redis，postgres。对于业务生产环境，则一般使用功能更为丰富的第三方编排系统如Kubernetes来部署。</p>
+</br>     
+欢迎关注我的微信公众号：jboost-ksxy
+———————————————————————————————————————————————————————————————
+![微信公众号](/assets/qrcode-05.jpg) 
+      
+    </div>
+    
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
     <a href="/nginx-1.html">
       nginx（一）：基本用途与用法
     </a>
@@ -328,13 +520,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2.1k words</p>
+      <p>字数：2.1k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>8 min</p>
+      <p>时长：8分钟</p>
     </a>
   </div>
 
@@ -430,13 +622,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>4.8k words</p>
+      <p>字数：4.8k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>18 min</p>
+      <p>时长：18分钟</p>
     </a>
   </div>
 
@@ -531,13 +723,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.1k words</p>
+      <p>字数：1.1k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>4 min</p>
+      <p>时长：4分钟</p>
     </a>
   </div>
 
@@ -632,13 +824,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2.2k words</p>
+      <p>字数：2.2k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>9 min</p>
+      <p>时长：9分钟</p>
     </a>
   </div>
 
@@ -733,13 +925,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2.1k words</p>
+      <p>字数：2.1k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>8 min</p>
+      <p>时长：8分钟</p>
     </a>
   </div>
 
@@ -834,13 +1026,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1k words</p>
+      <p>字数：1k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>3 min</p>
+      <p>时长：3分钟</p>
     </a>
   </div>
 
@@ -962,13 +1154,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.7k words</p>
+      <p>字数：1.7k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>7 min</p>
+      <p>时长：7分钟</p>
     </a>
   </div>
 
@@ -1063,13 +1255,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>950 words</p>
+      <p>字数：950字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>4 min</p>
+      <p>时长：4分钟</p>
     </a>
   </div>
 
@@ -1164,13 +1356,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.9k words</p>
+      <p>字数：1.9k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>7 min</p>
+      <p>时长：7分钟</p>
     </a>
   </div>
 
@@ -1212,107 +1404,6 @@
           </div>
         
       
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/docker-5.html">
-      Docker笔记（五）：整一个自己的镜像
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-07-17</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/DevOps/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>DevOps</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>7 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>获取镜像的途径有两个，一是从镜像仓库获取，如官方的Docker Hub，二是自定义。上文已经介绍如何从镜像仓库获取镜像，本文基于一个Springboot项目，来介绍自定义一个镜像的基本流程。</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/docker-5.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
     
   </section>
   
@@ -1322,7 +1413,7 @@
         
           <a class="prev" rel="prev" href="/categories/DevOps/">
             <section class="post prev white-box shadow" >
-              <i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;Previous&nbsp;
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页&nbsp;
             </section>
           </a>
         
@@ -1332,7 +1423,7 @@
         
           <a class="next" rel="next" href="/categories/DevOps/page/3/">
             <section class="post next white-box shadow">
-              &nbsp;Next&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i>
+              &nbsp;下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i>
             </section>
           </a>
         
@@ -1408,7 +1499,7 @@
           <li><a class="flat-box"
             title="/categories/DevOps/" href="/categories/DevOps/"
             id="categoriesDevOps"
-            ><div class='name'>DevOps</div><div class='badge'>(24)</div></a></li>
+            ><div class='name'>DevOps</div><div class='badge'>(25)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/Java/" href="/categories/Java/"
@@ -1467,7 +1558,7 @@
 
 
     <div class='content'>
-      <a href="/tags/LimitRange/" style="font-size: 14px; color: #999">LimitRange</a> <a href="/tags/ResourceQuota/" style="font-size: 14px; color: #999">ResourceQuota</a> <a href="/tags/SpringCloud/" style="font-size: 20.25px; color: #6f6f6f">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.25px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.25px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/docker/" style="font-size: 22.75px; color: #5e5e5e">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.5px; color: #888">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 19px; color: #777">k8s</a> <a href="/tags/kubernetes/" style="font-size: 17.75px; color: #808080">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.25px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/nginx/" style="font-size: 15.25px; color: #919191">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 15.25px; color: #919191">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.5px; color: #666">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">单例模式</a>
+      <a href="/tags/LimitRange/" style="font-size: 14px; color: #999">LimitRange</a> <a href="/tags/ResourceQuota/" style="font-size: 14px; color: #999">ResourceQuota</a> <a href="/tags/SpringCloud/" style="font-size: 20.25px; color: #6f6f6f">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.25px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.25px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/docker/" style="font-size: 22.75px; color: #5e5e5e">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.5px; color: #888">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 19px; color: #777">k8s</a> <a href="/tags/kubernetes/" style="font-size: 17.75px; color: #808080">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.25px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/nginx/" style="font-size: 15.25px; color: #919191">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 16.5px; color: #888">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.5px; color: #666">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">单例模式</a>
     </div>
   </section>
 
@@ -1517,20 +1608,20 @@
       
     
       
-        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
 </div>
       
     
       
-        Use
+        本站使用
         <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
-        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
           <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
           <span id="busuanzi_container_site_uv" style='display:none'>
-          , total visitors
+          ，总访客量
           <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
         
       
     
