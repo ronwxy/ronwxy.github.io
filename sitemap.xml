@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/arch-1.html</loc>
+    
+    <lastmod>2020-07-22T06:33:45.406Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/browser-cache.html</loc>
     
     <lastmod>2020-07-22T06:28:30.059Z</lastmod>
@@ -96,13 +103,6 @@
     <loc>http://blog.jboost.cn/code-review.html</loc>
     
     <lastmod>2020-05-07T03:09:25.819Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/arch-1.html</loc>
-    
-    <lastmod>2020-05-07T03:09:25.817Z</lastmod>
     
   </url>
   

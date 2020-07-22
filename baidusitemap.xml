@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://blog.jboost.cn/arch-1.html</loc>
+    <lastmod>2020-07-22</lastmod>
+  </url>  <url>
     <loc>http://blog.jboost.cn/browser-cache.html</loc>
     <lastmod>2020-07-22</lastmod>
   </url>  <url>
@@ -38,9 +41,6 @@
     <lastmod>2020-05-07</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/code-review.html</loc>
-    <lastmod>2020-05-07</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/arch-1.html</loc>
     <lastmod>2020-05-07</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/docker-13.html</loc>
