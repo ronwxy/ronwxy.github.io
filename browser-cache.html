@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>浏览器缓存常用策略及Vue应用的Nginx缓存设置 - 半路雨歌</title>
+  
+    <meta name="keywords" content="nginx,vue">
+  
+  
+    <meta name="description" content="最近一次移动端Vue应用的上线，导致某些用户使用某些功能时出现问题，经主动清空缓存后恢复。有时候清空微信应用的存储空间缓存仍不能解决问题，此时安卓机可借助微信TBS调试工具 http://debugx5.qq.com （微信中打开页面，勾选最下面四个选项清除缓存），但该工具目前只支持安卓手机，苹果机就比较麻烦了。...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/browser-cache.html">
+      浏览器缓存常用策略及Vue应用的Nginx缓存设置
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-07-22</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Web/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Web</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>最近一次移动端Vue应用的上线，导致某些用户使用某些功能时出现问题，经主动清空缓存后恢复。有时候清空微信应用的存储空间缓存仍不能解决问题，此时安卓机可借助微信TBS调试工具 <a href="http://debugx5.qq.com" target="_blank" rel="noopener">http://debugx5.qq.com</a> （微信中打开页面，勾选最下面四个选项清除缓存），但该工具目前只支持安卓手机，苹果机就比较麻烦了。为了找到问题的本质，从根本上避免问题，最近浏览了一些文章，其中有一篇对浏览器缓存的分析及在Nginx中对应的处理策略总结的比较好，这里分享给大家。</p>
+<a id="more"></a>
+
+<ul>
+<li>原文标题：http常用缓存策略及vue-cli单页面应用服务器端(nginx)如何设置缓存</li>
+<li>原文地址：<a href="http://www.shanhuxueyuan.com/news/detail/125.html" target="_blank" rel="noopener">http://www.shanhuxueyuan.com/news/detail/125.html</a></li>
+</ul>
+<p><em>以下为原文。</em></p>
+<p>关于http或者是浏览器缓存策略，我认为可以分为这三种：</p>
+<ul>
+<li>不使用缓存</li>
+<li>强制使用缓存</li>
+<li>协商使用缓存</li>
+</ul>
+<h2 id="不使用缓存"><a href="#不使用缓存" class="headerlink" title="不使用缓存"></a>不使用缓存</h2><p>有时，我们希望浏览器永远都不要使用缓存，全部到服务器拉取数据，此时即为不使用缓存，我们可以在服务端通过Cache-Control为 no-store实现。</p>
+<p><img src="/assets/httpcache1.png" alt="httpcache1"></p>
+<p>服务器端针对上面文件设置了no-store，可以看到在请求的时候，无论怎么刷新，都是返回200，不会显示304，也不会显示“memory cache”或“disk cache”，说明真的都是从服务器重新拉取数据。</p>
+<p>比如我们想设置html文件不缓存，可以在域名的解析配置中如下设置，当文件后缀为html或htm时add_header Cache-Control “no-store”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">listen 80;</span><br><span class="line">server_name yourdomain.com;</span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">    try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">    root &#x2F;yourdir&#x2F;;</span><br><span class="line">    index index.html index.htm;</span><br><span class="line"></span><br><span class="line">    if ($request_filename ~* .*\.(?:htm|html)$)</span><br><span class="line">    &#123;</span><br><span class="line">        add_header Cache-Control &quot;no-store&quot;;  &#x2F;&#x2F;对html文件设置永远不缓存</span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式缺点就是每次都要去服务端拉取文件，即使文件没有更新，很明显这样增加了不必要的带宽消耗。</p>
+<p>如果文件没有更新，我们就使用缓存，只有更新了才去拉取最新文件，这样多好，这就是协商缓存。</p>
+<h2 id="协商缓存"><a href="#协商缓存" class="headerlink" title="协商缓存"></a>协商缓存</h2><p>协商缓存就是浏览器携带文件缓存标识（如Last-Modified或ETag），向服务器发送请求，由服务器根据文件缓存标识来决定是否使用缓存，如果文件没有更新，则告诉浏览器使用本地缓存，如果文件更新了，则直接返回新文件内容。</p>
+<p>可以看出，相比不使用缓存，协商缓存是会大大减少带宽消耗的。</p>
+<ul>
+<li>协商缓存生效，返回304 和 Not Modified</li>
+</ul>
+<p><img src="/assets/httpcache2.png" alt="httpcache2"></p>
+<ul>
+<li>协商缓存无效，返回200和请求文件</li>
+</ul>
+<p><img src="/assets/httpcache3.png" alt="httpcache3"></p>
+<p>我们在浏览器调试页面，可以看到有304的，即是使用了协商缓存</p>
+<p><img src="/assets/httpcache4.png" alt="httpcache4"></p>
+<p>服务器返回的header中会有Last-Modified和ETag标识，而浏览器请求header中会包含If-Modified-Since和If-None-Match</p>
+<p><img src="/assets/httpcache5.png" alt="httpcache5"></p>
+<h3 id="Last-Modified和If-Modified-Since"><a href="#Last-Modified和If-Modified-Since" class="headerlink" title="Last-Modified和If-Modified-Since"></a>Last-Modified和If-Modified-Since</h3><p>在 http 1.0 版本中，第一次请求资源时服务器通过 Last-Modified 来设置响应头的缓存标识，并且把资源最后修改的时间作为值填入，然后将资源返回给浏览器。在第二次请求时，浏览器会首先带上 If-Modified-Since 请求头去访问服务器，服务器会将 If-Modified-Since 中携带的时间与资源修改的时间匹配，如果时间不一致，服务器会返回新的资源，并且将 Last-Modified 值更新，作为响应头返回给浏览器。如果时间一致，表示资源没有更新，服务器返回 304 状态码，浏览器拿到响应状态码后从本地缓存数据库中读取缓存资源。</p>
+<p>这种方式有2个弊端，第一个就是当服务器中的资源增加了一个字符，后来又把这个字符删掉，本身资源文件并没有发生变化，但修改时间发生了变化。当下次请求过来时，服务器也会把这个本来没有变化的资源重新返回给浏览器；第二个就是修改时间的单位为秒，所以存在1s的间隙，即使更新了，也会认为没有更新。</p>
+<h3 id="ETag和If-None-Match"><a href="#ETag和If-None-Match" class="headerlink" title="ETag和If-None-Match"></a>ETag和If-None-Match</h3><p>在 http 1.1 版本中，服务器通过 Etag 来设置响应头缓存标识。Etag 的值由服务端生成，可以认为是文件内容的hash值。在第一次请求时，服务器会将资源和 Etag 一并返回给浏览器，浏览器将两者缓存到本地缓存数据库。在第二次请求时，浏览器会将 Etag 信息放到 If-None-Match 请求头去访问服务器，服务器收到请求后，会将服务器中的文件标识与浏览器发来的标识进行对比，如果不相同，服务器返回更新的资源和新的 Etag ，如果相同，服务器返回 304 状态码，浏览器读取缓存。</p>
+<h3 id="两者对比"><a href="#两者对比" class="headerlink" title="两者对比"></a>两者对比</h3><ul>
+<li>首先在精确度上，Etag要优于Last-Modified。Last-Modified的时间单位是秒，如果某个文件在1秒内改变了多次，那么他们的Last-Modified其实并没有体现出来修改，但是Etag每次都会改变确保了精度；如果是负载均衡的服务器，各个服务器生成的Last-Modified也有可能不一致。</li>
+<li>第二在性能上，Etag要逊于Last-Modified，毕竟Last-Modified只需要记录时间，而Etag需要服务器通过算法来计算出一个hash值。</li>
+<li>第三在优先级上，服务器校验优先考虑Etag</li>
+</ul>
+<h3 id="协商缓存服务端配置"><a href="#协商缓存服务端配置" class="headerlink" title="协商缓存服务端配置"></a>协商缓存服务端配置</h3><p>可以在服务端通过设置Cache-Control为 no-cache或者max-age=0来实现</p>
+<h2 id="强制缓存"><a href="#强制缓存" class="headerlink" title="强制缓存"></a>强制缓存</h2><p>有时我们希望文件强制使用缓存，比如通过vue-cli产生的js和css，文件名上带有hash值，所以如果文件名没有变的时候，我们希望文件永久缓存，这样可以减少网络请求。</p>
+<p>强制缓存整体流程比较简单，就是在第一次访问服务器取到数据之后，在过期时间之内不会再去重复请求。实现这个流程的核心就是如何知道当前时间是否超过了过期时间。</p>
+<p>强制缓存的过期时间通过第一次访问服务器时返回的响应头获取。在 http 1.0 和 http 1.1 版本中通过不同的响应头字段实现。</p>
+<p>在 http 1.0 版本中，强制缓存通过 Expires 响应头来实现。 expires 表示未来资源会过期的时间。也就是说，当发起请求的时间超过了 expires 设定的时间，即表示资源缓存时间到期，会发送请求到服务器重新获取资源。而如果发起请求的时间在 expires 限定的时间之内，浏览器会直接读取本地缓存数据库中的信息（from memory or from disk），两种方式根据浏览器的策略随机获取。</p>
+<p>在 http 1.1 版本中，可以设置Cache-Control中的 max-age=xxx ，来表示缓存的资源将在 xxx 秒后过期。一般来说，为了兼容，两个版本的强制缓存都会被实现。</p>
+<p>为什么有了Expires，后来又增加了max-age呢，这是因为Expires是一个绝对时间，有可能客户端的时间和服务器不一致，导致缓存不能按照预期进行，而max-age则是个相对时间，比如3600s，自浏览器请求后3600s之内，都使用本地缓存，和客户端的时间没关系。</p>
+<h2 id="vue-cli缓存策略"><a href="#vue-cli缓存策略" class="headerlink" title="vue-cli缓存策略"></a>vue-cli缓存策略</h2><p>由于打包后的js、css和图片，一般名称都带有hash值，名称中的hash变了，自然会拉取新文件，所以我们可以将这类文件设置为强制缓存，只要文件名不变，就一直缓存，比如缓存100天或者一年。</p>
+<p>而html文件则不能设为强制缓存，一般html名称是没法带hash值的，所以html如果设置了强制缓存，则永远也没法更新，html不更新，其引用的js、css等名称也不会更新，则整个服务都没有更新，只能让用户清除缓存了。所以针对html文件，我们可以设置协商缓存或者直接不使用缓存，本身html文件都比较小，我是直接使用了不缓存，nginx配置如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">listen 80;</span><br><span class="line">server_name yourdomain.com;</span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">    try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">    root &#x2F;yourdir&#x2F;;</span><br><span class="line">    index index.html index.htm;</span><br><span class="line"></span><br><span class="line">    if ($request_filename ~* .*\.(js|css|woff|png|jpg|jpeg)$)</span><br><span class="line">    &#123;</span><br><span class="line">        expires    100d;  &#x2F;&#x2F;js、css、图片缓存100天</span><br><span class="line">        #add_header Cache-Control &quot;max-age &#x3D; 8640000&quot;; &#x2F;&#x2F;或者设置max-age</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if ($request_filename ~* .*\.(?:htm|html)$)</span><br><span class="line">    &#123;</span><br><span class="line">        add_header Cache-Control &quot;no-store&quot;;  &#x2F;&#x2F;html不缓存</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/browser-cache.html>http://blog.jboost.cn/browser-cache.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-22T14:28:30+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-07-22</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/nginx/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>nginx</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/vue/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>vue</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/browser-cache.html&title=浏览器缓存常用策略及Vue应用的Nginx缓存设置 - 半路雨歌&summary=最近一次移动端Vue应用的上线，导致某些用户使用某些功能时出现问题，经主动清空缓存后恢复。有时候清空微信应用的存储空间缓存仍不能解决问题，此时安卓机可借助微信TBS调试工具 http://debugx5.qq.com （微信中打开页面，勾选最下面四个选项清除缓存），但该工具目前只支持安卓手机，苹果机就比较麻烦了。为了找到问题的本质，从根本上避免问题，最近浏览了一些文章，其中有一篇对浏览器缓存的分析及在Nginx中对应的处理策略总结的比较好，这里分享给大家。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/browser-cache.html&title=浏览器缓存常用策略及Vue应用的Nginx缓存设置 - 半路雨歌&summary=最近一次移动端Vue应用的上线，导致某些用户使用某些功能时出现问题，经主动清空缓存后恢复。有时候清空微信应用的存储空间缓存仍不能解决问题，此时安卓机可借助微信TBS调试工具 http://debugx5.qq.com （微信中打开页面，勾选最下面四个选项清除缓存），但该工具目前只支持安卓手机，苹果机就比较麻烦了。为了找到问题的本质，从根本上避免问题，最近浏览了一些文章，其中有一篇对浏览器缓存的分析及在Nginx中对应的处理策略总结的比较好，这里分享给大家。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/browser-cache.html&title=浏览器缓存常用策略及Vue应用的Nginx缓存设置 - 半路雨歌&summary=最近一次移动端Vue应用的上线，导致某些用户使用某些功能时出现问题，经主动清空缓存后恢复。有时候清空微信应用的存储空间缓存仍不能解决问题，此时安卓机可借助微信TBS调试工具 http://debugx5.qq.com （微信中打开页面，勾选最下面四个选项清除缓存），但该工具目前只支持安卓手机，苹果机就比较麻烦了。为了找到问题的本质，从根本上避免问题，最近浏览了一些文章，其中有一篇对浏览器缓存的分析及在Nginx中对应的处理策略总结的比较好，这里分享给大家。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACRklEQVR42u3aS5LCMAwFwNz/0sweair6UYDc3iWVOG6zeUi+HoeOCxwcHBwcfBH8Ko6XCZ/uv+u97nrBwcHBwcE3wsMBIPl8dJ476NR6wcHBwcHBN8OjAWJqI6a+H34eHBwcHBwc/DZ4TBUkxjcKHBwcHBwcfOw6W/AABwcHBwcHn2soRBeYbexPNTTAwcHBwcFPgJcPzH3o+uMnG8HBwcHBwb8A3h3dQkO2sNBeLzg4ODg4+CJ4NSBkDwBMHRxsFzLAwcHBwcEXwasN+WhgqW5YtdAQbiiAg4ODg4MvgE8HlGwAqQaWsUIEODg4ODj4D8OzQSbbKLgrSGQbFdX3wcHBwcHBT4RXD/xlwe1g0m0ogIODg4ODL4RnCw3VhkJ246vrBAcHBwcH3wSfCiDdgkK1MJENQuDg4ODg4CfBswGkW1DoFkLCDQVwcHBwcPAF8O4f/+g87yp0lAMMODg4ODj4Ani0oJ9tGLSDRjJYhRsO4ODg4ODgB8KrB/yqo7vRYwEGHBwcHBz8h+FTBf9qoaEMzHZSwMHBwcHBF8Cj19kgE71f3eBoAQQcHBwcHHwTfOogXrXBX21ElDcGHBwcHBx8EXyq4F8FZw8mtDcKHBwcHBx8IbwbWKoNgurGlAsb4ODg4ODgi+HZhn65Qf+tnRRwcHBwcPAD4eNBIxmMwt8DBwcHBwcHv6oBI/pe9fnbecDBwcHBwRfDpxsC3YVXAxQ4ODg4OPhJ8OyILjQcLIbn+fcHAQcHBwcHXwQ/bYCDg4ODgy8Yf8yBg67JrCroAAAAAElFTkSuQmCC">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/distributedratelimiter.html'>
+                <p class='title'>一个轻量级的基于RateLimiter的分布式限流实现<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>上篇文章（限流算法与Guava RateLimiter解析）对常用的限流算法及Google Guava基于令牌桶算法的实现RateLimiter进行了介绍。RateLimiter通过线程锁控制同...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: '浏览器缓存常用策略及Vue应用的Nginx缓存设置',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#不使用缓存"><span class="toc-text">不使用缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#协商缓存"><span class="toc-text">协商缓存</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Last-Modified和If-Modified-Since"><span class="toc-text">Last-Modified和If-Modified-Since</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ETag和If-None-Match"><span class="toc-text">ETag和If-None-Match</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#两者对比"><span class="toc-text">两者对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#协商缓存服务端配置"><span class="toc-text">协商缓存服务端配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#强制缓存"><span class="toc-text">强制缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vue-cli缓存策略"><span class="toc-text">vue-cli缓存策略</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          , total visitors
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

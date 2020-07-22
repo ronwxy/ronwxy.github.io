@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/browser-cache.html</loc>
+    
+    <lastmod>2020-07-22T06:28:30.059Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/distributedratelimiter.html</loc>
     
     <lastmod>2020-07-16T01:25:33.735Z</lastmod>
@@ -485,14 +492,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
