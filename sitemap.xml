@@ -2,6 +2,48 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/k8s5-pod.html</loc>
+    
+    <lastmod>2020-07-31T03:42:52.491Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s-netdevice-issue.html</loc>
+    
+    <lastmod>2020-07-28T09:26:34.556Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s1-installation.html</loc>
+    
+    <lastmod>2020-07-28T09:26:27.052Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s2-concept.html</loc>
+    
+    <lastmod>2020-07-28T09:26:19.416Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s3-cd.html</loc>
+    
+    <lastmod>2020-07-28T09:26:12.563Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s4-namespace.html</loc>
+    
+    <lastmod>2020-07-28T09:26:03.262Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/arch-1.html</loc>
     
     <lastmod>2020-07-22T06:33:45.406Z</lastmod>
@@ -51,44 +93,9 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/k8s4-namespace.html</loc>
-    
-    <lastmod>2020-05-27T03:59:51.192Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s-netdevice-issue.html</loc>
-    
-    <lastmod>2020-05-22T04:53:29.445Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.jboost.cn/patterns-singleton.html</loc>
     
     <lastmod>2020-05-14T00:23:05.949Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s3-cd.html</loc>
-    
-    <lastmod>2020-05-12T00:53:26.937Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s2-concept.html</loc>
-    
-    <lastmod>2020-05-08T03:05:23.443Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s1-installation.html</loc>
-    
-    <lastmod>2020-05-07T06:38:48.101Z</lastmod>
     
   </url>
   
@@ -492,14 +499,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/issue-threadpool.html</loc>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
     
     <lastmod>2019-07-09T11:19:28.488Z</lastmod>
     
