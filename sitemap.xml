@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/k8s-tcp-service.html</loc>
+    
+    <lastmod>2020-08-05T10:20:36.794Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/k8s5-pod.html</loc>
     
     <lastmod>2020-07-31T03:42:52.491Z</lastmod>
@@ -60,7 +67,7 @@
   <url>
     <loc>http://blog.jboost.cn/distributedratelimiter.html</loc>
     
-    <lastmod>2020-07-16T01:25:33.735Z</lastmod>
+    <lastmod>2020-07-22T06:01:35.748Z</lastmod>
     
   </url>
   
@@ -317,14 +324,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
