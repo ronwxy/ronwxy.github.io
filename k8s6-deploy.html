@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Kubernetes笔记（六）：了解控制器 —— Deployment - 半路雨歌</title>
+  
+    <meta name="keywords" content="kubernetes,k8s">
+  
+  
+    <meta name="description" content="Pod（容器组）是 Kubernetes 中最小的调度单元，可以通过 yaml 定义文件直接创建一个 Pod。但 Pod 本身并不具备自我恢复（self-healing）功能。如果一个 Pod 所在的节点出现故障，或者调度程序自身出现问题，以及节点资源不够或节点进入维护而驱逐 Pod 时，Pod 将被删除，且不能...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/k8s6-deploy.html">
+      Kubernetes笔记（六）：了解控制器 —— Deployment
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-08-21</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/kubernetes/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>kubernetes</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>Pod（容器组）是 Kubernetes 中最小的调度单元，可以通过 yaml 定义文件直接创建一个 Pod。但 Pod 本身并不具备自我恢复（self-healing）功能。如果一个 Pod 所在的节点出现故障，或者调度程序自身出现问题，以及节点资源不够或节点进入维护而驱逐 Pod 时，Pod 将被删除，且不能自我恢复。</p>
+<p>因此，Kubernetes 中我们一般不直接创建 Pod， 而是通过 Controller（控制器）来管理 Pod。</p>
+<a id="more"></a>
+
+<h2 id="Controller"><a href="#Controller" class="headerlink" title="Controller"></a>Controller</h2><p>Controller 能为 Pod 提供如下特性：</p>
+<ul>
+<li>水平扩展，控制 Pod 运行的副本数</li>
+<li>rollout，即版本更新</li>
+<li>self-healing，即自我恢复。当节点出现故障时，控制器可以自动地在另一个节点调度一个配置完全一样的 Pod，以替换故障节点上的 Pod。</li>
+</ul>
+<p>Kubernetes 中支持的控制器包括：</p>
+<ul>
+<li>ReplicationController：用来维护一个数量稳定的 Pod 副本集合的控制器</li>
+<li>ReplicaSet：是 ReplicationController 的升级版，比 ReplicationController 多一个特性：支持基于集合的选择器。 不支持滚动更新（RollingUpdate）</li>
+<li>Deployment：包含了 ReplicaSet，可通过声明式、滚动更新的方式更新 ReplicaSet 及其 Pod。对于无状态应用，推荐使用 Deployment 部署</li>
+<li>StatefulSet：用于管理有状态的应用程序</li>
+<li>DaemonSet：在节点上以守护进程的方式运行一个指定的 Pod 副本，例如监控节点、收集节点上的日志时，可使用 DaemonSet</li>
+<li>CronJob：按照预定的时间计划创建 Job，类似于 linux 的crontab</li>
+<li>Job：使用 Job 执行任务，执行完后结束</li>
+</ul>
+<h2 id="ReplicaSet"><a href="#ReplicaSet" class="headerlink" title="ReplicaSet"></a>ReplicaSet</h2><p>Kubernetes 中，虽然一般使用 Deployment 来管理 Pod， 但 Deployment 中也是通过 ReplicaSet 来维护 Pod 的副本集合的，因此此处也对 ReplicaSet 进行简单介绍。</p>
+<p>在 ReplicaSet 的定义中，包含三部分：</p>
+<ol>
+<li>selector： 标签选择器，用于指定哪些 Pod 归该 ReplicaSet 管理，通过 <code>matchLabels</code> 来与 Pod 的 label 匹配。</li>
+<li>replicas： 期望的 Pod 副本数，指定该 ReplicaSet 应该维持多少个 Pod 副本，默认为1。</li>
+<li>template： Pod 定义模板，ReplicaSet 使用该模板的定义来创建 Pod。</li>
+</ol>
+<p>ReplicaSet 的示例定义文档如下所示，</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span>  <span class="comment"># api版本</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ReplicaSet</span>     <span class="comment"># 资源类型</span></span><br><span class="line"><span class="attr">metadata:</span>            <span class="comment"># 元数据定义</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-ds</span>     <span class="comment"># ReplicaSet 名称</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">2</span>        <span class="comment"># Pod 副本数量，默认1</span></span><br><span class="line">  <span class="attr">selector:</span>          <span class="comment"># 标签选择器</span></span><br><span class="line">     <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">template:</span>          <span class="comment"># Pod 定义模板</span></span><br><span class="line">    <span class="attr">metadata:</span>        <span class="comment"># Pod 元数据定义</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">nginx</span>   <span class="comment"># Pod 标签</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span>    <span class="comment"># 容器定义</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">nginx</span></span><br></pre></td></tr></table></figure>
+
+<p>ReplicaSet 通过创建、删除 Pod 容器组来确保符合 selector 选择器的 Pod 数量等于 replicas 指定的数量。 ReplicaSet 创建的 Pod 中，都有一个字段 <code>metadata.ownerReferences</code> 用于标识该 Pod 从属于哪一个 ReplicaSet。可通过 <code>kubectl get pod pod-name -o yaml</code> 来查看 Pod 的 ownerReference。</p>
+<p>ReplicaSet 通过 selector 字段的定义，识别哪些 Pod 应该由其管理， 不论该 Pod 是否由该 ReplicaSet 创建，即只要 selector 匹配， 通过外部定义创建的 Pod 也会被该 ReplicaSet 管理。因此需要注意 <code>.spec.selector.matchLabels</code> 与 <code>.spec.template.metadata.labels</code> 的定义一致， 且避免与其他控制器的 selector 重合，造成混乱。</p>
+<p>ReplicaSet 不支持滚动更新，所以对于无状态应用，一般使用 Deployment来部署， 而不直接使用 ReplicaSet。ReplicaSet 主要是被用作 Deployment 中负责 Pod 创建、删除、更新的一种手段。</p>
+<h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><p>Deployment 对象包含 ReplicaSet 作为从属对象，并且可通过声明式、滚动更新的方式来更新 ReplicaSet 及其 Pod。ReplicaSet 现在主要是被用作 Deployment 中负责 Pod 创建、删除、更新的一种手段。使用 Deployment 时，无需关心由 Deployment 创建的 ReplicaSet，Deployment 将处理所有与之相关的细节。同时，Deployment 还能以“声明式”的方式管理 Pod 和 ReplicaSet （其本质是将一些特定场景的一系列运维步骤固化下来，以便快速准确无误的执行），并提供版本（revision）回退功能。</p>
+<p>Deployment 定义示例，</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span>        <span class="comment"># 对象类型，固定为 Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-deploy</span>    <span class="comment"># Deployment 名称</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">default</span>    <span class="comment"># 命名空间，默认为 default</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">nginx</span>          <span class="comment"># 标签</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">4</span>           <span class="comment"># Pod 副本数，默认1</span></span><br><span class="line">  <span class="attr">strategy:</span>  </span><br><span class="line">    <span class="attr">rollingUpdate:</span>      <span class="comment"># 升级策略为滚动升级，由于replicas为4,则整个升级过程pod个数在3-5个之间</span></span><br><span class="line">      <span class="attr">maxSurge:</span> <span class="number">1</span>       <span class="comment"># 滚动升级时超过 replicas 的最大 pod 数，也可以为百分比（replicas的百分比），默认为1</span></span><br><span class="line">      <span class="attr">maxUnavailable:</span> <span class="number">1</span> <span class="comment"># 滚动升级时不可用的最大 pod 数，也可为百分比（replicas的百分比），默认为1</span></span><br><span class="line">  <span class="attr">selector:</span>             <span class="comment"># 标签选择器，通过标签选择该 Deployment 管理的 Pod</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">template:</span>             <span class="comment"># Pod 定义模板</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">nginx</span>      <span class="comment"># Pod 标签</span></span><br><span class="line">    <span class="attr">spec:</span>               <span class="comment"># 定义容器模板，可以包含多个容器</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">nginx:latest</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>可通过 <code>kubectl explain xxx</code> 来查看支持哪些配置选项，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 deployment 配置项</span></span><br><span class="line">[root@kmaster ~]# kubectl explain deployment</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 deployment.spec 模块的配置项</span></span><br><span class="line">[root@kmaster ~]# kubectl explain deployment.spec</span><br><span class="line">KIND:     Deployment</span><br><span class="line">VERSION:  apps/v1</span><br><span class="line"></span><br><span class="line">RESOURCE: spec &lt;Object&gt;</span><br><span class="line"></span><br><span class="line">DESCRIPTION:</span><br><span class="line">     Specification of the desired behavior of the Deployment.</span><br><span class="line"></span><br><span class="line">     DeploymentSpec is the specification of the desired behavior of the</span><br><span class="line">     Deployment.</span><br><span class="line"></span><br><span class="line">FIELDS:</span><br><span class="line">   minReadySeconds	&lt;integer&gt;</span><br><span class="line">     Minimum number of seconds for which a newly created pod should be ready</span><br><span class="line">     without any of its container crashing, for it to be considered available.</span><br><span class="line">     Defaults to 0 (pod will be considered available as soon as it is ready)</span><br><span class="line"></span><br><span class="line">   paused	&lt;boolean&gt;</span><br><span class="line">     Indicates that the deployment is paused.</span><br><span class="line"></span><br><span class="line">   progressDeadlineSeconds	&lt;integer&gt;</span><br><span class="line">     The maximum time in seconds for a deployment to make progress before it is</span><br><span class="line">     considered to be failed. The deployment controller will continue to process</span><br><span class="line">     failed deployments and a condition with a ProgressDeadlineExceeded reason</span><br><span class="line">     will be surfaced in the deployment status. Note that progress will not be</span><br><span class="line">     estimated during the time a deployment is paused. Defaults to 600s.</span><br><span class="line"></span><br><span class="line">   replicas	&lt;integer&gt;</span><br><span class="line">     Number of desired pods. This is a pointer to distinguish between explicit</span><br><span class="line">     zero and not specified. Defaults to 1.</span><br><span class="line"></span><br><span class="line">   revisionHistoryLimit	&lt;integer&gt;</span><br><span class="line">     The number of old ReplicaSets to retain to allow rollback. This is a</span><br><span class="line">     pointer to distinguish between explicit zero and not specified. Defaults to</span><br><span class="line">     10.</span><br><span class="line"></span><br><span class="line">   selector	&lt;Object&gt; -required-</span><br><span class="line">     Label selector for pods. Existing ReplicaSets whose pods are selected by</span><br><span class="line">     this will be the ones affected by this deployment. It must match the pod</span><br><span class="line">     template's labels.</span><br><span class="line"></span><br><span class="line">   strategy	&lt;Object&gt;</span><br><span class="line">     The deployment strategy to use to replace existing pods with new ones.</span><br><span class="line"></span><br><span class="line">   template	&lt;Object&gt; -required-</span><br></pre></td></tr></table></figure>
+
+<p>其它配置项说明：</p>
+<ul>
+<li><code>.spec.minReadySeconds</code>：用来控制应用升级的速度。升级过程中，新创建的 Pod 一旦成功响应了就绪探测即被认为是可用状态，然后进行下一轮的替换。 <code>.spec.minReadySeconds</code> 定义了在新的 Pod 对象创建后至少需要等待多长的时间才能会被认为其就绪，在该段时间内，更新操作会被阻塞。</li>
+<li><code>.spec.progressDeadlineSeconds</code>：用来指定在系统报告 Deployment 失败 —— 表现为状态中的 <code>type=Progressing、Status=False、 Reason=ProgressDeadlineExceeded</code> 前可以等待的 Deployment 进行的秒数。Deployment controller 会继续重试该 Deployment。如果设置该参数，该值必须大于 <code>.spec.minReadySeconds</code>。</li>
+<li><code>.spec.revisionHistoryLimit</code>：用来指定可以保留的旧的 ReplicaSet 或 revision（版本） 的数量。默认所有旧的 Replicaset 都会被保留。如果删除了一个旧的 RepelicaSet，则 Deployment 将无法再回退到那个 revison。如果将该值设置为0，所有具有0个 Pod 副本的 ReplicaSet 都会被删除，这时候 Deployment 将无法回退，因为 revision history 都被清理掉了。</li>
+</ul>
+<h3 id="1-创建"><a href="#1-创建" class="headerlink" title="1. 创建"></a>1. 创建</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster test]# kubectl apply -f nginx-deploy.yaml --record</span><br></pre></td></tr></table></figure>
+
+<p><code>--record</code> 会将此次命令写入 Deployment 的 kubernetes.io/change-cause 注解中。可在后面查看某一个 Deployment 版本变化的原因。</p>
+<h3 id="2-查看"><a href="#2-查看" class="headerlink" title="2. 查看"></a>2. 查看</h3><p>创建 Deployment 后，Deployment 控制器将立刻创建一个 ReplicaSet，并由 ReplicaSet 创建所需要的 Pod。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看 Deployment</span></span><br><span class="line">[root@kmaster test]# kubectl get deploy</span><br><span class="line">NAME           READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">nginx-deploy   0/2     2            0           64s</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 ReplicaSet</span></span><br><span class="line">[root@kmaster test]# kubectl get rs</span><br><span class="line">NAME                     DESIRED   CURRENT   READY   AGE</span><br><span class="line">nginx-deploy-59c9f8dff   2         2         1       2m16s</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 Pod，显示调度的节点，及标签</span></span><br><span class="line">[root@kmaster test]# kubectl get pod -o wide --show-labels</span><br><span class="line">NAME                           READY   STATUS      RESTARTS   AGE     IP            NODE     NOMINATED NODE   READINESS GATES   LABELS</span><br><span class="line">nginx-deploy-59c9f8dff-47bgd   1/1     Running     0          5m14s   10.244.1.91   knode2   &lt;none&gt;           &lt;none&gt;            app=nginx,pod-template-hash=59c9f8dff</span><br><span class="line">nginx-deploy-59c9f8dff-q4zb8   1/1     Running     0          5m14s   10.244.3.47   knode3   &lt;none&gt;           &lt;none&gt;            app=nginx,pod-template-hash=59c9f8dff</span><br></pre></td></tr></table></figure>
+
+<p><code>pod-template-hash</code> 标签是 Deployment 创建 ReplicaSet 时添加到 ReplicaSet 上的，ReplicaSet 进而将此标签添加到 Pod 上。这个标签用于区分 Deployment 中哪个 ReplicaSet 创建了哪些 Pod。该标签的值是 <code>.spec.template</code> 的 hash 值，不要去修改这个标签。由上可看出 ReplicaSet、 Pod 的命名分别遵循 <code>&lt;Deployment-name&gt;-&lt;Pod-template-hash&gt;</code>、<code>&lt;Deployment-name&gt;-&lt;Pod-template-hash&gt;-xxx</code> 的格式。</p>
+<h3 id="3-发布更新（rollout）"><a href="#3-发布更新（rollout）" class="headerlink" title="3. 发布更新（rollout）"></a>3. 发布更新（rollout）</h3><p>当且仅当 Deployment 的 Pod template（<code>.spec.template</code>）字段中的内容发生变更时（例如标签或容器的镜像被改变），Deployment 的发布更新（rollout）才会被触发。Deployment 中其他字段的变化（例如修改 <code>.spec.replicas</code> 字段）将不会触发 Deployment 的发布更新。</p>
+<p>更新 Deployment 中 Pod 的定义（例如，发布新版本的容器镜像）。此时 Deployment 控制器将为该 Deployment 创建一个新的 ReplicaSet，并且逐步在新的 ReplicaSet 中创建 Pod，在旧的 ReplicaSet 中删除 Pod，以达到滚动更新的效果。</p>
+<p>比如我们将上面 Deployment 的容器镜像进行修改，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 方式一：直接使用 kubectl 命令设置修改 </span></span><br><span class="line">[root@kmaster ~]# kubectl set image deploy nginx-deploy nginx=nginx:1.16.1 --record</span><br><span class="line">deployment.apps/nginx-deploy image updated</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 方式二：使用 kubectl edit 编辑yaml修改</span></span><br><span class="line">[root@kmaster ~]# kubectl edit deploy nginx-deploy</span><br></pre></td></tr></table></figure>
+
+<p>查看发布更新（rollout）的状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl rollout status deploy nginx-deploy</span><br><span class="line">Waiting for deployment "nginx-deploy" rollout to finish: 2 out of 4 new replicas have been updated...</span><br></pre></td></tr></table></figure>
+
+<p>查看 ReplicaSet，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl get rs</span><br><span class="line">NAME                     DESIRED   CURRENT   READY   AGE</span><br><span class="line">nginx-deploy-59c9f8dff   1         1         1       3d6h</span><br><span class="line">nginx-deploy-d47dbbb7c   4         4         2       3m41s</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到 Deployment 的更新是通过创建一个新的4个副本的 ReplicaSet，并同时将旧的 ReplicaSet 的副本数缩容到0个副本来达成的。</p>
+<p>因为前面我们将 maxSurge， 与 maxUnavailable 都设置为了1， 因此在更新的过程中，任何时刻两个 ReplicaSet 的 Pod 数至多为5个（4 replicas +1 maxSurge），且可用的 Pod 数至少为3个（4 replicas - 1 maxUnavailable）。</p>
+<p>使用 <code>kubectl describe</code> 命令查看 Deployment 的事件部分，如下所示</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl describe deploy nginx-deploy</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">Events:</span><br><span class="line">  Type    Reason             Age    From                   Message</span><br><span class="line">  ----    ------             ----   ----                   -------</span><br><span class="line">  Normal  ScalingReplicaSet  12m    deployment-controller  Scaled up replica set nginx-deploy-d47dbbb7c to 1</span><br><span class="line">  Normal  ScalingReplicaSet  12m    deployment-controller  Scaled down replica set nginx-deploy-59c9f8dff to 3</span><br><span class="line">  Normal  ScalingReplicaSet  12m    deployment-controller  Scaled up replica set nginx-deploy-d47dbbb7c to 2</span><br><span class="line">  Normal  ScalingReplicaSet  10m    deployment-controller  Scaled down replica set nginx-deploy-59c9f8dff to 2</span><br><span class="line">  Normal  ScalingReplicaSet  10m    deployment-controller  Scaled up replica set nginx-deploy-d47dbbb7c to 3</span><br><span class="line">  Normal  ScalingReplicaSet  8m56s  deployment-controller  Scaled down replica set nginx-deploy-59c9f8dff to 1</span><br><span class="line">  Normal  ScalingReplicaSet  8m56s  deployment-controller  Scaled up replica set nginx-deploy-d47dbbb7c to 4</span><br><span class="line">  Normal  ScalingReplicaSet  5m55s  deployment-controller  Scaled down replica set nginx-deploy-59c9f8dff to 0</span><br></pre></td></tr></table></figure>
+
+<p>当更新了 Deployment 的 Pod Template 时，Deployment Controller 会创建一个新的 ReplicaSet (nginx-deploy-d47dbbb7c) ，并将其 scale up 到 1 个副本，同时将旧的 ReplicaSet（nginx-deploy-59c9f8dff） scale down 到3个副本。接下来 Deployment Controller 继续 scale up 新的 ReplicaSet 并 scale down 旧的 ReplicaSet，直到新的 ReplicaSet 拥有 replicas 个数的 Pod， 旧的 ReplicaSet Pod 数缩放到0。这个过程称为 rollout（发布更新）。</p>
+<p>通过 <code>.spec.strategy</code> 字段，可以指定更新策略，除了上述使用的 RollingUpdate（滚动更新），另一个可取的值为 Recreate（重新创建）。选择重新创建，Deployment 将先删除原有 ReplicaSet 中的所有 Pod，然后再创建新的 ReplicaSet 和新的 Pod，更新过程中将出现一段应用程序不可用的情况。因此，线上环境一般使用 RollingUpdate。</p>
+<h3 id="4-回滚"><a href="#4-回滚" class="headerlink" title="4. 回滚"></a>4. 回滚</h3><p>默认情况下，kubernetes 将保存 Deployment 的所有更新（rollout）历史。可以通过设定 revision history limit（<code>.spec.revisionHistoryLimit</code> 配置项）来指定保存的历史版本数量。</p>
+<p>当且仅当 Deployment 的 <code>.spec.template</code> 字段被修改时（例如修改容器的镜像），kubernetes 才为其创建一个 Deployment revision（版本）。Deployment 的其他更新（例如：修改 <code>.spec.replicas</code> 字段）将不会创建新的 Deployment revision（版本）。</p>
+<p>查看 Deployment 的 revision，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl rollout history deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy</span><br><span class="line">REVISION  CHANGE-CAUSE</span><br><span class="line">1         kubectl apply --filename=nginx-deploy.yaml --record=true</span><br><span class="line">2         kubectl set image deploy nginx-deploy nginx=nginx:1.16.1 --record=true</span><br></pre></td></tr></table></figure>
+
+<p>如果前面更新 Deployment 时没有添加 <code>--record=true</code>，则此处 CHANGE-CAUSE 将为空。</p>
+<p>我们通过将镜像修改为一个不存在的版本来模拟一次失败的更新，并回滚到前一个版本的场景，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1. 修改镜像版本到一个不存在的值</span></span><br><span class="line">[root@kmaster ~]# kubectl set image deploy nginx-deploy nginx=nginx:1.161 --record</span><br><span class="line">deployment.apps/nginx-deploy image updated</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 查看 ReplicaSet</span></span><br><span class="line">[root@kmaster ~]# kubectl  get rs</span><br><span class="line">NAME                      DESIRED   CURRENT   READY   AGE</span><br><span class="line">nginx-deploy-58f69cfc57   2         2         0       2m7s</span><br><span class="line">nginx-deploy-59c9f8dff    0         0         0       3d7h</span><br><span class="line">nginx-deploy-d47dbbb7c    3         3         3       81m</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 查看 Pod 状态</span></span><br><span class="line">[root@kmaster ~]# kubect get pod</span><br><span class="line">NAME                            READY   STATUS              RESTARTS   AGE</span><br><span class="line">nginx-deploy-58f69cfc57-5968g   0/1     ContainerCreating   0          42s</span><br><span class="line">nginx-deploy-58f69cfc57-tk7c5   0/1     ErrImagePull        0          42s</span><br><span class="line">nginx-deploy-d47dbbb7c-2chgx    1/1     Running             0          77m</span><br><span class="line">nginx-deploy-d47dbbb7c-8fcb9    1/1     Running             0          80m</span><br><span class="line">nginx-deploy-d47dbbb7c-gnwjj    1/1     Running             0          78m</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4. 查看 Deployment 详情</span></span><br><span class="line">[root@kmaster ~]# kubectl describe deploy nginx-deploy</span><br><span class="line">...</span><br><span class="line">Events:</span><br><span class="line">  Type    Reason             Age    From                   Message</span><br><span class="line">  ----    ------             ----   ----                   -------</span><br><span class="line">  Normal  ScalingReplicaSet  3m57s  deployment-controller  Scaled up replica set nginx-deploy-58f69cfc57 to 1</span><br><span class="line">  Normal  ScalingReplicaSet  3m57s  deployment-controller  Scaled down replica set nginx-deploy-d47dbbb7c to 3</span><br><span class="line">  Normal  ScalingReplicaSet  3m57s  deployment-controller  Scaled up replica set nginx-deploy-58f69cfc57 to 2</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 5. 查看 Deployment 的历史版本</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout history deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy </span><br><span class="line">REVISION  CHANGE-CAUSE</span><br><span class="line">1         kubectl apply --filename=nginx-deploy.yaml --record=true</span><br><span class="line">2         kubectl set image deploy nginx-deploy nginx=nginx:1.16.1 --record=true</span><br><span class="line">3         kubectl set image deploy nginx-deploy nginx=nginx:1.161 --record=true</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 6. 查看某个版本的详情</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout history deploy nginx-deploy --revision=3</span><br><span class="line">deployment.apps/nginx-deploy with revision #3</span><br><span class="line">Pod Template:</span><br><span class="line">  Labels:	app=nginx</span><br><span class="line">	pod-template-hash=58f69cfc57</span><br><span class="line">  Annotations:	kubernetes.io/change-cause: kubectl set image deploy nginx-deploy nginx=nginx:1.161 --record=true</span><br><span class="line">  Containers:</span><br><span class="line">   nginx:</span><br><span class="line">    Image:	nginx:1.161</span><br><span class="line">    Port:	80/TCP</span><br><span class="line">    Host Port:	0/TCP</span><br><span class="line">    Environment:	&lt;none&gt;</span><br><span class="line">    Mounts:	&lt;none&gt;</span><br><span class="line">  Volumes:	&lt;none&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 7. 回滚到前一个版本</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout undo deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy rolled back</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 8. 回滚到指定的版本</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout undo deploy nginx-deploy --to-revision=1</span><br><span class="line">deployment.apps/nginx-deploy rolled back</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 9. 查看历史版本信息</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout history deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy </span><br><span class="line">REVISION  CHANGE-CAUSE</span><br><span class="line">3         kubectl set image deploy nginx-deploy nginx=nginx:1.161 --record=true</span><br><span class="line">4         kubectl set image deploy nginx-deploy nginx=nginx:1.16.1 --record=true</span><br><span class="line">5         kubectl apply --filename=nginx-deploy.yaml --record=true</span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>kubectl rollout undo</code> 命令可回滚到上一个版本或指定的版本，上述示例也可看出，回滚到历史版本，会将历史版本的序号设置为最新序号。如前所述，我们可以通过设置 Deployment 的 <code>.spec.revisionHistoryLimit</code> 来指定保留多少个旧的 ReplicaSet（或 revision），超出该数字的将在后台进行垃圾回收。如果该字段被设为 0，Kubernetes 将清理掉该 Deployment 的所有历史版本（revision），此时，将无法对该 Deployment 执行回滚操作了。</p>
+<h3 id="5-伸缩"><a href="#5-伸缩" class="headerlink" title="5. 伸缩"></a>5. 伸缩</h3><p>可以通过 <code>kubectl scale</code> 命令或 <code>kubectl edit</code> 修改定义的方式来对 Deployment 进行伸缩，增加或减少 Pod 的副本数，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 将 Pod 数缩放到2个</span></span><br><span class="line">[root@kmaster ~]# kubectl scale deploy nginx-deploy --replicas=2</span><br><span class="line">deployment.apps/nginx-deploy scaled</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 Pod</span></span><br><span class="line">[root@kmaster ~]# kubectl  get pod</span><br><span class="line">NAME                           READY   STATUS        RESTARTS   AGE</span><br><span class="line">nginx-deploy-59c9f8dff-7bpjp   1/1     Running       0          9m48s</span><br><span class="line">nginx-deploy-59c9f8dff-tpxzf   0/1     Terminating   0          8m57s</span><br><span class="line">nginx-deploy-59c9f8dff-v8fgz   0/1     Terminating   0          10m</span><br><span class="line">nginx-deploy-59c9f8dff-w8s9z   1/1     Running       0          10m</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 ReplicaSet，DESIRED 变为2了</span></span><br><span class="line">[root@kmaster ~]# kubectl get rs</span><br><span class="line">NAME                      DESIRED   CURRENT   READY   AGE</span><br><span class="line">nginx-deploy-58f69cfc57   0         0         0       22m</span><br><span class="line">nginx-deploy-59c9f8dff    2         2         2       3d8h</span><br><span class="line">nginx-deploy-d47dbbb7c    0         0         0       102m</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-自动伸缩（HPA）"><a href="#6-自动伸缩（HPA）" class="headerlink" title="6. 自动伸缩（HPA）"></a>6. 自动伸缩（HPA）</h3><p>如果集群启用了自动伸缩（HPA —— Horizontal Pod Autoscaling），则可以基于 CPU、 内存的使用率在一个最大和最小的区间对 Deployment 实现自动伸缩，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 创建一个 HPA</span></span><br><span class="line">[root@kmaster ~]# kubectl autoscale deploy nginx-deploy --min=2 --max=4 --cpu-percent=80</span><br><span class="line">horizontalpodautoscaler.autoscaling/nginx-deploy autoscaled</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看 HPA</span></span><br><span class="line">[root@kmaster ~]# kubectl get hpa</span><br><span class="line">NAME           REFERENCE                 TARGETS         MINPODS   MAXPODS   REPLICAS   AGE</span><br><span class="line">nginx-deploy   Deployment/nginx-deploy   &lt;unknown&gt;/80%   2         4         2          16s</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除 HPA</span></span><br><span class="line">[root@kmaster ~]# kubectl delete hpa nginx-deploy</span><br><span class="line">horizontalpodautoscaler.autoscaling "nginx-deploy" deleted</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-暂停与恢复"><a href="#7-暂停与恢复" class="headerlink" title="7. 暂停与恢复"></a>7. 暂停与恢复</h3><p>我们可以将一个 Deployment 暂停（pause），然后在它上面做一个或多个更新，此时 Deployment 并不会触发更新，只有再恢复（resume）该 Deployment，才会执行该时间段内的所有更新。这种做法可以在暂停和恢复中间对 Deployment 做多次更新，而不会触发不必要的滚动更新。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1. 暂停 Deployment</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout pause deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy paused</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 更新容器镜像</span></span><br><span class="line">[root@kmaster ~]# kubectl set image deploy nginx-deploy nginx=nginx:1.9.1 --record</span><br><span class="line">deployment.apps/nginx-deploy image updated</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 查看版本历史， 此时并没有触发更新</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout history deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy </span><br><span class="line">REVISION  CHANGE-CAUSE</span><br><span class="line">3         kubectl set image deploy nginx-deploy nginx=nginx:1.161 --record=true</span><br><span class="line">4         kubectl set image deploy nginx-deploy nginx=nginx:1.16.1 --record=true</span><br><span class="line">5         kubectl apply --filename=nginx-deploy.yaml --record=true</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4. 更新 Resource 限制，同样并不会触发更新</span></span><br><span class="line">[root@kmaster ~]# kubectl set resources deploy nginx-deploy -c=nginx --limits=memory=512Mi,cpu=500m</span><br><span class="line">deployment.apps/nginx-deploy resource requirements updated</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 5. 查看修改，Pod 定义已被更新</span></span><br><span class="line">[root@kmaster ~]# kubectl describe deploy nginx-deploy</span><br><span class="line">Pod Template:</span><br><span class="line">  Labels:  app=nginx</span><br><span class="line">  Containers:</span><br><span class="line">   nginx:</span><br><span class="line">    Image:      nginx:1.9.1</span><br><span class="line">    Port:       80/TCP</span><br><span class="line">    Host Port:  0/TCP</span><br><span class="line">    Limits:</span><br><span class="line">      cpu:        500m</span><br><span class="line">      memory:     512Mi</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 6. 恢复 Deployment</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout resume deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy resumed</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 7. 查看版本历史，可见两次修改只做了一次 rollout</span></span><br><span class="line">[root@kmaster ~]# kubectl rollout history deploy nginx-deploy</span><br><span class="line">deployment.apps/nginx-deploy</span><br><span class="line">REVISION  CHANGE-CAUSE</span><br><span class="line">3         kubectl set image deploy nginx-deploy nginx=nginx:1.161 --record=true</span><br><span class="line">4         kubectl set image deploy nginx-deploy nginx=nginx:1.16.1 --record=true</span><br><span class="line">5         kubectl apply --filename=nginx-deploy.yaml --record=true</span><br><span class="line">6         kubectl set image deploy nginx-deploy nginx=nginx:1.9.1 --record=true</span><br></pre></td></tr></table></figure>
+
+<p>在更新容器镜像时，因为 Deployment 处于暂停状态，所以并不会生成新的版本（Revision），当 Deployment 恢复时，才将这段时间的更新生效，执行滚动更新，生成新的版本。在暂停中的 Deployment 上做的更新， 因为没有生成版本，因此也不能回滚（rollback）。也不能对处于暂停状态的 Deployment 执行回滚操作，只有在恢复（Resume）之后才能执行回滚操作。</p>
+<h3 id="8-金丝雀发布"><a href="#8-金丝雀发布" class="headerlink" title="8. 金丝雀发布"></a>8. 金丝雀发布</h3><p>金丝雀发布也叫灰度发布。当我们需要发布新版本时，可以针对新版本新建一个 Deployment，与旧版本的 Deployment 同时挂在一个 Service 下（通过 label match）， 通过 Service 的负载均衡将用户请求流量分发到新版 Deployment 的 Pod 上，观察新版运行情况，如果没有问题再将旧版 Deployment 的版本更新到新版完成滚动更新，最后删除新建的 Deployment。很明显这种金丝雀发布具有一定的局限性，无法根据用户或地域来分流，如果要更充分地实现金丝雀发布，则可能需要引入 Istio 等。</p>
+<blockquote>
+<p>金丝雀发布名称的由来： 以前，旷工在下矿洞时面临的一个重要危险是矿井中的毒气，他们想到一个办法来辨别矿井中是否有毒气，矿工们随身携带一只金丝雀下矿井，金丝雀对毒气的抵抗能力比人类要弱，在毒气环境下会先挂掉从而起到预警的作用。它背后的原理是：用较小的代价试错，即使出现了严重的错误（出现了毒气），系统总体的损失也是可承受的或者是非常小的（失去了一只金丝雀）。</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Kubernetes 中最小的调度单元是 Pod， 负载创建 Pod 并控制其按一定的副本数运行的是 ReplicaSet， 而 Deployment 可以以“声明式”的方式来管理 Pod 和 ReplicaSet，并提供滚动更新与版本（revision）回退功能。所以，一般使用 Deployment 来部署应用， 而不直接操作 ReplicaSet 或 Pod。</p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/k8s6-deploy.html>http://blog.jboost.cn/k8s6-deploy.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-24T19:17:39+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-08-24</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/kubernetes/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>kubernetes</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/k8s/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>k8s</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/k8s6-deploy.html&title=Kubernetes笔记（六）：了解控制器 —— Deployment - 半路雨歌&summary=Pod（容器组）是 Kubernetes 中最小的调度单元，可以通过 yaml 定义文件直接创建一个 Pod。但 Pod 本身并不具备自我恢复（self-healing）功能。如果一个 Pod 所在的节点出现故障，或者调度程序自身出现问题，以及节点资源不够或节点进入维护而驱逐 Pod 时，Pod 将被删除，且不能自我恢复。
+因此，Kubernetes 中我们一般不直接创建 Pod， 而是通过 Controller（控制器）来管理 Pod。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/k8s6-deploy.html&title=Kubernetes笔记（六）：了解控制器 —— Deployment - 半路雨歌&summary=Pod（容器组）是 Kubernetes 中最小的调度单元，可以通过 yaml 定义文件直接创建一个 Pod。但 Pod 本身并不具备自我恢复（self-healing）功能。如果一个 Pod 所在的节点出现故障，或者调度程序自身出现问题，以及节点资源不够或节点进入维护而驱逐 Pod 时，Pod 将被删除，且不能自我恢复。
+因此，Kubernetes 中我们一般不直接创建 Pod， 而是通过 Controller（控制器）来管理 Pod。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/k8s6-deploy.html&title=Kubernetes笔记（六）：了解控制器 —— Deployment - 半路雨歌&summary=Pod（容器组）是 Kubernetes 中最小的调度单元，可以通过 yaml 定义文件直接创建一个 Pod。但 Pod 本身并不具备自我恢复（self-healing）功能。如果一个 Pod 所在的节点出现故障，或者调度程序自身出现问题，以及节点资源不够或节点进入维护而驱逐 Pod 时，Pod 将被删除，且不能自我恢复。
+因此，Kubernetes 中我们一般不直接创建 Pod， 而是通过 Controller（控制器）来管理 Pod。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACUklEQVR42u3dQXLCMAwFUO5/6XbfTif6kikT5XkHBOznbD6SB15fDx0vcHBwcHDwRfBXc/z6wB/Pp++rzjddLzg4ODg4+EZ4OQAMr6+Crt7fnh8cHBwcHHwxvBogqoGiGliurju2XnBwcHBwcPAY/qmCBzg4ODg4OPg5eDeogIODg4ODg59vKHQfV2HHGxrg4ODg4OAL4d0Cwacet9cLDg4ODg6+CD4d6cLTwkQaWC7XCw4ODg4OvgjeDQjpBkw3cLo+cHBwcHDwJ8KnwaTbQJgeBIw7KeDg4ODg4DeGTw/UVRsP1dffVZgABwcHBwffBE8nvgoK3aDS3fBqcAEHBwcHB98ITwsP1QAxLTx0DyjEDQVwcHBwcPAbw7uAtAEwhXQbHX82FMDBwcHBwRfATzUEpoWLuMEfBiRwcHBwcPDN8O5E06CTBpf0BoCDg4ODg2+Gp+BTjf93FzDihgI4ODg4OPgN4d1CfXXDugWO9LqyAxwcHBwcfCF8CvmvoFLdmOMNBXBwcHBw8BvB0wWkQeJUMEoLEuDg4ODg4E+AT7/4n2o8TOdvFyLAwcHBwcFvAJ+ObpBICx7HghQ4ODg4OPgi+Ks5uoX/dEOqBxbaDQVwcHBwcPAF8G5gOV4oGAaYy+fBwcHBwcEXw9MGf/UAQLegceoAAjg4ODg4OHj/D17TjUsLH+VgAw4ODg4ODt7+gZwuqFvo+HhyAwcHBwcH/0d4t2BwKuBMDwZc3gBwcHBwcPCF8HSkwSINNNUgFN8YcHBwcHDwRfCnDXBwcHBw8AXjGzNQhJ8ztzXQAAAAAElFTkSuQmCC">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/k8s-tcp-service.html'>
+                <p class='title'>在 Kubernetes Ingress 中支持 Websocket/Socket 服务<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Kubernetes Ingress 可将集群内部的 Service 通过 HTTP/HTTPS 的方式暴露供外部访问，并通过路径匹配规则定义服务的路由。但是 Ingress 对 TCP/UDP...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Kubernetes笔记（六）：了解控制器 —— Deployment',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Controller"><span class="toc-text">Controller</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ReplicaSet"><span class="toc-text">ReplicaSet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Deployment"><span class="toc-text">Deployment</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-创建"><span class="toc-text">1. 创建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-查看"><span class="toc-text">2. 查看</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-发布更新（rollout）"><span class="toc-text">3. 发布更新（rollout）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-回滚"><span class="toc-text">4. 回滚</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-伸缩"><span class="toc-text">5. 伸缩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-自动伸缩（HPA）"><span class="toc-text">6. 自动伸缩（HPA）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-暂停与恢复"><span class="toc-text">7. 暂停与恢复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-金丝雀发布"><span class="toc-text">8. 金丝雀发布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          , total visitors
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

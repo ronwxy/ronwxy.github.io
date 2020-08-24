@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/k8s6-deploy.html</loc>
+    
+    <lastmod>2020-08-24T11:17:39.301Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/k8s-tcp-service.html</loc>
     
     <lastmod>2020-08-05T10:20:36.794Z</lastmod>
