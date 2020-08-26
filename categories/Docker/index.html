@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>Category: 案例解析 - 半路雨歌</title>
+    <title>分类：Docker - 半路雨歌</title>
   
   
 
@@ -285,6 +285,16 @@
         
           
         
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
       
     
     
@@ -303,8 +313,8 @@
         
           
   <h2 class="title">
-    <a href="/issue-cpu-high.html">
-      记一次线上Java服务CPU 100%处理过程
+    <a href="/docker-13.html">
+      Docker笔记（十三）：容器日志采集实践
     </a>
   </h2>
 
@@ -318,7 +328,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-06-16</p>
+    <p>2020-04-01</p>
   </a>
 </div>
 
@@ -328,9 +338,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/' rel="nofollow">
+    <a href='/categories/Docker/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>案例解析</p>
+      <p>Docker</p>
     </a>
   </div>
 
@@ -342,13 +352,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.1k words</p>
+      <p>字数：2.6k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>4 min</p>
+      <p>时长：11分钟</p>
     </a>
   </div>
 
@@ -372,14 +382,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="告警"><a href="#告警" class="headerlink" title="告警"></a>告警</h2><p>正在开会，突然钉钉告警声响个不停，同时市场人员反馈客户在投诉系统登不进了，报504错误。查看钉钉上的告警信息，几台业务服务器节点全部报CPU超过告警阈值，达100%。</p>
-<p>赶紧从会上下来，SSH登录服务器，使用 <code>top</code> 命令查看，几个Java进程CPU占用达到180%，190%，这几个Java进程对应同一个业务服务的几个Pod（或容器）。</p>
+        <p>日志是服务运行过程中的一个关键环节，借助日志，我们可以排查定位问题，也可以借助集中化的日志管理平台（如ELK）来做一些必要的数据统计分析。在Docker环境中，日志的采集比传统环境更为复杂，因此了解Docker日志的管理机制，及基于此熟悉日志采集的最佳实践对于开发运维人员来说也是避不开的一个知识点。那就开始吧。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/issue-cpu-high.html">
+          <a href="/docker-13.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -405,8 +414,8 @@
         
           
   <h2 class="title">
-    <a href="/nginx-proxy.html">
-      nginx反向代理导致session失效的问题处理
+    <a href="/docker-12.html">
+      Docker笔记（十二）：Docker Compose入门
     </a>
   </h2>
 
@@ -420,7 +429,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-06-02</p>
+    <p>2019-11-20</p>
   </a>
 </div>
 
@@ -430,9 +439,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/' rel="nofollow">
+    <a href='/categories/Docker/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>案例解析</p>
+      <p>Docker</p>
     </a>
   </div>
 
@@ -444,13 +453,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>746 words</p>
+      <p>字数：1.8k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>2 min</p>
+      <p>时长：7分钟</p>
     </a>
   </div>
 
@@ -474,13 +483,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>一同事求援：后台系统的登录成功了，但不能成功登进系统，仍然跳转到登录页，但同一套代码另一个环境却没有问题。</p>
+        <h2 id="1-Compose简介"><a href="#1-Compose简介" class="headerlink" title="1. Compose简介"></a>1. Compose简介</h2><p>Docker Compose是Docker官方的用于对Docker容器集群实现编排，快速部署分布式应用的开源项目。Docker Compose通过docker-compose.yml文件来定义一组相关联的应用容器的编排，这组相关联的应用容器一般通过互相交互作为一个整体项目提供服务，比如一个Web项目，既包含业务服务容器，也包含数据库服务容器与缓存服务容器等。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/nginx-proxy.html">
+          <a href="/docker-12.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -506,8 +515,8 @@
         
           
   <h2 class="title">
-    <a href="/issue-conditiontrack.html">
-      案例解析：springboot自动配置未生效问题定位（条件断点）
+    <a href="/docker-11.html">
+      Docker笔记（十一）：Dockerfile详解与最佳实践
     </a>
   </h2>
 
@@ -521,7 +530,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-06-25</p>
+    <p>2019-09-21</p>
   </a>
 </div>
 
@@ -531,9 +540,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/' rel="nofollow">
+    <a href='/categories/Docker/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>案例解析</p>
+      <p>Docker</p>
     </a>
   </div>
 
@@ -545,13 +554,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.5k words</p>
+      <p>字数：4.8k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>5 min</p>
+      <p>时长：18分钟</p>
     </a>
   </div>
 
@@ -575,13 +584,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Spring Boot在为开发人员提供更高层次的封装，进而提高开发效率的同时，也为出现问题时如何进行定位带来了一定复杂性与难度。但Spring Boot同时又提供了一些诊断工具来辅助开发与分析，如spring-boot-starter-actuator。本文分享一个基于actuator与IDEA条件断点来定位自动配置未生效的案例。望对类似问题分析与处理提供参考。</p>
+        <p>Dockerfile是一个文本文件，包含了一条条指令，每条指令对应构建一层镜像，Docker基于它来构建一个完整镜像。本文介绍Dockerfile的常用指令及相应的最佳实践建议。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/issue-conditiontrack.html">
+          <a href="/docker-11.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -607,8 +616,8 @@
         
           
   <h2 class="title">
-    <a href="/issue-errortrack.html">
-      案例解析：使用IDEA异常断点来定位java.lang.ArrayStoreException的问题
+    <a href="/docker-elk.html">
+      Docker笔记（十）：使用Docker来搭建一套ELK日志分析系统
     </a>
   </h2>
 
@@ -622,7 +631,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-06-21</p>
+    <p>2019-09-07</p>
   </a>
 </div>
 
@@ -632,9 +641,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/' rel="nofollow">
+    <a href='/categories/Docker/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>案例解析</p>
+      <p>Docker</p>
     </a>
   </div>
 
@@ -646,13 +655,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.2k words</p>
+      <p>字数：1.1k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>5 min</p>
+      <p>时长：4分钟</p>
     </a>
   </div>
 
@@ -676,13 +685,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>最近对 base-spring-boot （<a href="https://github.com/ronwxy/base-spring-boot）" target="_blank" rel="noopener">https://github.com/ronwxy/base-spring-boot）</a> 项目进行了升级。在将其用于应用开发中时遇到<code>java.lang.ArrayStoreException</code>的异常导致程序无法启动。平常开发过程中面对这种描述不够清楚，无法定位具体原因的问题该如何处理？本文分享通过使用IDEA异常断点来定位此类问题的方法。</p>
+        <p>一段时间没关注ELK（elasticsearch —— 搜索引擎，可用于存储、索引日志, logstash —— 可用于日志传输、转换，Kibana —— WebUI，将日志可视化），发现最新版已到7.4了。所以别问程序员为什么这么忙？因为不是在加班就是在学习新框架中。本文整理了使用Docker来快速搭建一套ELK日志分析系统的方法。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/issue-errortrack.html">
+          <a href="/docker-elk.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -708,8 +717,8 @@
         
           
   <h2 class="title">
-    <a href="/issue-threadpool.html">
-      案例解析：线程池使用不当导致系统崩溃
+    <a href="/docker-9.html">
+      Docker笔记（九）：网络管理
     </a>
   </h2>
 
@@ -723,7 +732,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-06-15</p>
+    <p>2019-08-30</p>
   </a>
 </div>
 
@@ -733,9 +742,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/' rel="nofollow">
+    <a href='/categories/Docker/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>案例解析</p>
+      <p>Docker</p>
     </a>
   </div>
 
@@ -747,13 +756,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.3k words</p>
+      <p>字数：2.2k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>5 min</p>
+      <p>时长：9分钟</p>
     </a>
   </div>
 
@@ -777,15 +786,518 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>前几天，发现一台阿里云服务器上的Web服务不可用。远程SSH登录不上，尝试几次登录上去之后，执行命令都显示</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-bash: fork: Cannot allocate memory</span><br></pre></td></tr></table></figure>
-<p>一看以为是内存泄漏导致溢出。因为执行不了任何命令， 只能通过控制台重启服务器恢复服务。</p>
+        <p>Docker的应用运行在容器中，其相互之间或与外部之间是如何通信的，涉及到哪些知识点，本文对相关内容进行整理。因网络这块牵涉的面较多，因此只从日常使用或理解的角度出发，过于专业的就不深入探讨了。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/issue-threadpool.html">
+          <a href="/docker-9.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/docker-8.html">
+      Docker笔记（八）：数据管理
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-08-12</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Docker/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Docker</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：1.7k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：7分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前面（哪个前面我也忘了）有说过，如果我们需要对数据进行持久化保存，不应使其存储在容器中，因为容器中的数据会随着容器的删除而丢失，而因通过将数据存储于宿主机文件系统的形式来持久化。在Docker容器中管理数据主要有数据卷、宿主机目录挂载两种方式</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/docker-8.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/docker-7.html">
+      Docker笔记（七）：常用服务安装——Nginx、MySql、Redis
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-08-07</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Docker/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Docker</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：950字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：4分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>开发中经常需要安装一些常用的服务软件，如Nginx、MySql、Redis等，如果按照普通的安装方法，一般都相对比较繁琐 —— 要经过下载软件或源码包，编译安装，配置，启动等步骤，使用 Docker 来安装这些服务软件能极大地简化安装过程，且速度也很快。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/docker-7.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/docker-6.html">
+      Docker笔记（六）：容器管理
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-07-21</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Docker/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Docker</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：1.9k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：7分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>容器是Docker中的另一核心概念，在Docker中，应用的运行都是在容器内进行的，容器则基于镜像创建。前面已对Docker镜像做了基本介绍，本文对Docker容器管理的相关内容做一个梳理。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/docker-6.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/docker-5.html">
+      Docker笔记（五）：整一个自己的镜像
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-07-17</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Docker/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Docker</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：2k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：7分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>获取镜像的途径有两个，一是从镜像仓库获取，如官方的Docker Hub，二是自定义。上文已经介绍如何从镜像仓库获取镜像，本文基于一个Springboot项目，来介绍自定义一个镜像的基本流程。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/docker-5.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/docker-4.html">
+      Docker笔记（四）：Docker镜像管理
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-07-16</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Docker/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Docker</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：2.9k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：10分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在Docker中，应用是通过容器来运行的，而容器的运行是基于镜像的，类似面向对象设计中类与对象的关系——没有类的定义就谈不上实例的创建与使用，没有镜像的定义就谈不上容器的创建与运行。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/docker-4.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -800,6 +1312,21 @@
     
   </section>
   
+    
+      <br>
+      <div class="prev-next">
+        
+        <p class="current">
+          1 / 2
+        </p>
+        
+          <a class="next" rel="next" href="/categories/Docker/page/2/">
+            <section class="post next white-box shadow">
+              &nbsp;下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </section>
+          </a>
+        
+      </div>
     
     <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
     
@@ -871,12 +1398,17 @@
           <li><a class="flat-box"
             title="/categories/DevOps/" href="/categories/DevOps/"
             id="categoriesDevOps"
-            ><div class='name'>DevOps</div><div class='badge'>(22)</div></a></li>
+            ><div class='name'>DevOps</div><div class='badge'>(13)</div></a></li>
+        
+          <li><a class="flat-box"
+            title="/categories/Docker/" href="/categories/Docker/"
+            id="categoriesDocker"
+            ><div class='name'>Docker</div><div class='badge'>(13)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/Java/" href="/categories/Java/"
             id="categoriesJava"
-            ><div class='name'>Java</div><div class='badge'>(2)</div></a></li>
+            ><div class='name'>Java</div><div class='badge'>(14)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/SpringBoot/" href="/categories/SpringBoot/"
@@ -889,11 +1421,6 @@
             ><div class='name'>SpringCloud</div><div class='badge'>(8)</div></a></li>
         
           <li><a class="flat-box"
-            title="/categories/Web/" href="/categories/Web/"
-            id="categoriesWeb"
-            ><div class='name'>Web</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
             title="/categories/kubernetes/" href="/categories/kubernetes/"
             id="categorieskubernetes"
             ><div class='name'>kubernetes</div><div class='badge'>(8)</div></a></li>
@@ -902,21 +1429,6 @@
             title="/categories/teamwork/" href="/categories/teamwork/"
             id="categoriesteamwork"
             ><div class='name'>teamwork</div><div class='badge'>(3)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/" href="/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/"
-            id="categoriesE6A188E4BE8BE8A7A3E69E90"
-            ><div class='name'>案例解析</div><div class='badge'>(5)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
-            id="categoriesE8AEBEE8AEA1E6A8A1E5BC8F"
-            ><div class='name'>设计模式</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E9%AB%98%E6%95%88%E5%AE%9E%E8%B7%B5/" href="/categories/%E9%AB%98%E6%95%88%E5%AE%9E%E8%B7%B5/"
-            id="categoriesE9AB98E69588E5AE9EE8B7B5"
-            ><div class='name'>高效实践</div><div class='badge'>(7)</div></a></li>
         
       </ul>
     </div>
@@ -940,7 +1452,7 @@
 
 
     <div class='content'>
-      <a href="/tags/LimitRange/" style="font-size: 14px; color: #999">LimitRange</a> <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/ResourceQuota/" style="font-size: 14px; color: #999">ResourceQuota</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/docker/" style="font-size: 22.89px; color: #5d5d5d">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.78px; color: #646464">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">单例模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
+      <a href="/tags/LimitRange/" style="font-size: 14px; color: #999">LimitRange</a> <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/ResourceQuota/" style="font-size: 14px; color: #999">ResourceQuota</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 22.89px; color: #5d5d5d">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.78px; color: #646464">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
     </div>
   </section>
 
@@ -990,20 +1502,20 @@
       
     
       
-        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
 </div>
       
     
       
-        Use
+        本站使用
         <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
-        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
           <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
           <span id="busuanzi_container_site_uv" style='display:none'>
-          , total visitors
+          ，总访客量
           <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
         
       
     

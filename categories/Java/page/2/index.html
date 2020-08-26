@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>Tag: 单例模式 - 半路雨歌</title>
+    <title>分类：Java - 半路雨歌</title>
   
   
 
@@ -273,12 +273,6 @@
       
   <section class="post-list ">
     
-      
-        
-          
-        
-      
-    
     
       
         
@@ -295,8 +289,8 @@
         
           
   <h2 class="title">
-    <a href="/patterns-singleton.html">
-      面试官：请写一个你认为比较“完美”的单例
+    <a href="/swagger-register.html">
+      swagger api文档集中化注册管理
     </a>
   </h2>
 
@@ -310,7 +304,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-05-12</p>
+    <p>2019-06-28</p>
   </a>
 </div>
 
@@ -320,9 +314,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/' rel="nofollow">
+    <a href='/categories/Java/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>设计模式</p>
+      <p>Java</p>
     </a>
   </div>
 
@@ -334,13 +328,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>3k words</p>
+      <p>字数：1.2k字</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>11 min</p>
+      <p>时长：4分钟</p>
     </a>
   </div>
 
@@ -364,13 +358,318 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>单例模式是保证一个类的实例有且只有一个，在需要控制资源（如数据库连接池），或资源共享（如有状态的工具类）的场景中比较适用。如果让我们写一个单例实现，估计绝大部分人都觉得自己没问题，但如果需要实现一个比较完美的单例，可能并没有你想象中简单。本文以主人公小雨的一次面试为背景，循序渐进地讨论如何实现一个较为“完美”的单例。本文人物与场景皆为虚构，如有雷同，纯属捏造。</p>
+        <p>接口文档是前后端开发对接时很重要的一个组件。手动编写接口文档既费时，又存在文档不能随代码及时更新的问题，因此产生了像swagger这样的自动生成接口文档的框架。swagger文档一般是随项目代码生成与更新，访问地址也是基于项目地址，因此对项目数不多的团队还好。如果团队的项目很多，比如采用微服务架构的团队，动则几十甚至上百个服务项目，那就意味着前端开发人员需要记住几十甚至上百个swagger文档地址，那就很不友好了。目前貌似还没有较流行的API文档集中化管理项目（也或者是我没找到），因此花了点时间自己集成了一个，介绍如下。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/patterns-singleton.html">
+          <a href="/swagger-register.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/issue-conditiontrack.html">
+      案例解析：springboot自动配置未生效问题定位（条件断点）
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-06-25</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Java/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Java</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：1.5k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：5分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Spring Boot在为开发人员提供更高层次的封装，进而提高开发效率的同时，也为出现问题时如何进行定位带来了一定复杂性与难度。但Spring Boot同时又提供了一些诊断工具来辅助开发与分析，如spring-boot-starter-actuator。本文分享一个基于actuator与IDEA条件断点来定位自动配置未生效的案例。望对类似问题分析与处理提供参考。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/issue-conditiontrack.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/issue-errortrack.html">
+      案例解析：使用IDEA异常断点来定位java.lang.ArrayStoreException的问题
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-06-21</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Java/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Java</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：1.2k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：5分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近对 base-spring-boot （<a href="https://github.com/ronwxy/base-spring-boot）" target="_blank" rel="noopener">https://github.com/ronwxy/base-spring-boot）</a> 项目进行了升级。在将其用于应用开发中时遇到<code>java.lang.ArrayStoreException</code>的异常导致程序无法启动。平常开发过程中面对这种描述不够清楚，无法定位具体原因的问题该如何处理？本文分享通过使用IDEA异常断点来定位此类问题的方法。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/issue-errortrack.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/issue-threadpool.html">
+      案例解析：线程池使用不当导致系统崩溃
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-06-15</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Java/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Java</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>字数：1.3k字</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>时长：5分钟</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前几天，发现一台阿里云服务器上的Web服务不可用。远程SSH登录不上，尝试几次登录上去之后，执行命令都显示</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-bash: fork: Cannot allocate memory</span><br></pre></td></tr></table></figure>
+<p>一看以为是内存泄漏导致溢出。因为执行不了任何命令， 只能通过控制台重启服务器恢复服务。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/issue-threadpool.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -386,6 +685,21 @@
   </section>
   
     
+      <br>
+      <div class="prev-next">
+        
+          <a class="prev" rel="prev" href="/categories/Java/">
+            <section class="post prev white-box shadow" >
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页&nbsp;
+            </section>
+          </a>
+        
+        <p class="current">
+          2 / 2
+        </p>
+        
+      </div>
+    
     <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
     
     
@@ -395,6 +709,7 @@
 
     
   
+
 </div>
 <aside class='l_side'>
   
@@ -455,12 +770,17 @@
           <li><a class="flat-box"
             title="/categories/DevOps/" href="/categories/DevOps/"
             id="categoriesDevOps"
-            ><div class='name'>DevOps</div><div class='badge'>(22)</div></a></li>
+            ><div class='name'>DevOps</div><div class='badge'>(13)</div></a></li>
+        
+          <li><a class="flat-box"
+            title="/categories/Docker/" href="/categories/Docker/"
+            id="categoriesDocker"
+            ><div class='name'>Docker</div><div class='badge'>(13)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/Java/" href="/categories/Java/"
             id="categoriesJava"
-            ><div class='name'>Java</div><div class='badge'>(2)</div></a></li>
+            ><div class='name'>Java</div><div class='badge'>(14)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/SpringBoot/" href="/categories/SpringBoot/"
@@ -473,11 +793,6 @@
             ><div class='name'>SpringCloud</div><div class='badge'>(8)</div></a></li>
         
           <li><a class="flat-box"
-            title="/categories/Web/" href="/categories/Web/"
-            id="categoriesWeb"
-            ><div class='name'>Web</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
             title="/categories/kubernetes/" href="/categories/kubernetes/"
             id="categorieskubernetes"
             ><div class='name'>kubernetes</div><div class='badge'>(8)</div></a></li>
@@ -486,21 +801,6 @@
             title="/categories/teamwork/" href="/categories/teamwork/"
             id="categoriesteamwork"
             ><div class='name'>teamwork</div><div class='badge'>(3)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/" href="/categories/%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/"
-            id="categoriesE6A188E4BE8BE8A7A3E69E90"
-            ><div class='name'>案例解析</div><div class='badge'>(5)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"
-            id="categoriesE8AEBEE8AEA1E6A8A1E5BC8F"
-            ><div class='name'>设计模式</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E9%AB%98%E6%95%88%E5%AE%9E%E8%B7%B5/" href="/categories/%E9%AB%98%E6%95%88%E5%AE%9E%E8%B7%B5/"
-            id="categoriesE9AB98E69588E5AE9EE8B7B5"
-            ><div class='name'>高效实践</div><div class='badge'>(7)</div></a></li>
         
       </ul>
     </div>
@@ -524,7 +824,7 @@
 
 
     <div class='content'>
-      <a href="/tags/LimitRange/" style="font-size: 14px; color: #999">LimitRange</a> <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/ResourceQuota/" style="font-size: 14px; color: #999">ResourceQuota</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/docker/" style="font-size: 22.89px; color: #5d5d5d">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.78px; color: #646464">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">单例模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
+      <a href="/tags/LimitRange/" style="font-size: 14px; color: #999">LimitRange</a> <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/ResourceQuota/" style="font-size: 14px; color: #999">ResourceQuota</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 22.89px; color: #5d5d5d">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.78px; color: #646464">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
     </div>
   </section>
 
@@ -574,20 +874,20 @@
       
     
       
-        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
 </div>
       
     
       
-        Use
+        本站使用
         <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
-        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
           <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
           <span id="busuanzi_container_site_uv" style='display:none'>
-          , total visitors
+          ，总访客量
           <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
         
       
     
