@@ -2,6 +2,83 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/project-process.html</loc>
+    
+    <lastmod>2020-08-26T01:45:42.915Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    
+    <lastmod>2020-08-26T01:45:15.596Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/code-review.html</loc>
+    
+    <lastmod>2020-08-26T01:45:04.390Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s6-deploy.html</loc>
+    
+    <lastmod>2020-08-26T01:44:35.532Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s4-namespace.html</loc>
+    
+    <lastmod>2020-08-26T01:44:31.062Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s5-pod.html</loc>
+    
+    <lastmod>2020-08-26T01:44:23.358Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s3-cd.html</loc>
+    
+    <lastmod>2020-08-26T01:44:17.155Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s2-concept.html</loc>
+    
+    <lastmod>2020-08-26T01:44:14.116Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s1-installation.html</loc>
+    
+    <lastmod>2020-08-26T01:44:10.469Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s-tcp-service.html</loc>
+    
+    <lastmod>2020-08-26T01:44:01.286Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s-netdevice-issue.html</loc>
+    
+    <lastmod>2020-08-26T01:43:56.751Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/browser-cache.html</loc>
     
     <lastmod>2020-08-26T01:40:38.768Z</lastmod>
@@ -226,62 +303,6 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/k8s6-deploy.html</loc>
-    
-    <lastmod>2020-08-24T11:17:39.301Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s-tcp-service.html</loc>
-    
-    <lastmod>2020-08-05T10:20:36.794Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s5-pod.html</loc>
-    
-    <lastmod>2020-07-31T03:42:52.491Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s-netdevice-issue.html</loc>
-    
-    <lastmod>2020-07-28T09:26:34.556Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s1-installation.html</loc>
-    
-    <lastmod>2020-07-28T09:26:27.052Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s2-concept.html</loc>
-    
-    <lastmod>2020-07-28T09:26:19.416Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s3-cd.html</loc>
-    
-    <lastmod>2020-07-28T09:26:12.563Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/k8s4-namespace.html</loc>
-    
-    <lastmod>2020-07-28T09:26:03.262Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.jboost.cn/arch-1.html</loc>
     
     <lastmod>2020-07-22T06:33:45.406Z</lastmod>
@@ -292,13 +313,6 @@
     <loc>http://blog.jboost.cn/about/index.html</loc>
     
     <lastmod>2020-05-07T03:09:25.845Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/code-review.html</loc>
-    
-    <lastmod>2020-05-07T03:09:25.819Z</lastmod>
     
   </url>
   
@@ -443,14 +457,14 @@
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     
     <lastmod>2019-08-12T04:00:24.375Z</lastmod>
     
@@ -516,20 +530,6 @@
     <loc>http://blog.jboost.cn/springboot-overview.html</loc>
     
     <lastmod>2019-07-22T10:26:52.326Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
-    
-    <lastmod>2019-07-09T11:19:28.488Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.jboost.cn/project-process.html</loc>
-    
-    <lastmod>2019-07-09T11:13:37.300Z</lastmod>
     
   </url>
   

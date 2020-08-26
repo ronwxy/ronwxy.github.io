@@ -13,7 +13,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -40,7 +40,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -67,7 +67,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -256,7 +256,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -266,10 +266,6 @@
             <tag> kubernetes </tag>
             
             <tag> k8s </tag>
-            
-            <tag> ResourceQuota </tag>
-            
-            <tag> LimitRange </tag>
             
         </tags>
       
@@ -287,7 +283,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -339,7 +335,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -370,7 +366,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -397,7 +393,7 @@
       
       <categories>
           
-          <category> kubernetes </category>
+          <category> Kubernetes </category>
           
       </categories>
       
@@ -1450,7 +1446,7 @@
       
       <categories>
           
-          <category> teamwork </category>
+          <category> Teamwork </category>
           
       </categories>
       
@@ -1743,7 +1739,7 @@
       
       <categories>
           
-          <category> teamwork </category>
+          <category> Teamwork </category>
           
       </categories>
       
@@ -1768,7 +1764,7 @@
       
       <categories>
           
-          <category> teamwork </category>
+          <category> Teamwork </category>
           
       </categories>
       

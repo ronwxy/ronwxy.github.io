@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://blog.jboost.cn/project-process.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/git-branch.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/code-review.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s6-deploy.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s4-namespace.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s5-pod.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s3-cd.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s2-concept.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s1-installation.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s-tcp-service.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s-netdevice-issue.html</loc>
+    <lastmod>2020-08-26</lastmod>
+  </url>  <url>
     <loc>http://blog.jboost.cn/browser-cache.html</loc>
     <lastmod>2020-08-26</lastmod>
   </url>  <url>
@@ -97,35 +130,8 @@
     <loc>http://blog.jboost.cn/docker-1.html</loc>
     <lastmod>2020-08-26</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/k8s6-deploy.html</loc>
-    <lastmod>2020-08-24</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/k8s-tcp-service.html</loc>
-    <lastmod>2020-08-05</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/k8s5-pod.html</loc>
-    <lastmod>2020-07-31</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/k8s-netdevice-issue.html</loc>
-    <lastmod>2020-07-28</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/k8s1-installation.html</loc>
-    <lastmod>2020-07-28</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/k8s2-concept.html</loc>
-    <lastmod>2020-07-28</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/k8s3-cd.html</loc>
-    <lastmod>2020-07-28</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/k8s4-namespace.html</loc>
-    <lastmod>2020-07-28</lastmod>
-  </url>  <url>
     <loc>http://blog.jboost.cn/arch-1.html</loc>
     <lastmod>2020-07-22</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/code-review.html</loc>
-    <lastmod>2020-05-07</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/ansible.html</loc>
     <lastmod>2020-04-18</lastmod>
@@ -187,10 +193,10 @@
     <loc>http://blog.jboost.cn/trick-logback-prop.html</loc>
     <lastmod>2019-08-20</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
+    <loc>http://blog.jboost.cn/company-choice.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
-    <loc>http://blog.jboost.cn/company-choice.html</loc>
+    <loc>http://blog.jboost.cn/springboot-simpleauth.html</loc>
     <lastmod>2019-08-12</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/springboot-starter.html</loc>
@@ -219,12 +225,6 @@
   </url>  <url>
     <loc>http://blog.jboost.cn/springboot-overview.html</loc>
     <lastmod>2019-07-22</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/git-branch.html</loc>
-    <lastmod>2019-07-09</lastmod>
-  </url>  <url>
-    <loc>http://blog.jboost.cn/project-process.html</loc>
-    <lastmod>2019-07-09</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/ahead.html</loc>
     <lastmod>2019-06-10</lastmod>
