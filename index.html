@@ -509,6 +509,8 @@
         
           
         
+          
+        
       
     
     
@@ -604,6 +606,107 @@
       
         <div class="button readmore">
           <a href="/k8s6-deploy.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/k8s7-logpilot.html">
+      Kubernetes笔记（七）：K8s中的日志采集实践（log-pilot的ELK7.x适配）
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-08-20</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Kubernetes/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Kubernetes</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>3.7k words</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>14 min</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>日志是应用服务运行过程中的一个关键环节，借助日志，我们可以排查定位问题，也可以借助集中化的日志管理平台（如ELK）来做一些必要的数据统计分析与监控告警。在 K8s 环境中，容器的日志有可能是通过 STDOUT/STDERR 输出（对于标准输出，前面 <a href="/docker-13.html">Docker笔记（十三）：容器日志采集实践</a> 有相关介绍可参考），并且一般也推荐将日志写到标准输出，但是也有一些特殊的场景，应用直接将日志写在容器内部的日志文件。对于容器的标准输出日志来说，Docker Engine 本身就提供了一个很好的日志采集能力，但是对于容器内部的文件日志采集，现在却并没有一个很好的工具能够去动态发现采集。因为在分布式的容器集群中，容器随着 Pod 调度被动态创建或删除，我们无法像虚拟机环境那样事先配置好日志采集路径等信息，目前的采集工具都是需要我们事先手动配置好日志采集方式和路径等信息，它无法自动感知到容器的生命周期变化或者动态漂移（一个 Pod 挂了，可能是在另一个节点上启动一个新的 Pod），无法进行动态的配置。因此，在 K8s 中进行日志采集将变得更为复杂。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/k8s7-logpilot.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -1424,107 +1527,6 @@
           </div>
         
       
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/k8s4-namespace.html">
-      Kubernetes笔记（四）：详解Namespace与资源限制ResourceQuota，LimitRange
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-05-27</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/Kubernetes/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Kubernetes</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>3.3k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>14 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>前面我们对K8s的基本组件与概念有了个大致的印象，并且基于K8s实现了一个初步的CI/CD流程，但对里面涉及的各个对象（如Namespace, Pod, Deployment, Service, Ingress, PVC等）及各对象的管理可能还缺乏深入的理解与实践，接下来的文章就让我们一起深入K8s的各组件内部来一探究竟吧。下图是基于个人的理解梳理的一个K8s结构图，示例了各个组件（只包含了主要组件）如何协同。</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/k8s4-namespace.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
     
   </section>
   
@@ -1626,7 +1628,7 @@
           <li><a class="flat-box"
             title="/categories/Kubernetes/" href="/categories/Kubernetes/"
             id="categoriesKubernetes"
-            ><div class='name'>Kubernetes</div><div class='badge'>(8)</div></a></li>
+            ><div class='name'>Kubernetes</div><div class='badge'>(9)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/SpringBoot/" href="/categories/SpringBoot/"
@@ -1665,7 +1667,7 @@
 
 
     <div class='content'>
-      <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 22.89px; color: #5d5d5d">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.78px; color: #646464">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
+      <a href="/tags/RateLimiter/" style="font-size: 15.25px; color: #919191">RateLimiter</a> <a href="/tags/SpringCloud/" style="font-size: 19px; color: #777">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.25px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.25px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 22.75px; color: #5e5e5e">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.5px; color: #888">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.25px; color: #6f6f6f">k8s</a> <a href="/tags/kubernetes/" style="font-size: 19px; color: #777">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.25px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/nginx/" style="font-size: 16.5px; color: #888">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.75px; color: #808080">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.5px; color: #666">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
     </div>
   </section>
 
