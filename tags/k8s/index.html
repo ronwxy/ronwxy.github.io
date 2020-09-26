@@ -313,6 +313,208 @@
         
           
   <h2 class="title">
+    <a href="/k8s8-logpilot-2.html">
+      Kubernetes笔记（八）：K8s中的日志采集实践——使用log-pilot（适配ELK7.x）
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-09-26</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Kubernetes/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Kubernetes</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>1.1k words</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>5 min</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前文<a href="/k8s7-logpilot-1.html">Kubernetes笔记（七）：K8s中的日志采集实践——log-pilot介绍</a>我们对 k8s 集群中常用日志采集模式及阿里开源的 log-pilot 进行了介绍，本文介绍如何使 log-pilot 适配 ELK 7.x 及如何将 log-pilot 部署到 k8s 集群中进行日志采集。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/k8s8-logpilot-2.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/k8s7-logpilot-1.html">
+      Kubernetes笔记（七）：K8s中的日志采集实践——log-pilot介绍
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-09-25</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Kubernetes/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Kubernetes</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+  <div class="new-meta-item wordcount">
+    <a class='notlink'>
+      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
+      <p>2.7k words</p>
+    </a>
+  </div>
+  <div class="new-meta-item readtime">
+    <a class='notlink'>
+      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
+      <p>9 min</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>日志是应用服务运行过程中的一个关键环节，借助日志，我们可以排查定位问题，也可以借助集中化的日志管理平台（如ELK）来做一些必要的数据统计分析与监控告警。在 K8s 环境中，容器的日志有可能是通过 STDOUT/STDERR 输出（对于标准输出，前面 <a href="/docker-13.html">Docker笔记（十三）：容器日志采集实践</a> 有相关介绍可参考），并且一般也推荐将日志写到标准输出，但是也有一些特殊的场景，应用直接将日志写在容器内部的日志文件。对于容器的标准输出日志来说，Docker Engine 本身就提供了一个很好的日志采集能力，但是对于容器内部的文件日志采集，现在却并没有一个很好的工具能够去动态发现采集。因为在分布式的容器集群中，容器随着 Pod 调度被动态创建或删除，我们无法像虚拟机环境那样事先配置好日志采集路径等信息，目前的采集工具都是需要我们事先手动配置好日志采集方式和路径等信息，它无法自动感知到容器的生命周期变化或者动态漂移（一个 Pod 挂了，可能是在另一个节点上启动一个新的 Pod），无法进行动态的配置。因此，在 K8s 中进行日志采集将变得更为复杂。</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/k8s7-logpilot-1.html">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
     <a href="/k8s6-deploy.html">
       Kubernetes笔记（六）：了解控制器 —— Deployment
     </a>
@@ -390,107 +592,6 @@
       
         <div class="button readmore">
           <a href="/k8s6-deploy.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/k8s7-logpilot.html">
-      Kubernetes笔记（七）：K8s中的日志采集实践（log-pilot的ELK7.x适配）
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-08-20</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/Kubernetes/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Kubernetes</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>3.7k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>14 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>日志是应用服务运行过程中的一个关键环节，借助日志，我们可以排查定位问题，也可以借助集中化的日志管理平台（如ELK）来做一些必要的数据统计分析与监控告警。在 K8s 环境中，容器的日志有可能是通过 STDOUT/STDERR 输出（对于标准输出，前面 <a href="/docker-13.html">Docker笔记（十三）：容器日志采集实践</a> 有相关介绍可参考），并且一般也推荐将日志写到标准输出，但是也有一些特殊的场景，应用直接将日志写在容器内部的日志文件。对于容器的标准输出日志来说，Docker Engine 本身就提供了一个很好的日志采集能力，但是对于容器内部的文件日志采集，现在却并没有一个很好的工具能够去动态发现采集。因为在分布式的容器集群中，容器随着 Pod 调度被动态创建或删除，我们无法像虚拟机环境那样事先配置好日志采集路径等信息，目前的采集工具都是需要我们事先手动配置好日志采集方式和路径等信息，它无法自动感知到容器的生命周期变化或者动态漂移（一个 Pod 挂了，可能是在另一个节点上启动一个新的 Pod），无法进行动态的配置。因此，在 K8s 中进行日志采集将变得更为复杂。</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/k8s7-logpilot.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -1210,137 +1311,24 @@
           </div>
         
       
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
     
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/mix-eci.html">
-      k8s云集群混搭模式，可能帮你节省50%的服务成本
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-08-21</p>
-  </a>
-</div>
-
-            
-          
-            
-              
+  </section>
   
-  <div class='new-meta-item category'>
-    <a href='/categories/DevOps/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>DevOps</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>3 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
+    
+      <br>
+      <div class="prev-next">
         
-          <hr>
+        <p class="current">
+          1 / 2
+        </p>
+        
+          <a class="next" rel="next" href="/tags/k8s/page/2/">
+            <section class="post next white-box shadow">
+              &nbsp;Next&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </section>
+          </a>
         
       </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>现在大部分中小企业或团队都是使用云平台来部署自己的服务，如阿里云，亚马逊云等。一般来说，业务的负载都具备一定的规律，比如每天集中在某几个小时，或呈现时间段周期性波峰、波谷交替的现象，如下图<br><img src="/assets/load-trend.png" alt="业务负载周期性"></p>
-<p>如果使用ECS来部署服务，则可能大部分时间ECS的资源没有得到充分利用，造成成本浪费，尤其对于像GPU之类成本较高的资源就更加了。这个时候，我们可以考虑使用云集群的混搭模式来节约成本。</p>
-<h2 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h2><p>假设有一个这样的业务场景，包括如下特点及要求：</p>
-<ol>
-<li>整个系统包括业务服务与两层视觉服务</li>
-<li>各层服务之间调用需做负载均衡</li>
-<li>每天的业务量主要集中在上午几个小时</li>
-<li>平时业务量较低时仍要保证服务可用</li>
-<li>尽可能降低成本，尤其是GPU服务器成本（GPU贵啊）</li>
-</ol>
-<p><img src="/assets/biz-top.png" alt="业务部署架构"></p>
-<h2 id="k8s云集群混搭模式"><a href="#k8s云集群混搭模式" class="headerlink" title="k8s云集群混搭模式"></a>k8s云集群混搭模式</h2><p>现在各大云平台都已经提供容器云服务，如阿里云有基于ECI（弹性容器实例）的Serverless Kubernetes集群服务，基于ECS节点不需要提供master的Kubernetes托管版集群服务，及自己提供master的Kubernetes专有版集群服务等。为了迎合类似上述业务场景的需求，也提供了Kubernetes + virtual node（虚拟节点）的混合集群服务，如下图所示</p>
-<p><img src="/assets/k8s-vn.png" alt="k8s-vn"></p>
-<p>其中的虚拟节点基于ECI支持多种功能，如GPU容器实例、大规格容器实例等，增强了Kubernetes集群的弹性，使集群不局限于ECS节点的资源，做到弹性无限扩容。</p>
-<h2 id="部署方案"><a href="#部署方案" class="headerlink" title="部署方案"></a>部署方案</h2><p>结合前面的业务场景，我们可以采用k8s的混合集群服务来部署我们的项目，如下图</p>
-<p><img src="/assets/biz-deploy.png" alt="biz-deploy"></p>
-<p>实现步骤：</p>
-<ol>
-<li>创建Kubernetes托管版集群</li>
-<li>加入已有ECS节点</li>
-<li>添加一个虚拟节点，通过添加应用 ack-virtual-node 来实现</li>
-<li>分别创建无状态的业务Deployment、AI-1 Deployment、AI-2 Deployment（对应三层服务）</li>
-<li>分别在业务Deployment上创建公网SLB，AI-1 Deployment、AI-2 Deployment上创建内网SLB</li>
-<li>分别在各Deployment上根据CPU或内存使用阈值配置弹性水平伸缩HPA</li>
-<li>根据需要可以在某个或某些Deployment上配置定时伸缩，通过添加应用 ack-kubernetes-cronhpa-controller 来实现</li>
-</ol>
-<blockquote>
-<p>因为水平伸缩一般需要一定时间，延迟可能会对业务造成影响，所以在业务负载比较规律的时候，可以通过定时伸缩（就是定时扩展到多少个容器，再定时收缩到多少个容器）来改善；目前定时伸缩配置的查看与更新只能通过kubectl命令行进行。</p>
-</blockquote>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>按照官方文档的计费方式，一个普通的2核8G的ECS一年大概费用是2600左右，如果通过容器服务的方式（按秒计费），假设每天起8小时，则一年大概费用1550左右，如果业务负载再集中到几个小时，费用会更低，对于比较稀缺又昂贵的GPU服务就更加了。但是如果服务全部按容器24小时租赁，其成本就又比ECS贵了（一年约4600），所以在平时业务负载较低的时候，可以将容器调度到ECS上保障服务的提供，业务负载高时，通过HPA或cronHPA的方式动态伸缩到虚拟节点上。对于业务负载具有一定规律的服务来说，采用这种混搭的部署方式将极大地降低你的云服务成本。不过目前k8s云集群服务应该推出时间不久，产品的易用性还比较低，对不具备一定容器与编排基础的人使用门槛相对较高。</p>
-</br>     
-欢迎关注我的微信公众号：jboost-ksxy （一个不只有实战干货的技术公众号，及时获取更新内容）
-———————————————————————————————————————————————————————————————
-![微信公众号](/assets/qrcode-05.jpg) 
-      
-    </div>
-    
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-    
-  </section>
-  
     
     <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
     
@@ -1426,7 +1414,7 @@
           <li><a class="flat-box"
             title="/categories/Kubernetes/" href="/categories/Kubernetes/"
             id="categoriesKubernetes"
-            ><div class='name'>Kubernetes</div><div class='badge'>(9)</div></a></li>
+            ><div class='name'>Kubernetes</div><div class='badge'>(10)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/SpringBoot/" href="/categories/SpringBoot/"
@@ -1465,7 +1453,7 @@
 
 
     <div class='content'>
-      <a href="/tags/RateLimiter/" style="font-size: 15.25px; color: #919191">RateLimiter</a> <a href="/tags/SpringCloud/" style="font-size: 19px; color: #777">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.25px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.25px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 22.75px; color: #5e5e5e">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.5px; color: #888">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.25px; color: #6f6f6f">k8s</a> <a href="/tags/kubernetes/" style="font-size: 19px; color: #777">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.25px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/nginx/" style="font-size: 16.5px; color: #888">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.75px; color: #808080">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.5px; color: #666">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
+      <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/SpringCloud/" style="font-size: 18.44px; color: #7b7b7b">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 22.89px; color: #5d5d5d">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 19.56px; color: #737373">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 21.78px; color: #646464">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
     </div>
   </section>
 

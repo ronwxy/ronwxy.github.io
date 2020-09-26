@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>Tag: log-pilot - 半路雨歌</title>
+    <title>Archive: 2020 - 半路雨歌</title>
   
   
 
@@ -266,18 +266,10 @@
     <div class='body-wrapper'>
       
 
-
 <div class='l_main'>
-  
-    
-      
+	
+		
   <section class="post-list ">
-    
-      
-        
-          
-        
-      
     
     
       
@@ -295,8 +287,8 @@
         
           
   <h2 class="title">
-    <a href="/docker-13.html">
-      Docker笔记（十三）：容器日志采集实践
+    <a href="/springcloud-2.html">
+      Spring Cloud（二）：Web服务客户端之Ribbon
     </a>
   </h2>
 
@@ -310,7 +302,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-04-01</p>
+    <p>2020-01-14</p>
   </a>
 </div>
 
@@ -320,9 +312,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/Docker/' rel="nofollow">
+    <a href='/categories/SpringCloud/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Docker</p>
+      <p>SpringCloud</p>
     </a>
   </div>
 
@@ -334,13 +326,13 @@
   <div class="new-meta-item wordcount">
     <a class='notlink'>
       <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2.6k words</p>
+      <p>1.9k words</p>
     </a>
   </div>
   <div class="new-meta-item readtime">
     <a class='notlink'>
       <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>11 min</p>
+      <p>7 min</p>
     </a>
   </div>
 
@@ -364,13 +356,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>日志是服务运行过程中的一个关键环节，借助日志，我们可以排查定位问题，也可以借助集中化的日志管理平台（如ELK）来做一些必要的数据统计分析。在Docker环境中，日志的采集比传统环境更为复杂，因此了解Docker日志的管理机制，及基于此熟悉日志采集的最佳实践对于开发运维人员来说也是避不开的一个知识点。那就开始吧。</p>
+        <p>上文介绍了服务如何通过Eureka实现注册，以及如何从Eureka获取已经注册的服务列表。那么拿到注册服务列表后， 如何进行服务调用？一个简单的实现是可以从被调用服务的实例列表中选择一个服务实例，通过其hostname（或IP），端口，及API的路径拼接成完整的url，通过http client来完成调用。但生产环境中，为了高性能、高可用等要素，服务的调用一般涉及负载均衡、故障转移、失败重试等实现，因此引入实现这些功能的客户端组件也成为了微服务架构中的必备要素。Spring Cloud中可通过Ribbon与Feign来实现服务间的调用。</p>
+<p>本系列文章与示例均基于最新的Spring Cloud Hoxton版编写。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/docker-13.html">
+          <a href="/springcloud-2.html">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -386,6 +379,21 @@
   </section>
   
     
+      <br>
+      <div class="prev-next">
+        
+          <a class="prev" rel="prev" href="/archives/2020/page/3/">
+            <section class="post prev white-box shadow" >
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;Previous&nbsp;
+            </section>
+          </a>
+        
+        <p class="current">
+          4 / 4
+        </p>
+        
+      </div>
+    
     <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
     
     
@@ -393,8 +401,7 @@
   
 
 
-    
-  
+	
 </div>
 <aside class='l_side'>
   
@@ -607,6 +614,14 @@ $(document).ready(function() {
        	
 });  
 </script>
+
+
+
+
+	<!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
+	
+
+	
 
 
       <script>setLoadingBarProgress(60);</script>

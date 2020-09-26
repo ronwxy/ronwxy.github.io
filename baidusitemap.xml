@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://blog.jboost.cn/k8s7-logpilot.html</loc>
+    <loc>http://blog.jboost.cn/k8s8-logpilot-2.html</loc>
+    <lastmod>2020-09-26</lastmod>
+  </url>  <url>
+    <loc>http://blog.jboost.cn/k8s7-logpilot-1.html</loc>
     <lastmod>2020-09-26</lastmod>
   </url>  <url>
     <loc>http://blog.jboost.cn/project-process.html</loc>

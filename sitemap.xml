@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://blog.jboost.cn/k8s7-logpilot.html</loc>
+    <loc>http://blog.jboost.cn/k8s8-logpilot-2.html</loc>
     
-    <lastmod>2020-09-26T02:19:24.933Z</lastmod>
+    <lastmod>2020-09-26T02:42:48.251Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/k8s7-logpilot-1.html</loc>
+    
+    <lastmod>2020-09-26T02:35:58.064Z</lastmod>
     
   </url>
   
