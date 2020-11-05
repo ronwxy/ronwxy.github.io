@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Ansible简明教程 - 半路雨歌</title>
+  
+    <meta name="keywords" content="ansible">
+  
+  
+    <meta name="description" content="Ansible是当下比较流行的自动化运维工具，可通过SSH协议对远程服务器进行集中化的配置管理、应用部署等，常结合Jenkins来实现自动化部署。">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/ansible.html">
+      Ansible简明教程
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-04-17</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/DevOps/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>DevOps</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>Ansible是当下比较流行的自动化运维工具，可通过SSH协议对远程服务器进行集中化的配置管理、应用部署等，常结合Jenkins来实现自动化部署。</p>
+<a id="more"></a>
+
+<p>除了Ansible，还有像SaltStack、Fabric（曾经管理100多台服务器上的应用时也曾受益于它）、Puppet等自动化工具。相比之下，Ansible最大的优势就是无需在被管理主机端部署任何客户端代理程序，通过SSH通道就可以进行远程命令的执行或配置的下发，足够轻量级，但同时功能非常强大，且各项功能通过模块来实现，具备良好的扩展性。不足之处是Ansible只支持在Linux系统上安装，不支持Windows。</p>
+<p>如果你需要在多于一台服务器上做相同的操作，那么建议你使用Ansible之类的自动化工具，这将极大提高你的操作效率。</p>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>1.找一台主机用于做管理服务器，在其上安装Ansible</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install ansible</span><br></pre></td></tr></table></figure>
+
+<p>Ansible基于Python实现，一般Linux系统都自带Python，所以可以直接使用yum安装或pip安装。</p>
+<p>安装完后，在/etc/ansible/目录下生成三个主要的文件或目录，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@tool-server ~]# ll /etc/ansible/</span><br><span class="line">total 24</span><br><span class="line">-rw-r--r--. 1 root root 19179 Jan 30  2018 ansible.cfg</span><br><span class="line">-rw-r--r--. 1 root root  1136 Apr 17 15:17 hosts</span><br><span class="line">drwxr-xr-x. 2 root root     6 Jan 30  2018 roles</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ansible.cfg： Ansible的配置文件</li>
+<li>hosts：登记被管理的主机</li>
+<li>roles：角色项目定义目录，主要用于代码复用</li>
+</ul>
+<p>2.在/etc/ansible/hosts文件中添加需要被管理的服务器节点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@tool-server ~]# vim /etc/ansible/hosts</span><br><span class="line">[k8s]</span><br><span class="line">192.168.40.201</span><br><span class="line">192.168.40.202</span><br><span class="line">192.168.40.205</span><br><span class="line">192.168.40.206</span><br></pre></td></tr></table></figure>
+
+<p><code>[k8s]</code>表示将下面的服务器节点分到k8s的组中，后面执行命令时可指定针对某个组执行。</p>
+<p>3.生成SSH KEY，并copy到被管理节点上，实现免密SSH访问</p>
+<p>在管理节点执行 <code>ssh-keygen</code> 生成SSH KEY，然后copy到各被管理节点上</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.40.201</span><br></pre></td></tr></table></figure>
+
+<p>上面命令将<code>~/.ssh/id_rsa.pub</code>文件内容添加到被管理节点的/root/.ssh/authorized_keys文件中，实现管理节点到被管理节点的免密SSH访问。</p>
+<p>4.调试Ansible</p>
+<p>针对k8s服务器组执行ping，验证Ansible到各被管理节点的连通性</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@tool-server ~]# ansible k8s -m ping</span><br><span class="line">192.168.40.201 | SUCCESS =&gt; &#123;</span><br><span class="line">    "changed": false,</span><br><span class="line">    "ping": "pong"</span><br><span class="line">&#125;</span><br><span class="line">192.168.40.205 | SUCCESS =&gt; &#123;</span><br><span class="line">    "changed": false,</span><br><span class="line">    "ping": "pong"</span><br><span class="line">&#125;</span><br><span class="line">192.168.40.202 | SUCCESS =&gt; &#123;</span><br><span class="line">    "changed": false,</span><br><span class="line">    "ping": "pong"</span><br><span class="line">&#125;</span><br><span class="line">192.168.40.206 | SUCCESS =&gt; &#123;</span><br><span class="line">    "changed": false,</span><br><span class="line">    "ping": "pong"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Ansible只需要在管理主机上安装，然后打通管理主机到各被管理主机的SSH免密访问即可进行集中化的管理控制，不需在被管理主机安装任何代理程序。</p>
+<h2 id="Ansible命令"><a href="#Ansible命令" class="headerlink" title="Ansible命令"></a>Ansible命令</h2><p>Ansible的命令格式为， <code>ansible 主机群组名 -m 命令模块名 -a &quot;批量执行的操作&quot;</code></p>
+<p>其中-m不是必须的，默认为command模块，-a也不是必须的，表示命令模块的参数，比如前面的ping模块就没有参数。</p>
+<p>可以使用 <code>ansible-doc -l</code> 列出所有可用的命令模块， <code>ansible-doc -s 模块名</code> 查看指定模块的参数信息</p>
+<p>常用命令模块</p>
+<p>1.command<br>command是Ansible的默认模块，不指定-m参数时默认使用command。command可以运行远程主机权限范围内的所有shell命令，但不支持管道操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看k8s分组主机内存使用情况</span></span><br><span class="line">ansible k8s -m command -a "free -g"</span><br></pre></td></tr></table></figure>
+
+<p>2.shell<br>shell基本与command相同，但shell支持管道操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">shell支持管道操作 |grep Mem</span></span><br><span class="line">ansible k8s -m shell -a "free -g|grep Mem"</span><br></pre></td></tr></table></figure>
+
+<p>3.script<br>script就是在远程主机上执行管理端存储的shell脚本文件，相当于scp+shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> /root/echo.sh为管理端本地shell脚本</span></span><br><span class="line">ansible k8s -m script -a "/root/echo.sh"</span><br></pre></td></tr></table></figure>
+
+<p>4.copy<br>copy实现管理端到远程主机的文件拷贝，相当于scp</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">拷贝本地echo.sh文件到k8s组中远程主机的/tmp目录下，所属用户、组为 root ，权限为 0755</span></span><br><span class="line">ansible k8s -m copy -a "src=/root/echo.sh dest=/tmp/ owner=root group=root mode=0755"</span><br></pre></td></tr></table></figure>
+
+<p>5.yum<br>软件包安装或删除</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible k8s -m yum -a "name=wget state=latest"</span><br></pre></td></tr></table></figure>
+
+<p>其中state有如下取值：</p>
+<ul>
+<li>针对安装，可取值“present，installed，latest”，present，installed即普通安装，两者无区别，latest是使用yum mirror上最新的版本进行安装</li>
+<li>针对删除，可取值“absent，removed”，两者无差别</li>
+</ul>
+<p>6.service<br>对远程主机的服务进行管理</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible k8s -m service -a "name=nginx state=stoped"</span><br></pre></td></tr></table></figure>
+
+<p>state可取值“started/stopped/restarted/reloaded”。</p>
+<p>7.get_url<br>在远程主机上下载指定URL到本地</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible k8s -m get_url -a "url=http://www.baidu.com dest=/tmp/index.html mode=0440 force=yes"</span><br></pre></td></tr></table></figure>
+
+<p>8.setup<br>获取远程主机的信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible k8s -m setup</span><br></pre></td></tr></table></figure>
+
+<p>9.file<br>管理远程主机的文件或目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible k8s -m file -a "dest=/opt/test state=touch"</span><br></pre></td></tr></table></figure>
+
+<p>state可取值</p>
+<ul>
+<li>directory：创建目录</li>
+<li>file：如果文件不存在，则创建</li>
+<li>link：创建symbolic link</li>
+<li>absent：删除文件或目录</li>
+<li>touch： 创建一个不存在的空文件</li>
+</ul>
+<p>10.cron<br>管理远程主机的crontab定时任务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible k8s -m cron -a "name='backup servcie' minute=*/5 job='/usr/sbin/ntpdate  time.nist.gov &gt;/dev/null 2&gt;&amp;1'"</span><br></pre></td></tr></table></figure>
+
+<p>支持的参数</p>
+<ul>
+<li>state： 取值present表示创建定时任务，absent表示删除定时任务</li>
+<li>disabled： yes表示注释掉定时任务，no表示接触注释</li>
+</ul>
+<h2 id="Ansible-playbook"><a href="#Ansible-playbook" class="headerlink" title="Ansible playbook"></a>Ansible playbook</h2><p>Ansible的playbook由一个或多个play组成，play的功能就是为归为一组的主机编排要执行的一系列task，其中每一个task就是调用Ansible的一个命令模块。</p>
+<p>playbook的核心元素包括：</p>
+<ul>
+<li>hosts：执行任务的远程主机组或列表</li>
+<li>tasks：要执行的任务列表</li>
+<li>variables：内置变量或自定义的变量</li>
+<li>templates：使用模板语法的文件，通常为配置文件</li>
+<li>handlers：和notify结合使用，由特定条件触发，一般用于配置文件变更触发服务重启</li>
+<li>tags：标签，可在运行时通过标签指定运行playbook中的部分任务</li>
+<li>roles：</li>
+</ul>
+<p>playbook文件遵循yaml的语法格式，运行命令的格式为 <code>ansible-playbook &lt;filename.yml&gt; ... [options]</code>， 常用options包括</p>
+<ul>
+<li>–syntax        检查playbook文件语法是否正确</li>
+<li>–check 或 -C   只检测可能会发生的改变，但不真正执行操作</li>
+<li>–list-hosts    列出运行任务的主机</li>
+<li>–list-tags     列出playbook文件中定义所有的tags</li>
+<li>–list-tasks    列出playbook文件中定义的所有任务集</li>
+<li>–limit         只针对主机列表中的某个主机或者某个组执行</li>
+<li>-f              指定并发数，默认为5个</li>
+<li>-t              指定某个或多个tags运行（前提playbook中有定义tags）</li>
+<li>-v              显示过程 -vv -vvv更详细</li>
+</ul>
+<p>下面以批量安装Nginx为例，尽可能介绍playbook各核心元素的用法。</p>
+<p>定义palybook yaml文件nginx_playbook.yml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">hosts:</span> <span class="number">192.168</span><span class="number">.40</span><span class="number">.201</span><span class="string">,192.168.40.205</span> <span class="comment"># 主机列表，也可以是/etc/ansible/hosts中定义的主机分组名</span></span><br><span class="line">  <span class="attr">remote_user:</span> <span class="string">root</span> <span class="comment"># 远程用户</span></span><br><span class="line">  <span class="attr">vars:</span>             <span class="comment"># 自定义变量</span></span><br><span class="line">     <span class="attr">version:</span> <span class="number">1.16</span><span class="number">.1</span></span><br><span class="line">  <span class="attr">vars_files:</span></span><br><span class="line">     <span class="bullet">-</span> <span class="string">./templates/nginx_locations_vars.yml</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="attr">tasks:</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">install</span> <span class="string">dependencies</span>          <span class="comment"># 定义任务的名称</span></span><br><span class="line">       <span class="attr">yum:</span> <span class="string">name=&#123;&#123;item&#125;&#125;</span> <span class="string">state=installed</span>  <span class="comment"># 调用模块，具体要做的事情，这里使用with_items迭代多个yum任务安装必要的依赖</span></span><br><span class="line">       <span class="attr">with_items:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">gcc</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">gcc-c++</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">pcre</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">pcre-devel</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">zlib</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">zlib-devel</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">openssl</span></span><br><span class="line">          <span class="bullet">-</span> <span class="string">openssl-devel</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">download</span> <span class="string">nginx</span>                <span class="comment"># 通过get_url模块下载nginx</span></span><br><span class="line">       <span class="attr">get_url:</span> <span class="string">url=http://nginx.org/download/nginx-&#123;&#123;version&#125;&#125;.tar.gz</span> <span class="string">dest=/tmp/</span> <span class="string">mode=0755</span> <span class="string">force=no</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">unarchive</span>                     <span class="comment"># 通过unarchive模块解压nginx</span></span><br><span class="line">       <span class="attr">unarchive:</span> <span class="string">src=/tmp/nginx-&#123;&#123;version&#125;&#125;.tar.gz</span> <span class="string">dest=/tmp/</span> <span class="string">mode=0755</span> <span class="string">copy=no</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">configure,make</span> <span class="string">and</span> <span class="string">install</span>    <span class="comment"># 通过shell模块执行shell命令编译安装</span></span><br><span class="line">       <span class="attr">shell:</span> <span class="string">cd</span> <span class="string">/tmp/nginx-&#123;&#123;version&#125;&#125;</span> <span class="string">&amp;&amp;</span> <span class="string">./configure</span> <span class="string">--prefix=/usr/local/nginx</span> <span class="string">&amp;&amp;</span> <span class="string">make</span> <span class="string">&amp;&amp;</span> <span class="string">make</span> <span class="string">install</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">start</span> <span class="string">nginx</span>                   <span class="comment"># 通过shell模块执行shell命令启动nginx</span></span><br><span class="line">       <span class="attr">shell:</span> <span class="string">/usr/local/nginx/sbin/nginx</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">update</span> <span class="string">config</span>                 <span class="comment"># 通过template模块动态生成配置文件下发到远程主机目录</span></span><br><span class="line">       <span class="attr">template:</span> <span class="string">src=nginx.conf.j2</span> <span class="string">dest=/usr/local/nginx/conf/nginx.conf</span></span><br><span class="line">       <span class="attr">notify:</span> <span class="string">reload</span> <span class="string">nginx</span>                <span class="comment"># 在结束时触发一个操作，具体操作通过handlers来定义</span></span><br><span class="line">       <span class="attr">tags:</span> <span class="string">reload</span>                        <span class="comment"># 对任务定义一个标签，运行时通过-t执行带指定标签的任务</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">handlers:</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">reload</span> <span class="string">nginx</span>                  <span class="comment"># 与notify定义的内容对应</span></span><br><span class="line">       <span class="attr">shell:</span> <span class="string">/usr/local/nginx/sbin/nginx</span> <span class="string">-s</span> <span class="string">reload</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-变量"><a href="#1-变量" class="headerlink" title="1. 变量"></a>1. 变量</h3><p>在上面的示例中使用vars定义了变量version，在tasks中通过进行引用。Ansible支持如下几种定义变量的方式</p>
+<p>1.在playbook文件中定义<br>前面示例已经说明</p>
+<p>2.命令行指定<br>在执行playbook时通过-e指定，如<code>ansible-playbook -e &quot;version=1.17.9&quot; nginx_playbook.yml</code>， 这里指定的变量将覆盖playbook中定义的同名变量的值</p>
+<p>3.hosts文件中定义变量<br>在/etc/ansible/hosts文件中也可以定义针对单个主机或主机组的变量，如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[nginx]</span><br><span class="line">192.168.40.201 version=1.17.9 # 定义单个主机的变量</span><br><span class="line">192.168.40.205 </span><br><span class="line">[nginx:vars]  # 定义整个组的统一变量</span><br><span class="line">version=1.16.1</span><br></pre></td></tr></table></figure>
+
+<p>4.在独立的yaml文件中定义变量<br>专门定义一个yaml变量文件，然后在playbook文件中通过var_files引用，如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 定义存放变量的文件</span></span><br><span class="line">[root@ansible ]# cat var.yml</span><br><span class="line">version: 1.16.1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 编写playbook</span></span><br><span class="line">[root@ansible ]# cat nginx_playbook.yml</span><br><span class="line">---</span><br><span class="line">- hosts: nginx</span><br><span class="line">  remote_user: root</span><br><span class="line">  vars_files:     # 引用变量文件</span><br><span class="line">    - ./var.yml   # 指定变量文件的path（这里可以是绝对路径，也可以是相对路径）</span><br></pre></td></tr></table></figure>
+
+<p>5.使用setup模块获取到的变量<br>前面介绍setup模块可获取远程主机的信息，可在playbook中直接引用setup模块获取到的属性，比如系统版本： ansible_distribution_major_version</p>
+<h3 id="2-模板"><a href="#2-模板" class="headerlink" title="2. 模板"></a>2. 模板</h3><p>playbook模板为我们提供了动态的配置服务，使用jinja2语言，支持多种条件判断、循环、逻辑运算、比较操作等。应用场景就是定义一个模板配置文件，然后在执行的时候动态生成最终的配置文件下发到远程主机。一般将模板文件放在playbook文件同级的templates目录下，这样在playbook文件中可以直接引用，否则需要通过绝对路径指定，模板文件后缀名一般为 .j2。</p>
+<p>本例中，我们将nginx.conf配置文件作为模板文件，添加需要动态配置的内容，并定义一个变量文件，通过vars_files引入：<code>vars_files: ./templates/nginx_locations_vars.yml</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 模板文件</span></span><br><span class="line">[root@tool-server nginx-deploy]# vim templates/nginx.conf.j2</span><br><span class="line"> ...</span><br><span class="line"> server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  localhost;</span><br><span class="line"></span><br><span class="line">        #charset koi8-r;</span><br><span class="line"></span><br><span class="line">        #access_log  logs/host.access.log  main;</span><br><span class="line">        # 这里的内容动态生成</span><br><span class="line">        &#123;% for location in nginx_locations %&#125;</span><br><span class="line">        location &#123;&#123;location.path&#125;&#125; &#123;</span><br><span class="line">           proxy_pass &#123;&#123;location.proxy&#125;&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"> ...</span><br><span class="line"><span class="meta">#</span><span class="bash"> 独立的自定义变量文件，用于填充模板文件中的变量</span></span><br><span class="line">[root@tool-server nginx-deploy]# vim templates/nginx_locations_vars.yml</span><br><span class="line"></span><br><span class="line">nginx_locations:</span><br><span class="line">  - &#123;"path": "/cns", "proxy": "http://192.168.40.202/cns"&#125;</span><br><span class="line">  - &#123;"path": "/admin", "proxy": "http://192.168.40.202/admin"&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-handlers"><a href="#3-handlers" class="headerlink" title="3. handlers"></a>3. handlers</h3><p>handlers和notify结合使用，由特定条件触发，一般用于配置文件变更触发服务重启。在本例中我们在配置文件变更时，通过notify定义了一个“reload nginx”的操作，然后在handlers部分定义“reload nginx”操作——通过shell模块调用nginx的reload来重新加载配置。</p>
+<h3 id="4-标签"><a href="#4-标签" class="headerlink" title="4. 标签"></a>4. 标签</h3><p>playbook文件中，如果只想执行某一个或几个任务，则可以给任务打标签，在运行的时候通过 -t 选择带指定标签的任务执行，也可以通过 –skip-tags 选择不带指定标签的任务执行。比如在本例中，我们在“update config”的task上加了“reload”的标签，如果后面再修改配置，我们只需要执行“update config”的task并触发reload nginx就行了，可以这么执行playbook</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@tool-server nginx-deploy]# ansible-playbook -t reload nginx_playbook.yml</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-when"><a href="#5-when" class="headerlink" title="5. when"></a>5. when</h3><p>可以在task上添加when表示当某个条件达到了该任务才执行，如</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tasks:</span></span><br><span class="line">   <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">install</span> <span class="string">nginx</span></span><br><span class="line">     <span class="attr">yum:</span> <span class="string">name=nginx</span> <span class="string">state=installed</span></span><br><span class="line">   <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">update</span> <span class="string">config</span> <span class="string">for</span> <span class="string">system6</span></span><br><span class="line">     <span class="attr">template:</span> <span class="string">src=nginx.conf.j2</span> <span class="string">dest=/usr/local/nginx/conf/nginx.conf</span></span><br><span class="line">     <span class="attr">when:</span> <span class="string">ansible_distribution_major_version</span> <span class="string">==</span> <span class="string">"6"</span>   <span class="comment"># 判断系统版本，为6才执行上面的template配置的文件</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-roles"><a href="#6-roles" class="headerlink" title="6. roles"></a>6. roles</h3><p>roles就是将变量、文件、任务、模板及处理器放置在单独的目录中，并可以在playbook中include的一种机制，一般用于主机构建服务的场景中，但也可以是用于构建守护进程等场景。</p>
+<p>roles的目录结构，默认的roles目录为/etc/ansible/roles</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">roles:</span>          <span class="comment"># 所有的角色项目必须放在roles目录下</span></span><br><span class="line">  <span class="attr">project:</span>      <span class="comment"># 具体的角色项目名称，比如nginx、tomcat</span></span><br><span class="line">    <span class="string">files：</span>     <span class="comment"># 用来存放由copy或script模块调用的文件</span></span><br><span class="line">    <span class="string">templates：</span> <span class="comment"># 用来存放jinjia2模板，template模块会自动在此目录中寻找jinjia2模板文件</span></span><br><span class="line">    <span class="string">tasks：</span>     <span class="comment"># 此目录应当包含一个main.yml文件，用于定义此角色的任务列表，此文件可以使用include包含其它的位于此目录的task文件。</span></span><br><span class="line">      <span class="string">main.yml</span></span><br><span class="line">    <span class="string">handlers：</span>  <span class="comment"># 此目录应当包含一个main.yml文件，用于定义此角色中触发条件时执行的动作</span></span><br><span class="line">      <span class="string">main.yml</span></span><br><span class="line">    <span class="string">vars：</span>      <span class="comment"># 此目录应当包含一个main.yml文件，用于定义此角色用到的变量</span></span><br><span class="line">      <span class="string">main.yml</span></span><br><span class="line">    <span class="string">defaults：</span>  <span class="comment"># 此目录应当包含一个main.yml文件，用于为当前角色设定默认变量</span></span><br><span class="line">      <span class="string">main.yml</span></span><br><span class="line">    <span class="string">meta：</span>      <span class="comment"># 此目录应当包含一个main.yml文件，用于定义此角色的特殊设定及其依赖关系</span></span><br><span class="line">      <span class="string">main.yml</span></span><br></pre></td></tr></table></figure>
+
+<p>我们将上面的例子通过roles改造一下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@tool-server ~]# cd /etc/ansible/roles/</span><br><span class="line">[root@tool-server roles]# mkdir -p nginx/&#123;tasks,vars,templates,handlers&#125;</span><br><span class="line">...#创建各目录的mian.yml文件，并将对应的内容加入文件中</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash">最终目录结构</span></span><br><span class="line">[root@tool-server roles]# tree  .</span><br><span class="line">.</span><br><span class="line">└── nginx</span><br><span class="line">    ├── handlers</span><br><span class="line">    │   └── main.yml # 上例handlers部分的内容，直接 -name开头，不需要再加 `handlers：`</span><br><span class="line">    ├── tasks</span><br><span class="line">    │   └── main.yml # tasks部分内容，直接-name开头，不需要加tasks，可以将各个task拆分为多个文件，然后在main.yml中通过 `- include: install.yml` 形式的列表引入</span><br><span class="line">    ├── templates</span><br><span class="line">    │   └── main.yml # templates/nginx.conf.j2的内容</span><br><span class="line">    └── vars</span><br><span class="line">        └── main.yml # templates/nginx_locations_vars.yml的内容</span><br><span class="line"></span><br><span class="line">5 directories, 4 files</span><br></pre></td></tr></table></figure>
+
+<p>最后，在playbook中通过roles引入，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@ansible roles]# vim nginx_playbook.yml</span><br><span class="line">---</span><br><span class="line">- hosts: nginx</span><br><span class="line">  remote_user: root</span><br><span class="line">  roles:</span><br><span class="line">    - role: nginx # 指定角色名称</span><br></pre></td></tr></table></figure>
+
+<p>roles将playbook的各个部分进行拆分组织，主要用于代码复用度较高的场景。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Ansible是功能强大但又很轻量级的自动化运维工具，基于SSH协议批量对远程主机进行管理，不仅可用于日常的服务维护，也可与Jenkins等CI/CD工具结合实现自动化部署。如果你需要在多于一台服务器上做重复又稍显复杂的操作，那么建议你使用Ansible，这将极大提高你的操作效率，并且所有操作文档化，更易维护与迁移。</p>
+<hr>
+<p>如果你对Java、Spring Boot、Spring Cloud、Docker，技术管理心得等感兴趣<br>欢迎关注作者微信公众号：空山新雨的技术空间，一起学习成长  </p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"></p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/ansible.html>http://blog.jboost.cn/ansible.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-04-18T14:28:32+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-04-18</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/ansible/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>ansible</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/ansible.html&title=Ansible简明教程 - 半路雨歌&summary=Ansible是当下比较流行的自动化运维工具，可通过SSH协议对远程服务器进行集中化的配置管理、应用部署等，常结合Jenkins来实现自动化部署。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/ansible.html&title=Ansible简明教程 - 半路雨歌&summary=Ansible是当下比较流行的自动化运维工具，可通过SSH协议对远程服务器进行集中化的配置管理、应用部署等，常结合Jenkins来实现自动化部署。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/ansible.html&title=Ansible简明教程 - 半路雨歌&summary=Ansible是当下比较流行的自动化运维工具，可通过SSH协议对远程服务器进行集中化的配置管理、应用部署等，常结合Jenkins来实现自动化部署。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACSElEQVR42u3aQW7DMAwEQP//0+0LApNLpWno0S2o62iUy4Kr6+eh6wIHBwcHB18Ev8JV/qLme+6em+4XHBwcHBx8I7wLudtwegDdz939goODg4ODb4anGzsNSL//9nlwcHBwcHDwqxpopqDbQAIODg4ODg5+DF4tHtLiAhwcHBwcHPxcoVAFpkVF+hw4ODg4OPiT4PGFuQ99/vjNRnBwcHBw8H8An653HVR1oNHeLzg4ODg4+CJ4GhDePjAoXizo7g8cHBwcHHwjvFsMdANLe4PhoCEuFMDBwcHBwRfBTweb7gG9azABDg4ODg6+CV7daHdwkEJPFQ0v3wsODg4ODr4IfoWrWwRUi4JTFxTayQ0cHBwcHHwhfFr0ny4OugdfLhTAwcHBwcG/GH5qQ9UDS5+fBiFwcHBwcPCN8O6LuqBuMZAedFwogIODg4ODfyG8GijS4FIdYEwHH+0AAw4ODg4OvgBeDQRpkZAWAqd/AHBwcHBw8M3wcgAIg8upwDP+f3BwcHBw8AfA00HCdFCRBpy4SQEHBwcHB18ITwv99D3TCwLloAQODg4ODr4IPl1/XUCMDwYcHBwcHHwR/ApX9SDugklaHMTBChwcHBwcfCE8DSzT4uHUwKNcWICDg4ODgy+GVwf23cCSDjROXTgABwcHBwcHzwcN7xostIMNODg4ODg4+PhCYDoA+ZoAAw4ODg4O/gH46YFBekEgDTy37wUHBwcHB18ITy/4TS8Adt9T/fvL7wcHBwcHB18Ef9oCBwcHBwdfsH4BVSAGECbRUhYAAAAASUVORK5CYII=">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/k8s1-installation.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Kubernetes笔记（一）：十分钟部署一套K8s环境</p>
+                <p class='content'>Kubernetes是Goole开源的一个容器编排引擎，它支持自动化部署、大规模可伸缩、应用容器化管理 —— 百度百科。
+接触K8s也有半年多了，也基于阿里云平台搭建了包含多级服务、目前运行较为...</p>
+              </a>
+            
+            
+              <a class='next' href='/docker-13.html'>
+                <p class='title'>Docker笔记（十三）：容器日志采集实践<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>日志是服务运行过程中的一个关键环节，借助日志，我们可以排查定位问题，也可以借助集中化的日志管理平台（如ELK）来做一些必要的数据统计分析。在Docker环境中，日志的采集比传统环境更为复杂，因此...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Ansible简明教程',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境搭建"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ansible命令"><span class="toc-text">Ansible命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ansible-playbook"><span class="toc-text">Ansible playbook</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-变量"><span class="toc-text">1. 变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-模板"><span class="toc-text">2. 模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-handlers"><span class="toc-text">3. handlers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-标签"><span class="toc-text">4. 标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-when"><span class="toc-text">5. when</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-roles"><span class="toc-text">6. roles</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          , total visitors
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

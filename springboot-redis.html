@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Spring Boot（十三）：整合Redis集群 - 半路雨歌</title>
+  
+    <meta name="keywords" content="redis,java,springboot">
+  
+  
+    <meta name="description" content="前面的两篇文章（Redis的持久化方案， 一文掌握Redis的三种集群方案）分别介绍了Redis的持久化与集群方案 —— 包括主从复制模式、哨兵模式、Cluster模式，其中主从复制模式由于不能自动做故障转移，当节点出现故障时需要人为干预，不满足生产环境的高可用需求，所以在生产环境一般使用哨兵模式或Cluster...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/springboot-redis.html">
+      Spring Boot（十三）：整合Redis集群
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-03-18</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/SpringBoot/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>SpringBoot</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>前面的两篇文章（<a href="http://blog.jboost.cn/redis-persistence.html">Redis的持久化方案</a>， <a href="http://blog.jboost.cn/redis-cluster.html">一文掌握Redis的三种集群方案</a>）分别介绍了Redis的持久化与集群方案 —— 包括主从复制模式、哨兵模式、Cluster模式，其中主从复制模式由于不能自动做故障转移，当节点出现故障时需要人为干预，不满足生产环境的高可用需求，所以在生产环境一般使用哨兵模式或Cluster模式。那么在Spring Boot项目中，如何访问这两种模式的Redis集群，可能遇到哪些问题，是本文即将介绍的内容。</p>
+<a id="more"></a>
+
+<h2 id="Spring-Boot-2-整合Redis"><a href="#Spring-Boot-2-整合Redis" class="headerlink" title="Spring Boot 2 整合Redis"></a>Spring Boot 2 整合Redis</h2><p>spring boot中整合Redis非常简单，在pom.xml中添加依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>spring boot 2的<code>spring-boot-starter-data-redis</code>中，默认使用的是lettuce作为redis客户端，它与jedis的主要区别如下：</p>
+<ol>
+<li>Jedis是同步的，不支持异步，Jedis客户端实例不是线程安全的，需要每个线程一个Jedis实例，所以一般通过连接池来使用Jedis</li>
+<li>Lettuce是基于Netty框架的事件驱动的Redis客户端，其方法调用是异步的，Lettuce的API也是线程安全的，所以多个线程可以操作单个Lettuce连接来完成各种操作，同时Lettuce也支持连接池</li>
+</ol>
+<p>如果不使用默认的lettuce，使用jedis的话，可以排除lettuce的依赖，手动加入jedis依赖，配置如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.lettuce<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lettuce-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>redis.clients<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jedis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在配置文件application.yml中添加配置（针对单实例）</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="attr">host:</span> <span class="number">192.168</span><span class="number">.40</span><span class="number">.201</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">6379</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">passw0rd</span></span><br><span class="line">    <span class="attr">database:</span> <span class="number">0</span> <span class="comment"># 数据库索引，默认0</span></span><br><span class="line">    <span class="attr">timeout:</span> <span class="number">5000</span>  <span class="comment"># 连接超时，单位ms</span></span><br><span class="line">    <span class="attr">jedis:</span>  <span class="comment"># 或lettuce, 连接池配置，springboot2.0中使用jedis或者lettuce配置连接池，默认为lettuce连接池</span></span><br><span class="line">      <span class="attr">pool:</span></span><br><span class="line">        <span class="attr">max-active:</span> <span class="number">8</span> <span class="comment"># 连接池最大连接数（使用负值表示没有限制）</span></span><br><span class="line">        <span class="attr">max-wait:</span> <span class="number">-1</span> <span class="comment"># 连接池分配连接最大阻塞等待时间（阻塞时间到，抛出异常。使用负值表示无限期阻塞）</span></span><br><span class="line">        <span class="attr">max-idle:</span> <span class="number">8</span> <span class="comment"># 连接池中的最大空闲连接数</span></span><br><span class="line">        <span class="attr">min-idle:</span> <span class="number">0</span> <span class="comment"># 连接池中的最小空闲连接数</span></span><br></pre></td></tr></table></figure>
+
+<p>然后添加配置类。其中@EnableCaching注解是为了使@Cacheable、@CacheEvict、@CachePut、@Caching注解生效</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableCaching</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RedisTemplate&lt;String, Object&gt; <span class="title">redisTemplate</span><span class="params">(RedisConnectionFactory factory)</span> </span>&#123;</span><br><span class="line">        RedisTemplate&lt;String, Object&gt; template = <span class="keyword">new</span> RedisTemplate&lt;&gt;();</span><br><span class="line">        template.setConnectionFactory(factory);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用Jackson2JsonRedisSerialize 替换默认的jdkSerializeable序列化</span></span><br><span class="line">        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = <span class="keyword">new</span> Jackson2JsonRedisSerializer(Object<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        ObjectMapper om = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);</span><br><span class="line">        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);</span><br><span class="line">        jackson2JsonRedisSerializer.setObjectMapper(om);</span><br><span class="line"></span><br><span class="line">        StringRedisSerializer stringRedisSerializer = <span class="keyword">new</span> StringRedisSerializer();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// key采用String的序列化方式</span></span><br><span class="line">        template.setKeySerializer(stringRedisSerializer);</span><br><span class="line">        <span class="comment">// hash的key也采用String的序列化方式</span></span><br><span class="line">        template.setHashKeySerializer(stringRedisSerializer);</span><br><span class="line">        <span class="comment">// value序列化方式采用jackson</span></span><br><span class="line">        template.setValueSerializer(jackson2JsonRedisSerializer);</span><br><span class="line">        <span class="comment">// hash的value序列化方式采用jackson</span></span><br><span class="line">        template.setHashValueSerializer(jackson2JsonRedisSerializer);</span><br><span class="line">        template.afterPropertiesSet();</span><br><span class="line">        <span class="keyword">return</span> template;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述配置类注入了自定义的RedisTemplate&lt;String, Object&gt;， 替换RedisAutoConfiguration中自动配置的RedisTemplate&lt;Object, Object&gt;类（RedisAutoConfiguration另外还自动配置了StringRedisTemplate）。</p>
+<p>此时，我们可以通过定义一个基于RedisTemplate的工具类，或通过在Service层添加@Cacheable、@CacheEvict、@CachePut、@Caching注解来使用缓存。比如定义一个RedisService类，封装常用的Redis操作方法，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String, Object&gt; redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 指定缓存失效时间</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key 键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> time 时间(秒)</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">expire</span><span class="params">(String key, <span class="keyword">long</span> time)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (time &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                redisTemplate.expire(key, time, TimeUnit.SECONDS);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">"exception when expire key &#123;&#125;. "</span>, key, e);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 根据key获取过期时间</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key 键 不能为null</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 时间(秒) 返回0代表为永久有效</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getExpire</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> redisTemplate.getExpire(key, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断key是否存在</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key  键</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true 存在 false不存在</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasKey</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> redisTemplate.hasKey(key);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">"exception when check key &#123;&#125;. "</span>, key, e);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>出于篇幅，完整代码请查阅本文示例源码： <a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-redis-sentinel" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-redis-sentinel</a></p>
+<p>或在Service层使用注解，如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@CacheConfig</span>(cacheNames = <span class="string">"users"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, User&gt; userMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@CachePut</span>(key = <span class="string">"#user.username"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">addUser</span><span class="params">(User user)</span></span>&#123;</span><br><span class="line">        user.setUid(UUID.randomUUID().toString());</span><br><span class="line">        System.out.println(<span class="string">"add user: "</span> + user);</span><br><span class="line">        userMap.put(user.getUsername(), user);</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Caching</span>(put = &#123;</span><br><span class="line">            <span class="meta">@CachePut</span>( key = <span class="string">"#user.username"</span>),</span><br><span class="line">            <span class="meta">@CachePut</span>( key = <span class="string">"#user.uid"</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">addUser2</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">        user.setUid(UUID.randomUUID().toString());</span><br><span class="line">        System.out.println(<span class="string">"add user2: "</span> + user);</span><br><span class="line">        userMap.put(user.getUsername(), user);</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Spring-Boot-2-整合Redis哨兵模式"><a href="#Spring-Boot-2-整合Redis哨兵模式" class="headerlink" title="Spring Boot 2 整合Redis哨兵模式"></a>Spring Boot 2 整合Redis哨兵模式</h2><p>Spring Boot 2 整合Redis哨兵模式除了配置稍有差异，其它与整合单实例模式类似，配置示例为</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">passw0rd</span></span><br><span class="line">    <span class="attr">timeout:</span> <span class="number">5000</span></span><br><span class="line">    <span class="attr">sentinel:</span></span><br><span class="line">      <span class="attr">master:</span> <span class="string">mymaster</span></span><br><span class="line">      <span class="attr">nodes:</span> <span class="number">192.168</span><span class="number">.40</span><span class="number">.201</span><span class="string">:26379,192.168.40.201:36379,192.168.40.201:46379</span> <span class="comment"># 哨兵的IP:Port列表</span></span><br><span class="line">    <span class="attr">jedis:</span> <span class="comment"># 或lettuce</span></span><br><span class="line">      <span class="attr">pool:</span></span><br><span class="line">        <span class="attr">max-active:</span> <span class="number">8</span></span><br><span class="line">        <span class="attr">max-wait:</span> <span class="number">-1</span></span><br><span class="line">        <span class="attr">max-idle:</span> <span class="number">8</span></span><br><span class="line">        <span class="attr">min-idle:</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>完整示例可查阅源码： <a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-redis-sentinel" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-redis-sentinel</a> </p>
+<p>上述配置只指定了哨兵节点的地址与master的名称，但Redis客户端最终访问操作的是master节点，那么Redis客户端是如何获取master节点的地址，并在发生故障转移时，如何自动切换master地址的呢？我们以Jedis连接池为例，通过源码来揭开其内部实现的神秘面纱。</p>
+<p>在 JedisSentinelPool 类的构造函数中，对连接池做了初始化，如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> <span class="title">JedisSentinelPool</span><span class="params">(String masterName, Set&lt;String&gt; sentinels,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> GenericObjectPoolConfig poolConfig, <span class="keyword">final</span> <span class="keyword">int</span> connectionTimeout, <span class="keyword">final</span> <span class="keyword">int</span> soTimeout,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">final</span> String password, <span class="keyword">final</span> <span class="keyword">int</span> database, <span class="keyword">final</span> String clientName)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.poolConfig = poolConfig;</span><br><span class="line">    <span class="keyword">this</span>.connectionTimeout = connectionTimeout;</span><br><span class="line">    <span class="keyword">this</span>.soTimeout = soTimeout;</span><br><span class="line">    <span class="keyword">this</span>.password = password;</span><br><span class="line">    <span class="keyword">this</span>.database = database;</span><br><span class="line">    <span class="keyword">this</span>.clientName = clientName;</span><br><span class="line"></span><br><span class="line">    HostAndPort master = initSentinels(sentinels, masterName);</span><br><span class="line">    initPool(master);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> HostAndPort <span class="title">initSentinels</span><span class="params">(Set&lt;String&gt; sentinels, <span class="keyword">final</span> String masterName)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (String sentinel : sentinels) &#123;</span><br><span class="line">      <span class="keyword">final</span> HostAndPort hap = HostAndPort.parseString(sentinel);</span><br><span class="line"></span><br><span class="line">      log.fine(<span class="string">"Connecting to Sentinel "</span> + hap);</span><br><span class="line"></span><br><span class="line">      Jedis jedis = <span class="keyword">null</span>;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        jedis = <span class="keyword">new</span> Jedis(hap.getHost(), hap.getPort());</span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; masterAddr = jedis.sentinelGetMasterAddrByName(masterName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// connected to sentinel...</span></span><br><span class="line">        sentinelAvailable = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (masterAddr == <span class="keyword">null</span> || masterAddr.size() != <span class="number">2</span>) &#123;</span><br><span class="line">          log.warning(<span class="string">"Can not get master addr, master name: "</span> + masterName + <span class="string">". Sentinel: "</span> + hap</span><br><span class="line">              + <span class="string">"."</span>);</span><br><span class="line">          <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        master = toHostAndPort(masterAddr);</span><br><span class="line">        log.fine(<span class="string">"Found Redis master at "</span> + master);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (JedisException e) &#123;</span><br><span class="line">        <span class="comment">// resolves #1036, it should handle JedisException there's another chance</span></span><br><span class="line">        <span class="comment">// of raising JedisDataException</span></span><br><span class="line">        log.warning(<span class="string">"Cannot get master address from sentinel running @ "</span> + hap + <span class="string">". Reason: "</span> + e</span><br><span class="line">            + <span class="string">". Trying next one."</span>);</span><br><span class="line">      &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (jedis != <span class="keyword">null</span>) &#123;</span><br><span class="line">          jedis.close();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//省略了非关键代码</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (String sentinel : sentinels) &#123;</span><br><span class="line">      <span class="keyword">final</span> HostAndPort hap = HostAndPort.parseString(sentinel);</span><br><span class="line">      MasterListener masterListener = <span class="keyword">new</span> MasterListener(masterName, hap.getHost(), hap.getPort());</span><br><span class="line">      <span class="comment">// whether MasterListener threads are alive or not, process can be stopped</span></span><br><span class="line">      masterListener.setDaemon(<span class="keyword">true</span>);</span><br><span class="line">      masterListeners.add(masterListener);</span><br><span class="line">      masterListener.start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> master;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>initSentinels</code> 方法中主要干了两件事：</p>
+<ol>
+<li>遍历哨兵节点，通过<code>get-master-addr-by-name</code>命令获取master节点的地址信息，找到了就退出循环。<code>get-master-addr-by-name</code>命令执行结果如下所示</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-1 master-slave]# redis-cli -p 26379</span><br><span class="line">127.0.0.1:26379&gt; sentinel get-master-addr-by-name mymaster</span><br><span class="line">1) "192.168.40.201"</span><br><span class="line">2) "7001"</span><br><span class="line">127.0.0.1:26379&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>对每一个哨兵节点通过一个 MasterListener 进行监听（Redis的发布订阅功能），订阅哨兵节点<code>+switch-master</code>频道，当发生故障转移时，客户端能收到哨兵的通知，通过重新初始化连接池，完成主节点的切换。<br>MasterListener.run方法中监听哨兵部分代码如下</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">j.subscribe(<span class="keyword">new</span> JedisPubSub() &#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(String channel, String message)</span> </span>&#123;</span><br><span class="line">             log.fine(<span class="string">"Sentinel "</span> + host + <span class="string">":"</span> + port + <span class="string">" published: "</span> + message + <span class="string">"."</span>);</span><br><span class="line"></span><br><span class="line">             String[] switchMasterMsg = message.split(<span class="string">" "</span>);</span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span> (switchMasterMsg.length &gt; <span class="number">3</span>) &#123;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">if</span> (masterName.equals(switchMasterMsg[<span class="number">0</span>])) &#123;</span><br><span class="line">                 initPool(toHostAndPort(Arrays.asList(switchMasterMsg[<span class="number">3</span>], switchMasterMsg[<span class="number">4</span>])));</span><br><span class="line">               &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                 log.fine(<span class="string">"Ignoring message on +switch-master for master name "</span></span><br><span class="line">                     + switchMasterMsg[<span class="number">0</span>] + <span class="string">", our master name is "</span> + masterName);</span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">             &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               log.severe(<span class="string">"Invalid message received on Sentinel "</span> + host + <span class="string">":"</span> + port</span><br><span class="line">                   + <span class="string">" on channel +switch-master: "</span> + message);</span><br><span class="line">             &#125;</span><br><span class="line">           &#125;</span><br><span class="line">         &#125;, <span class="string">"+switch-master"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>initPool 方法如下：如果发现新的master节点与当前的master不同，则重新初始化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initPool</span><span class="params">(HostAndPort master)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!master.equals(currentHostMaster)) &#123;</span><br><span class="line">      currentHostMaster = master;</span><br><span class="line">      <span class="keyword">if</span> (factory == <span class="keyword">null</span>) &#123;</span><br><span class="line">        factory = <span class="keyword">new</span> JedisFactory(master.getHost(), master.getPort(), connectionTimeout,</span><br><span class="line">            soTimeout, password, database, clientName, <span class="keyword">false</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        initPool(poolConfig, factory);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        factory.setHostAndPort(currentHostMaster);</span><br><span class="line">        <span class="comment">// although we clear the pool, we still have to check the</span></span><br><span class="line">        <span class="comment">// returned object</span></span><br><span class="line">        <span class="comment">// in getResource, this call only clears idle instances, not</span></span><br><span class="line">        <span class="comment">// borrowed instances</span></span><br><span class="line">        internalPool.clear();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      log.info(<span class="string">"Created JedisPool to master at "</span> + master);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过以上两步，Jedis客户端在只知道哨兵地址的情况下便能获得master节点的地址信息，并且当发生故障转移时能自动切换到新的master节点地址。</p>
+<h2 id="Spring-Boot-2-整合Redis-Cluster模式"><a href="#Spring-Boot-2-整合Redis-Cluster模式" class="headerlink" title="Spring Boot 2 整合Redis Cluster模式"></a>Spring Boot 2 整合Redis Cluster模式</h2><p>Spring Boot 2 整合Redis Cluster模式除了配置稍有差异，其它与整合单实例模式也类似，配置示例为</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">passw0rd</span></span><br><span class="line">    <span class="attr">timeout:</span> <span class="number">5000</span></span><br><span class="line">    <span class="attr">database:</span> <span class="number">0</span></span><br><span class="line">    <span class="attr">cluster:</span></span><br><span class="line">      <span class="attr">nodes:</span> <span class="number">192.168</span><span class="number">.40</span><span class="number">.201</span><span class="string">:7100,192.168.40.201:7200,192.168.40.201:7300,192.168.40.201:7400,192.168.40.201:7500,192.168.40.201:7600</span></span><br><span class="line">      <span class="attr">max-redirects:</span> <span class="number">3</span>  <span class="comment"># 重定向的最大次数</span></span><br><span class="line">    <span class="attr">jedis:</span></span><br><span class="line">      <span class="attr">pool:</span></span><br><span class="line">        <span class="attr">max-active:</span> <span class="number">8</span></span><br><span class="line">        <span class="attr">max-wait:</span> <span class="number">-1</span></span><br><span class="line">        <span class="attr">max-idle:</span> <span class="number">8</span></span><br><span class="line">        <span class="attr">min-idle:</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>完整示例可查阅源码： <a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-redis-cluster" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-redis-cluster</a> </p>
+<p>在 <a href="http://blog.jboost.cn/redis-cluster.html">一文掌握Redis的三种集群方案</a> 中已经介绍了Cluster模式访问的基本原理，可以通过任意节点跳转到目标节点执行命令，上面配置中 max-redirects 控制在集群中跳转的最大次数。</p>
+<p>查看JedisClusterConnection的execute方法，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">execute</span><span class="params">(String command, <span class="keyword">byte</span>[]... args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Assert.notNull(command, <span class="string">"Command must not be null!"</span>);</span><br><span class="line">    Assert.notNull(args, <span class="string">"Args must not be null!"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> clusterCommandExecutor</span><br><span class="line">            .executeCommandOnArbitraryNode((JedisClusterCommandCallback&lt;Object&gt;) client -&gt; JedisClientUtils.execute(command,</span><br><span class="line">                    EMPTY_2D_BYTE_ARRAY, args, () -&gt; client))</span><br><span class="line">            .getValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>集群命令的执行是通过<code>ClusterCommandExecutor.executeCommandOnArbitraryNode</code>来实现的，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">NodeResult&lt;T&gt; <span class="title">executeCommandOnArbitraryNode</span><span class="params">(ClusterCommandCallback&lt;?, T&gt; cmd)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Assert.notNull(cmd, <span class="string">"ClusterCommandCallback must not be null!"</span>);</span><br><span class="line">    List&lt;RedisClusterNode&gt; nodes = <span class="keyword">new</span> ArrayList&lt;&gt;(getClusterTopology().getActiveNodes());</span><br><span class="line">    <span class="keyword">return</span> executeCommandOnSingleNode(cmd, nodes.get(<span class="keyword">new</span> Random().nextInt(nodes.size())));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> &lt;S, T&gt; <span class="function">NodeResult&lt;T&gt; <span class="title">executeCommandOnSingleNode</span><span class="params">(ClusterCommandCallback&lt;S, T&gt; cmd, RedisClusterNode node,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> redirectCount)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Assert.notNull(cmd, <span class="string">"ClusterCommandCallback must not be null!"</span>);</span><br><span class="line">    Assert.notNull(node, <span class="string">"RedisClusterNode must not be null!"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (redirectCount &gt; maxRedirects) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> TooManyClusterRedirectionsException(String.format(</span><br><span class="line">                <span class="string">"Cannot follow Cluster Redirects over more than %s legs. Please consider increasing the number of redirects to follow. Current value is: %s."</span>,</span><br><span class="line">                redirectCount, maxRedirects));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    RedisClusterNode nodeToUse = lookupNode(node);</span><br><span class="line"></span><br><span class="line">    S client = <span class="keyword">this</span>.resourceProvider.getResourceForSpecificNode(nodeToUse);</span><br><span class="line">    Assert.notNull(client, <span class="string">"Could not acquire resource for node. Is your cluster info up to date?"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> NodeResult&lt;&gt;(node, cmd.doInCluster(client));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RuntimeException ex) &#123;</span><br><span class="line"></span><br><span class="line">        RuntimeException translatedException = convertToDataAccessException(ex);</span><br><span class="line">        <span class="keyword">if</span> (translatedException <span class="keyword">instanceof</span> ClusterRedirectException) &#123;</span><br><span class="line">            ClusterRedirectException cre = (ClusterRedirectException) translatedException;</span><br><span class="line">            <span class="keyword">return</span> executeCommandOnSingleNode(cmd,</span><br><span class="line">                    topologyProvider.getTopology().lookup(cre.getTargetHost(), cre.getTargetPort()), redirectCount + <span class="number">1</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> translatedException != <span class="keyword">null</span> ? translatedException : ex;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.resourceProvider.returnResourceForSpecificNode(nodeToUse, client);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码逻辑如下</p>
+<ol>
+<li>从集群节点列表中随机选择一个节点</li>
+<li>从该节点获取一个客户端连接（如果配置了连接池，从连接池中获取），执行命令</li>
+<li>如果抛出ClusterRedirectException异常，则跳转到返回的目标节点上执行</li>
+<li>如果跳转次数大于配置的值 max-redirects， 则抛出TooManyClusterRedirectionsException异常</li>
+</ol>
+<h2 id="可能遇到的问题"><a href="#可能遇到的问题" class="headerlink" title="可能遇到的问题"></a>可能遇到的问题</h2><ol>
+<li><p>Redis连接超时<br>检查服务是否正常启动（比如 <code>ps -ef|grep redis</code>查看进程，<code>netstat -ano|grep 6379</code>查看端口是否起来，以及日志文件），如果正常启动，则查看Redis服务器是否开启防火墙，关闭防火墙或配置通行端口。</p>
+</li>
+<li><p>Cluster模式下，报连接到127.0.0.1被拒绝错误，如 <code>Connection refused: no further information: /127.0.0.1:7600</code><br>这是因为在redis.conf中配置 <code>bind 0.0.0.0</code> 或 <code>bind 127.0.0.1</code>导致，需要改为具体在外部可访问的IP，如 <code>bind 192.168.40.201</code>。如果之前已经起了集群，并产生了数据，则修改redis.conf文件后，还需要修改cluster-config-file文件，将127.0.0.1替换为bind 的具体IP，然后重启。</p>
+</li>
+<li><p>master挂了，slave升级成为master，重启master，不能正常同步新的master数据<br>如果设置了密码，需要在master, slave的配置文件中都配置<code>masterauth password</code></p>
+</li>
+</ol>
+<p>相关阅读：</p>
+<ol>
+<li><a href="http://blog.jboost.cn/redis-persistence.html">Redis的持久化方案</a></li>
+<li><a href="http://blog.jboost.cn/redis-cluster.html">一文掌握Redis的三种集群方案</a></li>
+</ol>
+<hr>
+<p>作者：空山新雨<br>近期作者写了几十篇技术博客，内容包括Java、Spring Boot、Spring Cloud、Docker，技术管理心得等<br>欢迎关注作者微信公众号：空山新雨的技术空间，一起学习成长  </p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"></p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/springboot-redis.html>http://blog.jboost.cn/springboot-redis.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-03-21T10:40:17+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-03-21</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/redis/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>redis</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/springboot/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>springboot</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/springboot-redis.html&title=Spring Boot（十三）：整合Redis集群 - 半路雨歌&summary=前面的两篇文章（Redis的持久化方案， 一文掌握Redis的三种集群方案）分别介绍了Redis的持久化与集群方案 —— 包括主从复制模式、哨兵模式、Cluster模式，其中主从复制模式由于不能自动做故障转移，当节点出现故障时需要人为干预，不满足生产环境的高可用需求，所以在生产环境一般使用哨兵模式或Cluster模式。那么在Spring Boot项目中，如何访问这两种模式的Redis集群，可能遇到哪些问题，是本文即将介绍的内容。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/springboot-redis.html&title=Spring Boot（十三）：整合Redis集群 - 半路雨歌&summary=前面的两篇文章（Redis的持久化方案， 一文掌握Redis的三种集群方案）分别介绍了Redis的持久化与集群方案 —— 包括主从复制模式、哨兵模式、Cluster模式，其中主从复制模式由于不能自动做故障转移，当节点出现故障时需要人为干预，不满足生产环境的高可用需求，所以在生产环境一般使用哨兵模式或Cluster模式。那么在Spring Boot项目中，如何访问这两种模式的Redis集群，可能遇到哪些问题，是本文即将介绍的内容。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/springboot-redis.html&title=Spring Boot（十三）：整合Redis集群 - 半路雨歌&summary=前面的两篇文章（Redis的持久化方案， 一文掌握Redis的三种集群方案）分别介绍了Redis的持久化与集群方案 —— 包括主从复制模式、哨兵模式、Cluster模式，其中主从复制模式由于不能自动做故障转移，当节点出现故障时需要人为干预，不满足生产环境的高可用需求，所以在生产环境一般使用哨兵模式或Cluster模式。那么在Spring Boot项目中，如何访问这两种模式的Redis集群，可能遇到哪些问题，是本文即将介绍的内容。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAAC7klEQVR42u3aSZLCMAwF0Nz/0vSeaiqaAig875gc67H5Jfl4WP+uAwEYMGDAgAGzBuYorpcbP31e/f7ZPq/27dYDBgwYMGDAgNkHEw5AyUKz3+u+360HDBgwYMCAAbMX5jQABV9nC+wGtbF6wIABAwYMGDA/BzMVFLvPBQMGDBgwYMCA6T54apA3NfADAwYMGDBgwNwfJj2gKl7ombpw9LWTSDBgwIABAwbM22CmB1yffl2uBwwYMGDAgAGzBqa7sgO4aiDsBrlwPWDAgAEDBgyYNTDVgBSF+hRY+fxgwIABAwYMmDUw2QKmGkLRwVkUsgoablSBAQMGDBgwYL4WphucumDV4FcdCL58HhgwYMCAAQNmDczVB54KXtWAl64LDBgwYMCAAbMGZnpwVj3oVEOsGljBgAEDBgwYMPtgqsEs2wjKBr5HcFUHdWDAgAEDBgyY/TDVBk/2QN19p/640/fBgAEDBgwYMGtgqo2k6oAu2+jqwqd/DwYMGDBgwIC5HUy28OoFnyzQVOAEAwYMGDBgwOyD6V4gqsJE909f/Cm+DwYMGDBgwIDZDxMdcF3VcOpeKGoP6MCAAQMGDBgw62CqwSwL0w142edmfwcGDBgwYMCA2Q+T3fhIrix4dtBX3g8MGDBgwIABswbmqsbQNFR1oFYeuIEBAwYMGDBg1sNEL/BUA9X0QK4dVMGAAQMGDBgwt4PpFjQdEKuDttM/GgwYMGDAgAFzG5ipBlYVqFtwuhEGBgwYMGDAgFkD013dAFi9KBR9fjRAggEDBgwYMGD2wUwFpurAa6oBFYVLD9zAgAEDBgwYMF8P866GUvbA3YFgO+CBAQMGDBgwYNbAvKugbKMp2ugKXxACAwYMGDBgwIDJNoKCn2dBs2CnF4fAgAEDBgwYMD8D0x20dYNiFx4MGDBgwIABsx8mO3CrHvTqgqPwYMCAAQMGDJj9MFMBLHyA5oDusoYYGDBgwIABA2YNjAUGDBgwYMCAWbb+AOgR5Q7iytkOAAAAAElFTkSuQmCC">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/linux-autoboot.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Linux开机自启动配置</p>
+                <p class='content'>很多时候，我们需要将一些服务在Linux系统启动时即自动运行，省得每次都要去手动启动一遍，如Redis， MySQL， Nginx等。本文对CentOS与Ubuntu下开机自启动的配置方法进行整...</p>
+              </a>
+            
+            
+              <a class='next' href='/redis-cluster.html'>
+                <p class='title'>一文了解Redis的三种集群方案<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>在开发测试环境中，我们一般搭建Redis的单实例来应对开发测试需求，但是在生产环境，如果对可用性、可靠性要求较高，则需要引入Redis的集群方案。虽然现在各大云平台有提供缓存服务可以直接使用，但...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Spring Boot（十三）：整合Redis集群',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-Boot-2-整合Redis"><span class="toc-text">Spring Boot 2 整合Redis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-Boot-2-整合Redis哨兵模式"><span class="toc-text">Spring Boot 2 整合Redis哨兵模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-Boot-2-整合Redis-Cluster模式"><span class="toc-text">Spring Boot 2 整合Redis Cluster模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可能遇到的问题"><span class="toc-text">可能遇到的问题</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          , total visitors
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

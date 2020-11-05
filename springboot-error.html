@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Spring Boot从入门到实战（九）：统一异常处理 - 半路雨歌</title>
+  
+    <meta name="keywords" content="java,springboot">
+  
+  
+    <meta name="description" content="都说管理的精髓就是“制度管人，流程管事”。而所谓流程，就是对一些日常工作环节、方式方法、次序等进行标准化、规范化。且不论精不精髓，在技术团队中，对一些通用场景，统一规范是必要的，只有步调一致，才能高效向前。如前后端交互协议，如本文探讨的异常处理。">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/springboot-error.html">
+      Spring Boot从入门到实战（九）：统一异常处理
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-07-03</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/SpringBoot/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>SpringBoot</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>都说管理的精髓就是“制度管人，流程管事”。而所谓流程，就是对一些日常工作环节、方式方法、次序等进行标准化、规范化。且不论精不精髓，在技术团队中，对一些通用场景，统一规范是必要的，只有步调一致，才能高效向前。如前后端交互协议，如本文探讨的异常处理。</p>
+<a id="more"></a>
+
+<h3 id="1-Spring-Mvc中的异常处理"><a href="#1-Spring-Mvc中的异常处理" class="headerlink" title="1. Spring Mvc中的异常处理"></a>1. Spring Mvc中的异常处理</h3><p>在spring mvc中，跟异常处理的相关类大致如下</p>
+<p><img src="/assets/springmvcexresolver.png" alt="springmvn异常处理类"></p>
+<p>上图中，spring mvc中处理异常的类（包括在请求映射时与请求处理过程中抛出的异常），都是 HandlerExceptionResolver 接口的实现，并且都实现了 Ordered 接口。与拦截器链类似，如果容器中存在多个实现了 HandlerExceptionResolver 接口的异常处理类，则它们的 resolveException 方法会被依次调用，顺序由order决定，值越小的先执行，只要其中一个调用返回不是null，则后续的异常处理将不再执行。</p>
+<p>各实现类简单介绍如下：</p>
+<ul>
+<li>DefaultHandlerExceptionResolver： 这个是默认实现，处理Spring定义的各种标准异常，将其转换为对应的Http Status Code，具体处理的异常参考 doResolveException 方法</li>
+<li>ResponseStatusExceptionResolver：用来支持@ResponseStatus注解使用的实现，如果自定义的异常通过@ResponseStatus注解进行了修饰，并且容器中存在ResponseStatusExceptionResolver的bean，则自定义异常抛出时会被该bean进行处理，返回注解定义的Http Status Code及内容给客户端</li>
+<li>ExceptionHandlerExceptionResolver：用来支持@ExceptionHandler注解使用的实现，使用该注解修饰的方法来处理对应的异常。不过该注解的作用范围只在controller类，如果需要全局处理，则需要配合@ControllerAdvice注解使用。</li>
+<li>SimpleMappingExceptionResolver：将异常映射为视图</li>
+<li>HandlerExceptionResolverComposite：就是各类实现的组合，依次执行，只要其中一个处理返回不为null，则不再处理。</li>
+</ul>
+<p>因为本文主要是对spring boot如何对异常统一处理进行探讨，所以以上只对各实现做了基本介绍，更加详细的内容可查阅相关文档或后续再补上。</p>
+<h3 id="2-Spring-Boot中如何统一异常处理"><a href="#2-Spring-Boot中如何统一异常处理" class="headerlink" title="2. Spring Boot中如何统一异常处理"></a>2. Spring Boot中如何统一异常处理</h3><p>通过第一部分介绍，可以使用@ExceptionHandler + @ControllerAdvice 组合的方式来实现异常的全局统一处理。对于REST服务来说，spring mvc提供了一个抽象类 ResponseEntityExceptionHandler， 该类类似于上面介绍的 DefaultHandlerExceptionResolver，对一些标准的异常进行了处理，但不是返回 ModelAndView对象， 而是返回 ResponseEntity对象。故我们可以基于该类来实现REST服务异常的统一处理<br>定义异常处理类 BaseWebApplicationExceptionHandler 如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseWebApplicationExceptionHandler</span> <span class="keyword">extends</span> <span class="title">ResponseEntityExceptionHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> includeStackTrace;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BaseWebApplicationExceptionHandler</span><span class="params">(<span class="keyword">boolean</span> includeStackTrace)</span></span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">        <span class="keyword">this</span>.includeStackTrace = includeStackTrace;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(getClass());</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler</span>(BizException<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">    <span class="title">public</span> <span class="title">ResponseEntity</span>&lt;<span class="title">Object</span>&gt; <span class="title">handleBizException</span>(<span class="title">BizException</span> <span class="title">ex</span>) </span>&#123;</span><br><span class="line">        logger.warn(<span class="string">"catch biz exception: "</span> + ex.toString(), ex.getCause());</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.asResponseEntity(HttpStatus.valueOf(ex.getHttpStatus()), ex.getErrorCode(), ex.getErrorMessage(), ex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler</span>(&#123;IllegalArgumentException<span class="class">.<span class="keyword">class</span>, <span class="title">IllegalStateException</span>.<span class="title">class</span>&#125;)</span></span><br><span class="line"><span class="class">    <span class="title">public</span> <span class="title">ResponseEntity</span>&lt;<span class="title">Object</span>&gt; <span class="title">handleIllegalArgumentException</span>(<span class="title">Exception</span> <span class="title">ex</span>) </span>&#123;</span><br><span class="line">        logger.warn(<span class="string">"catch illegal exception."</span>, ex);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.asResponseEntity(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.name().toLowerCase(), ex.getMessage(), ex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler</span>(Exception<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class">    <span class="title">public</span> <span class="title">ResponseEntity</span>&lt;<span class="title">Object</span>&gt; <span class="title">handleException</span>(<span class="title">Exception</span> <span class="title">ex</span>) </span>&#123;</span><br><span class="line">        logger.error(<span class="string">"catch exception."</span>, ex);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.asResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.name().toLowerCase(), ExceptionConstants.INNER_SERVER_ERROR_MSG, ex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> ResponseEntity&lt;Object&gt; <span class="title">handleExceptionInternal</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">            Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatus status, WebRequest request)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) &#123;</span><br><span class="line">            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);</span><br><span class="line">        &#125;</span><br><span class="line">        logger.warn(<span class="string">"catch uncustom exception."</span>, ex);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.asResponseEntity(status, status.name().toLowerCase(), ex.getMessage(), ex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> ResponseEntity&lt;Object&gt; <span class="title">asResponseEntity</span><span class="params">(HttpStatus status, String errorCode, String errorMessage, Exception ex)</span> </span>&#123;</span><br><span class="line">        Map&lt;String, Object&gt; data = <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</span><br><span class="line">        data.put(BizException.ERROR_CODE, errorCode);</span><br><span class="line">        data.put(BizException.ERROR_MESSAGE, errorMessage);</span><br><span class="line">        <span class="comment">//是否包含异常的stack trace</span></span><br><span class="line">        <span class="keyword">if</span>(includeStackTrace)&#123;</span><br><span class="line">            addStackTrace(data, ex);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;&gt;(data, status);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addStackTrace</span><span class="params">(Map&lt;String, Object&gt; errorAttributes, Throwable error)</span> </span>&#123;</span><br><span class="line">        StringWriter stackTrace = <span class="keyword">new</span> StringWriter();</span><br><span class="line">        error.printStackTrace(<span class="keyword">new</span> PrintWriter(stackTrace));</span><br><span class="line">        stackTrace.flush();</span><br><span class="line">        errorAttributes.put(BizException.ERROR_TRACE, stackTrace.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有几点：</p>
+<ol>
+<li>定义了一个includeStackTrace变量，来控制是否输出异常栈信息</li>
+<li>自定义了一个异常类BizException，表示可预知的业务异常，并对它提供了处理方法，见handleBizException方法</li>
+<li>对其它未预知异常，用Exception类型进行最后处理，见handleException方法</li>
+<li>重写了超类的handleExceptionInternal方法，统一响应内容的字段与格式</li>
+<li>针对REST服务，使用的是@RestControllerAdvice注解，而不是@ControllerAdvice</li>
+</ol>
+<p>BaseWebApplicationExceptionHandler是通过增强的方式对controller抛出的异常做了统一处理，那如果请求都没有到达controller怎么办，比如在过滤器那边就抛异常了，Spring Boot其实对错误的处理做了一些自动化配置，参考ErrorMvcAutoConfiguration类，具体这里不详述，只提出方案——自定义ErrorAttributes实现，如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseErrorAttributes</span> <span class="keyword">extends</span> <span class="title">DefaultErrorAttributes</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> includeStackTrace;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title">getErrorAttributes</span><span class="params">(WebRequest webRequest, <span class="keyword">boolean</span> includeStackTrace)</span> </span>&#123;</span><br><span class="line">        Map&lt;String, Object&gt; errorAttributes = <span class="keyword">new</span> LinkedHashMap&lt;String, Object&gt;();</span><br><span class="line">        addStatus(errorAttributes, webRequest);</span><br><span class="line">        addErrorDetails(errorAttributes, webRequest, <span class="keyword">this</span>.includeStackTrace);</span><br><span class="line">        <span class="keyword">return</span> errorAttributes;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>以上只列出了主要部分，具体实现可参考源码。这里同样定义了includeStackTrace来控制是否包含异常栈信息。</p>
+<p>最后，将以上两个实现通过配置文件注入容器，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnClass</span>(&#123;Servlet<span class="class">.<span class="keyword">class</span>, <span class="title">DispatcherServlet</span>.<span class="title">class</span>, <span class="title">WebMvcConfigurer</span>.<span class="title">class</span>&#125;)</span></span><br><span class="line"><span class="class">@<span class="title">ConditionalOnMissingBean</span>(<span class="title">ResponseEntityExceptionHandler</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class">@<span class="title">AutoConfigureBefore</span>(<span class="title">ErrorMvcAutoConfiguration</span>.<span class="title">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">class</span> <span class="title">ExceptionHandlerAutoConfiguration</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Profile</span>(&#123;<span class="string">"test"</span>, <span class="string">"formal"</span>, <span class="string">"prod"</span>&#125;)</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ResponseEntityExceptionHandler <span class="title">defaultGlobalExceptionHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//测试、正式环境，不输出异常的stack trace</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BaseWebApplicationExceptionHandler(<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Profile</span>(&#123;<span class="string">"default"</span>,<span class="string">"local"</span>,<span class="string">"dev"</span>&#125;)</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ResponseEntityExceptionHandler <span class="title">devGlobalExceptionHandler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//本地、开发环境，输出异常的stack trace</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BaseWebApplicationExceptionHandler(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Profile</span>(&#123;<span class="string">"test"</span>, <span class="string">"formal"</span>, <span class="string">"prod"</span>&#125;)</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ErrorAttributes <span class="title">basicErrorAttributes</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//测试、正式环境，不输出异常的stack trace</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BaseErrorAttributes(<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Profile</span>(&#123;<span class="string">"default"</span>,<span class="string">"local"</span>,<span class="string">"dev"</span>&#125;)</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ErrorAttributes <span class="title">devBasicErrorAttributes</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//本地、开发环境，输出异常的stack trace</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BaseErrorAttributes(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>上面的@Profile主要是控制针对不同环境，输出不同的响应内容。以上配置的意思是在profile为default、local、dev时，响应内容中包含异常栈信息；profile为test、formal、prod时，响应内容不包含异常栈信息。这么做的好处是，开发阶段，当前端联调时，如果出错，可直接从响应内容中看到异常栈，方便服务端开发人员快速定位问题，而测试、生产环境， 就不要返回异常栈信息了。</p>
+</blockquote>
+<h3 id="3-基于Spring-Boot的异常处理规范"><a href="#3-基于Spring-Boot的异常处理规范" class="headerlink" title="3. 基于Spring Boot的异常处理规范"></a>3. 基于Spring Boot的异常处理规范</h3><ol>
+<li><p>异常的表示形式<br>异常一般可通过自定义异常类，或定义异常的信息，比如code，message之类，然后通过一个统一的异常类进行封装。如果每一种异常都定义一个异常类，则会造成异常类过多，所以实践开发中我一般倾向于后者。<br>可以定义一个接口，该接口主要是方便后面的异常处理工具类实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BaseErrors</span> </span>&#123;</span><br><span class="line">    <span class="function">String <span class="title">getCode</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">String <span class="title">getMsg</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后定义一个枚举，实现该接口，在该枚举中定义异常信息，如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> ErrorCodeEnum implements BaseErrors &#123;</span><br><span class="line">    qrcode_existed(<span class="string">"该公众号下已存在同名二维码"</span>),</span><br><span class="line">    authorizer_notexist(<span class="string">"公众号不存在"</span>),</span><br><span class="line">   </span><br><span class="line">    <span class="keyword">private</span> String msg;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">ErrorCodeEnum</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.msg = msg;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name();</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMsg</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> msg;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>封装异常处理<br>分场景定义了ClientSideException，ServerSideException，UnauthorizedException，ForbiddenException异常，分别表示客户端异常（400），服务端异常（500），未授权异常（401），禁止访问异常（403），如ClientSideException定义</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientSideException</span> <span class="keyword">extends</span> <span class="title">BizException</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;E extends Enum&lt;E&gt; &amp; BaseErrors&gt; ClientSideException(E exceptionCode, Throwable cause) &#123;</span><br><span class="line">        <span class="keyword">super</span>(HttpStatus.BAD_REQUEST, exceptionCode, cause);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> &lt;E extends Enum&lt;E&gt; &amp; BaseErrors&gt; ClientSideException(E exceptionCode) &#123;</span><br><span class="line">        <span class="keyword">super</span>(HttpStatus.BAD_REQUEST, exceptionCode, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>并且提供一个异常工具类ExceptionUtil，方便不同场景使用，</p>
+</li>
+</ol>
+<ul>
+<li>rethrowClientSideException：抛出ClientSideException，将以status code 400返回客户端。由客户端引起的异常调用该方法，如参数校验失败。</li>
+<li>rethrowUnauthorizedException： 抛出UnauthorizedException，将以status code 401返回客户端。访问未授权时调用，如token校验失败等。</li>
+<li>rethrowForbiddenException： 抛出ForbidenException，将以status code 403返回客户端。访问被禁止时调用，如用户被禁用等。</li>
+<li>rethrowServerSideException： 抛出ServerSideException，将以status code 500返回客户端。服务端引起的异常调用该方法，如调用第三方服务异常，数据库访问出错等。</li>
+</ul>
+<p>在实际使用时，分两种情况，</p>
+<ol>
+<li><p>不通过try/catch主动抛出异常，如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (StringUtils.isEmpty(appId)) &#123;</span><br><span class="line">    LOG.warn(<span class="string">"the authorizer for site[&#123;&#125;] is not existed."</span>, templateMsgRequestDto.getSiteId());</span><br><span class="line">    ExceptionUtil.rethrowClientSideException(ErrorCodeEnum.authorizer_notexist);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过try/catch异常重新抛出（注意：可预知的异常，需要给客户端返回某种提示信息的，必须通过该方式重新抛出。否则将返回统一的code 500,提示“抱歉，服务出错了，请稍后重试”的提示信息）如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    String result = wxOpenService.getWxOpenComponentService().getWxMpServiceByAppid(appId).getTemplateMsgService().sendTemplateMsg(templateMessage);</span><br><span class="line">    LOG.info(<span class="string">"result: &#123;&#125;"</span>, result);</span><br><span class="line">&#125; <span class="keyword">catch</span> (WxErrorException wxException) &#123;</span><br><span class="line">    <span class="comment">//这里不需要打日志，会统一在异常处理里记录日志</span></span><br><span class="line">    ExceptionUtil.rethrowServerSideException(ExceptionCodeEnum.templatemsg_fail, wxException);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>具体实现参考源码： <a href="https://github.com/ronwxy/base-spring-boot/tree/master/spring-boot-autoconfigure/src/main/java/cn/jboost/springboot/autoconfig/error" target="_blank" rel="noopener">https://github.com/ronwxy/base-spring-boot/tree/master/spring-boot-autoconfigure/src/main/java/cn/jboost/springboot/autoconfig/error</a><br>另附demo源码：<a href="https://github.com/ronwxy/springboot-demos/tree/master/springboot-error" target="_blank" rel="noopener">https://github.com/ronwxy/springboot-demos/tree/master/springboot-error</a></p>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><p>本文写完感觉信息量有点多，对于不具备一定基础的人来说理解可能有点难度。如果有任何疑问，欢迎交流。后续有需要的话也可以针对某个环节再进行细化补充。本文所提的规范不一定是最好的实践，但规范或流程的管理，都是遵循先僵化，后优化，再固化的步骤，先解决有没有的问题，再解决好不好的问题。<br></br><br>我的个人博客地址：<a href="http://blog.jboost.cn">http://blog.jboost.cn</a><br>我的github地址：<a href="https://github.com/ronwxy" target="_blank" rel="noopener">https://github.com/ronwxy</a><br>我的微信公众号：jboost-ksxy （一个不只有技术干货的公众号，欢迎关注）<br>———————————————————————————————————————————————————————————————<br><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/springboot-error.html>http://blog.jboost.cn/springboot-error.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-22T18:30:36+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2019-07-22</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/springboot/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>springboot</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/springboot-error.html&title=Spring Boot从入门到实战（九）：统一异常处理 - 半路雨歌&summary=都说管理的精髓就是“制度管人，流程管事”。而所谓流程，就是对一些日常工作环节、方式方法、次序等进行标准化、规范化。且不论精不精髓，在技术团队中，对一些通用场景，统一规范是必要的，只有步调一致，才能高效向前。如前后端交互协议，如本文探讨的异常处理。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/springboot-error.html&title=Spring Boot从入门到实战（九）：统一异常处理 - 半路雨歌&summary=都说管理的精髓就是“制度管人，流程管事”。而所谓流程，就是对一些日常工作环节、方式方法、次序等进行标准化、规范化。且不论精不精髓，在技术团队中，对一些通用场景，统一规范是必要的，只有步调一致，才能高效向前。如前后端交互协议，如本文探讨的异常处理。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/springboot-error.html&title=Spring Boot从入门到实战（九）：统一异常处理 - 半路雨歌&summary=都说管理的精髓就是“制度管人，流程管事”。而所谓流程，就是对一些日常工作环节、方式方法、次序等进行标准化、规范化。且不论精不精髓，在技术团队中，对一些通用场景，统一规范是必要的，只有步调一致，才能高效向前。如前后端交互协议，如本文探讨的异常处理。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAAC60lEQVR42u3aQXIiQQwEQP7/ae99wwRSSawtNvsGDD2jnEuF1I8v69v1QAAGDBgwYMCcgXmE6+nGf/2eXv9qn2f7TusBAwYMGDBgwNyDKQegZqHd66bfT+sBAwYMGDBgwNyFeRmAmkFrCtcOaNN6wIABAwYMGDD/HUy1kdVtNG01tMCAAQMGDBgwYKrXbw3ytgZ+YMCAAQMGDJjPh2kPqMIDPVsHjn7tJBIMGDBgwIAB889gtgdcP/05rgcMGDBgwIABcwZmuqqDsGkgnAa5cj1gwIABAwYMmDMwaUCqQv0UWPz8YMCAAQMGDJiPg+kOvLb36b6AdEAHBgwYMGDAgLkD0y0oLTgNXumALW6kgQEDBgwYMGDOwEwL7w7i0heSBrz2iwADBgwYMGDAnIPZHnhN4dOgmA7mwIABAwYMGDB3YaYA1cLSgVk3SKZBDwwYMGDAgAFzB2YapKqDrO59uoFxeh8wYMCAAQMGzD2YdzWSpgO1Lfj2/8GAAQMGDBgwZ2HiAzfDhlTa+EoHbk+fAwwYMGDAgAFzHqY76EoLng78tr4HAwYMGDBgwNyDaf+xOSCbwk73bb8oMGDAgAEDBsxZmO7n9CDPtFE2bWyBAQMGDBgwYO7DpDfYhti+T7wfGDBgwIABA+YcTBqcusGsWlAaLNP9wIABAwYMGDB3YboDtnRAlwbJdzXCyskXDBgwYMCAAXMWZhrk0gCXBtD4xYIBAwYMGDBgzsN0g9F0bR8oqoKCAQMGDBgwYO7CbBWUDuqmDaatAAkGDBgwYMCAuQezHZS6BU0Hct1G28vnBAMGDBgwYMCcg3l3Q2n6fRosxwEPDBgwYMCAAXMGJg1Q6UGiamFV0O5zgAEDBgwYMGDATBtX00FbGhjBgAEDBgwYMGDSoNa931YD6+lzggEDBgwYMGDOwnQHbtPB21bB3QYWGDBgwIABA+ZzYLYCWBU6haoWGjfKwIABAwYMGDBnYCwwYMCAAQMGzLH1B3gK5f9lnidoAAAAAElFTkSuQmCC">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/threadpool.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>线程池的基本原理，看完就懂了</p>
+                <p class='content'>本文内容是基于研发部门内部的分享整理，记录下来供学习或回顾。
+
+
+1. 为什么要用线程池
+降低资源消耗。通过重复利用已创建的线程降低线程创建、销毁线程造成的消耗。 
+
+提高响应速度。当任务到达时...</p>
+              </a>
+            
+            
+              <a class='next' href='/use-nvm.html'>
+                <p class='title'>使用nvm来管理Node多版本<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>最近在为前端配置jenkins持续集成环境时，在运行npm install下载依赖包的时候，速度极慢，而本地很快。对比node版本，一个v10.15.3，速度很快，一个v8.10.0，速度极慢。...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Spring Boot从入门到实战（九）：统一异常处理',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Spring-Mvc中的异常处理"><span class="toc-text">1. Spring Mvc中的异常处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Spring-Boot中如何统一异常处理"><span class="toc-text">2. Spring Boot中如何统一异常处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-基于Spring-Boot的异常处理规范"><span class="toc-text">3. 基于Spring Boot的异常处理规范</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-总结"><span class="toc-text">4. 总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          , total visitors
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Docker笔记（十一）：Dockerfile详解与最佳实践 - 半路雨歌</title>
+  
+    <meta name="keywords" content="docker">
+  
+  
+    <meta name="description" content="Dockerfile是一个文本文件，包含了一条条指令，每条指令对应构建一层镜像，Docker基于它来构建一个完整镜像。本文介绍Dockerfile的常用指令及相应的最佳实践建议。">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/docker-11.html">
+      Docker笔记（十一）：Dockerfile详解与最佳实践
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2019-09-21</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Docker/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Docker</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>Dockerfile是一个文本文件，包含了一条条指令，每条指令对应构建一层镜像，Docker基于它来构建一个完整镜像。本文介绍Dockerfile的常用指令及相应的最佳实践建议。</p>
+<a id="more"></a>
+
+
+<h2 id="1-理解构建上下文（build-context）"><a href="#1-理解构建上下文（build-context）" class="headerlink" title="1. 理解构建上下文（build context）"></a>1. 理解构建上下文（build context）</h2><p>Docker镜像通过<code>docker build</code>指令构建，该指令执行时当前的工作目录就是docker构建的上下文，即build context，上下文中的文件及目录都会作为构建上下文内容发送给Docker Daemon。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build --no-cache -t helloapp:v2 -f dockerfiles/Dockerfile context</span><br></pre></td></tr></table></figure>
+
+<p>如上 –no-cache 表示镜像构建时不使用缓存，-f 指定Dockerfile文件位置， context 指定build context目录。</p>
+<p>将一些非必要的文件包含到build context中，会导致build context过大，从而导致镜像过大，会增加镜像构建、推送及拉取的时间，以及容器运行时的大小。</p>
+<p>执行docker build时会显示build context的大小，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sending build context to Docker daemon  187.8MB</span><br></pre></td></tr></table></figure>
+
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>使用.dockerignore来排除不需要加入到build context中的文件，类似于.gitignore</li>
+<li>不要安装不必要的包，所有包含的东西都是镜像必须的，非必须的不要包含。</li>
+<li>解耦应用，如果应用有分层，解耦应用到多个容器，便于横向扩展，如web应用程序栈包含web服务应用，数据库，缓存等。</li>
+<li>最少化镜像层数：只有RUN、COPY、ADD指令会创建镜像层，其它指令创建临时的中间镜像，不会增大镜像构建的大小</li>
+<li>如果可能，尽可能使用多阶段构建，只复制你需要的组件到最终镜像，这使得你可以在中间构建阶段包含工具与debug信息，同时又不会增大最终镜像的大小。</li>
+<li>排序多行参数：将参数按字母排序，有利于避免包重复，及后续的维护与提高易读性</li>
+</ol>
+<h2 id="2-FROM"><a href="#2-FROM" class="headerlink" title="2. FROM"></a>2. FROM</h2><p><strong>作用</strong><br>FROM指定基础镜像，每一个定制镜像，必须以一个现有镜像为基础。因此一个Dockerfile中FROM是必须的指令，并且必须是第一条。使用格式，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FROM &lt;image&gt;:&lt;tag&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 注释以<span class="comment">#开头。基础镜像的tag可不指定，默认使用latest</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 示例：FROM mysql:5.7</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>如果不想以任何镜像为基础，则可以使用<code>FROM scratch</code></li>
+<li>尽量使用官方镜像作为基础镜像</li>
+<li>推荐使用Alpine镜像，因为它足够轻量级（小于5MB），但麻雀虽小五脏俱全，基本具有Linux的基础功能</li>
+</ol>
+<h2 id="3-RUN"><a href="#3-RUN" class="headerlink" title="3. RUN"></a>3. RUN</h2><p><strong>作用</strong><br>用来执行命令行命令，是最常用的指令之一。使用格式，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> shell格式，跟直接在命令行输入命令一行</span></span><br><span class="line">RUN &lt;命令&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 示例：RUN mkdir -p /usr/src/redis </span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">exec</span>格式，类似于函数调用</span></span><br><span class="line">RUN ["可执行文件", "参数1", "参数2"]</span><br></pre></td></tr></table></figure>
+<p>RUN指令创建的中间镜像会被缓存，并会在下次构建中使用。如果不想使用这些缓存镜像，可以在构建指令中指定–no-cache参数，如：<code>docker build --no-cache</code></p>
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>将比较长的复杂的指令通过 \ 分为多行，让Dockerfile文件可读性、可理解性、可维护性更高，将多个指令通过 &amp;&amp; 连接，减少镜像的层数</li>
+<li>确保每一层只添加必需的东西，任何无关的东西都应该清理掉，如所有下载、展开的文件，apt 缓存文件等，以尽可能减少镜像各层的大小</li>
+<li>将<code>RUN apt-get update</code> 与 <code>RUN apt-get install</code> 组合成一条RUN指令（将apt-get update单独作为一条指令会因为缓存问题导致后续的apt-get install 指令失败）</li>
+</ol>
+<p>比如先按如下Dockerfile创建了一个镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu:18.04</span><br><span class="line">RUN apt-get update</span><br><span class="line">RUN apt-get install -y curl</span><br></pre></td></tr></table></figure>
+<p>一段时间后，再按以下Dockerfile创建另一个镜像</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu:18.04</span><br><span class="line">RUN apt-get update</span><br><span class="line">RUN apt-get install -y curl nginx</span><br></pre></td></tr></table></figure>
+<p>因为RUN指令创建的镜像层会被缓存，所以下面镜像的<code>RUN apt-get update</code>并不会执行，直接使用了前面构建的镜像层，这样，curl、nginx就可能安装已经过时的版本。</p>
+<p>因此 在 <code>apt-get update</code> 之后立即接 <code>&amp;&amp; apt-get install -y</code> ，这叫做“ cache busting”（缓存破坏），也可以通过指定包的版本，来达到同样的目的，这叫“ version pinning” （版本指定）示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">RUN apt-get update &amp;&amp; apt-get install -y \</span><br><span class="line">    reprepro \</span><br><span class="line">    ruby1.9.1 \</span><br><span class="line">    ruby1.9.1-dev \</span><br><span class="line">    #删除apt 缓存减少镜像层的大小</span><br><span class="line">    &amp;&amp; rm -rf /var/lib/apt/lists/*</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>使用管道（pipes）。一些RUN指令依赖于从一个指令管道输出到另一个，如<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RUN wget -O - https://some.site | wc -l &gt; /number</span><br></pre></td></tr></table></figure>
+Docker使用/bin/sh -c 解释器来执行这些指令，只会评估管道最后一条命令的退出码来确定是否成功，如上例中只要wc -l成功了就算wget失败，也会认为是成功的。<br>如果要使管道命令的任何一步报错都导致指令失败，则可通过加 <code>set -o pipefile &amp;&amp;</code> 来实现，如<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RUN set -o pipefail &amp;&amp; wget -O - https://some.site | wc -l &gt; /number</span><br></pre></td></tr></table></figure>
+不是所有的shell都支持<code>-o pipefail</code>选项，如果不支持的话可以使用如下形式，显式地指定一个支持的shell<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RUN ["/bin/bash", "-c", "set -o pipefail &amp;&amp; wget -O - https://some.site | wc -l &gt; /number"]</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="4-COPY-ADD"><a href="#4-COPY-ADD" class="headerlink" title="4. COPY | ADD"></a>4. COPY | ADD</h2><p><strong>作用</strong><br>COPY从构建上下文的目录中复制文件/目录到镜像层的目标路径。使用格式，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">COPY [--chown=&lt;user&gt;:&lt;group&gt;] &lt;源路径&gt;... &lt;目标路径&gt; </span><br><span class="line">COPY [--chown=&lt;user&gt;:&lt;group&gt;] ["&lt;源路径1&gt;",... "&lt;目标路径&gt;"]</span><br></pre></td></tr></table></figure>
+
+<p>同RUN一样，也有两种格式。源文件可以多个，甚至可以是通配符，目标路径是容器的绝对路径，可以是相对工作目录（WORKDIR指定）的相对路径，目标路径不存在时会自动创建。使用<code>--chown=&lt;user&gt;:&lt;group&gt;</code>来改变文件的所属用户与组。<br>ADD与COPY的使用格式与性质差不多，但功能更丰富，如源路径可以是URL（下载后放到目标路径下，文件权限为600），也可以为tar压缩包，压缩格式为gzip，bzip2及xz的情况下，ADD 指令将会自动解压缩这个压缩文件到目标路径去 </p>
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>如果在Dockerfile中有多处需要使用不同的文件，分别使用COPY，而不是一次性COPY所有的，这可以保证每一步的构建缓存只会在对应文件改变时，才会失效。比如<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">COPY requirements.txt /tmp/</span><br><span class="line">RUN pip install --requirement /tmp/requirements.txt</span><br><span class="line">COPY . /tmp/</span><br></pre></td></tr></table></figure>
+如果把<code>COPY . /tmp/</code> 放在RUN上面，将使RUN层镜像缓存失效的场景更多——因为 . 目录（当前目录）中任何一个文件的改变都会导致缓存失效。</li>
+<li>因为镜像大小的原因， 使用ADD来获取远程包是非常不推荐的，应该使用curl或wget，这种方式可以在不再需要使用时删除对应文件，而不需要增加额外的层，如，应避免如下用法<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ADD http://example.com/big.tar.xz /usr/src/things/</span><br><span class="line">RUN tar -xJf /usr/src/things/big.tar.xz -C /usr/src/things</span><br><span class="line">RUN make -C /usr/src/things all</span><br></pre></td></tr></table></figure>
+而应使用<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RUN mkdir -p /usr/src/things \</span><br><span class="line">    &amp;&amp; curl -SL http://example.com/big.tar.xz \</span><br><span class="line">    | tar -xJC /usr/src/things \</span><br><span class="line">    &amp;&amp; make -C /usr/src/things all</span><br></pre></td></tr></table></figure></li>
+<li>如果不需要使用ADD的自动解压特性，尽量使用COPY（语义更清晰）</li>
+</ol>
+<h2 id="5-CMD"><a href="#5-CMD" class="headerlink" title="5. CMD"></a>5. CMD</h2><p><strong>作用</strong><br>CMD指定容器的启动命令。容器实质就是进程，进程就需要启动命令及参数，CMD指令就是用于指定默认的容器主进程的启动命令的。使用格式</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> shell格式 </span></span><br><span class="line">CMD &lt;命令&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">exec</span>格式</span></span><br><span class="line">CMD ["可执行文件", "参数1", "参数2"...]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 参数列表格式，在指定了ENTRYPOINT指令后，用CMD来指定具体的参数</span></span><br><span class="line">CMD ["参数1", "参数2"...]</span><br></pre></td></tr></table></figure>
+<p>在容器运行时可以指定新的命令来覆盖Dockerfile中设置的这个默认命令 </p>
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>服务类镜像建议：<code>CMD [&quot;apache2&quot;,&quot;-DFOREGROUND&quot;]</code>，<code>CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</code> 容器进程都应以前台运行，不能以后台服务的形式运行，否则启动就退出了。</li>
+<li>其它镜像，建议给一个交互式的shell，如bash，python，perl等：<code>CMD [&quot;python&quot;]</code>, <code>CMD [&quot;php&quot;, &quot;-a&quot;]</code></li>
+</ol>
+<h2 id="6-ENTRYPOINT"><a href="#6-ENTRYPOINT" class="headerlink" title="6. ENTRYPOINT"></a>6. ENTRYPOINT</h2><p><strong>作用</strong><br>ENTRYPOINT的目的和CMD一样，都是在指定容器启动是要运行的程序及参数。 ENTRYPOINT在运行时也可以替代，不过比CMD要略显繁琐，需要通过docker run的参数 –entrypoint 来指定。如果指定了ENTRYPOINT，则CMD将只是提供参数，传递给ENTRYPOINT。使用ENTRYPOINT可以在容器运行时直接为默认启动程序添加参数。 与RUN指令格式一样，ENTRYPOINT也分为exec格式和shell格式。</p>
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>ENTRYPOINT可用来指定镜像的主命令，允许镜像能像命令一样运行，可以使用CMD来作为默认的标志（参数），如<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ENTRYPOINT ["s3cmd"]</span><br><span class="line">CMD ["--help"]</span><br></pre></td></tr></table></figure>
+直接run时，相当于执行了<code>s3cmd --help</code>。也可以使用shell脚本，在脚本中做一些预处理的工作，如<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">COPY ./docker-entrypoint.sh /</span><br><span class="line">ENTRYPOINT ["/docker-entrypoint.sh"]</span><br><span class="line">CMD ["postgres"]</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="7-LABEL"><a href="#7-LABEL" class="headerlink" title="7. LABEL"></a>7. LABEL</h2><p><strong>作用</strong><br>为镜像添加label以方便组织镜像，记录licensce信息，帮助自动化实现等等。字符串中包含空格需要转义或包含在引号中， 如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Set one or more individual labels</span></span><br><span class="line">LABEL com.example.version="0.0.1-beta"</span><br><span class="line">LABEL vendor1="ACME Incorporated"</span><br><span class="line">LABEL com.example.release-date="2019-09-12"</span><br><span class="line">LABEL com.example.version.is-production=""</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Set multiple labels on one line</span></span><br><span class="line">LABEL com.example.version="0.0.1-beta" com.example.release-date="2019-09-12"</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Set multiple labels at once, using line-continuation characters to <span class="built_in">break</span> long lines</span></span><br><span class="line">LABEL vendor=ACME\ Incorporated \</span><br><span class="line">      com.example.is-beta= \</span><br><span class="line">      com.example.is-production="" \</span><br><span class="line">      com.example.version="0.0.1-beta" \</span><br><span class="line">      com.example.release-date="2019-09-12"</span><br></pre></td></tr></table></figure>
+
+<h2 id="8-ENV"><a href="#8-ENV" class="headerlink" title="8. ENV"></a>8. ENV</h2><p><strong>作用</strong><br>ENV设置环境变量，无论是后面的其它指令，如 RUN（使用 $环境变量key 的形式） ，还是运行时的应用，都可以直接使用这里定义的环境变量。 使用格式有两种，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">只能设置一个key value</span></span><br><span class="line">ENV &lt;key&gt; &lt;value&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash">可以设置多个，value中如果包含空格可以使用\来进行转义，也可以通过<span class="string">""</span>括起来；也可以用反斜线来续行</span></span><br><span class="line">ENV &lt;key1&gt;=&lt;value1&gt; &lt;key2&gt;=&lt;value2&gt;...</span><br></pre></td></tr></table></figure>
+<p>除了RUN，还有这些指令可以引用环境变量：ADD 、 COPY 、 ENV 、 EXPOSE 、 LABEL 、 USER 、 WORKDIR 、 VOLUME 、STOPSIGNAL 、 ONBUILD </p>
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>定义环境变量，更新PATH环境变量，如要使 CMD [“nginx”] 运行，可设置环境变量 <code>ENV PATH /usr/local/nginx/bin:$PATH</code></li>
+<li>ENV也可以用于定义常量，便于维护</li>
+</ol>
+<h2 id="9-ARG"><a href="#9-ARG" class="headerlink" title="9. ARG"></a>9. ARG</h2><p><strong>作用</strong><br>ARG设置构建参数，即docker build命令时传入的参数。和ENV的效果差不多，都是设置环境变量，不同的是，ARG设置的是构建环境的环境变量，在容器运行时是不会存在这些环境变量的。<br>Dockerfile中的ARG指令是定义参数名称，以及默认值（可选）。该默认值可以在执行构建命令docker build时用 –build-arg &lt;参数名&gt;=&lt;值&gt; 来覆盖。使用格式，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ARG &lt;参数名&gt;[=&lt;默认值&gt;]</span><br></pre></td></tr></table></figure>
+
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>不要使用ARG来保存密码之类的信息，因为通过docker history还是可以看到docker build执行时的所有值</li>
+<li>使用ARG，对于使用CI系统（持续集成），用同样的构建流程构建不同的 Dockerfile 的时候比较有帮助，避免构建命令必须根据每个 Dockerfile 的内容修改 </li>
+</ol>
+<h2 id="10-WORKDIR"><a href="#10-WORKDIR" class="headerlink" title="10. WORKDIR"></a>10. WORKDIR</h2><p><strong>作用</strong><br>WORKDIR用于指定工作目录（或当前目录），以后各层的当前目录就被改为指定的目录，如该目录不存在，会自动创建。使用格式，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">WORKDIR &lt;工作目录路径&gt;</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">**最佳实践建议**</span><br><span class="line">1. WORKDIR应该使用绝对路径，显得更为清楚、可靠</span><br><span class="line">2. 使用WORKDIR，避免使用`RUN cd … &amp;&amp; do-something`，可读性差，难以维护</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 11. VOLUME</span></span></span><br><span class="line"></span><br><span class="line">**作用**</span><br><span class="line">VOLUME用于定义匿名卷。容器运行时应该尽量保持容器存储层不发生写操作，应该将数据写入存储卷。VOLUME就是为了防止运行时用户忘记将动态文件所保存的目录挂载为卷，我们事先在Dockerfile中指定某些目录挂载为匿名卷，这样在运行时如果用户不指定挂载，其应用也可以正常运行，不会向容器存储层写入大量数据。使用格式，</span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line">VOLUME ["&lt;路径1&gt;", "&lt;路径2&gt;"...]</span><br><span class="line">VOLUME &lt;路径&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如 <code>VOLUME /data</code>， 任何向/data目录写入的数据都会写入匿名卷。可以运行容器时覆盖这个挂载设置 <code>docker run -d -v host-path:/data xxxx</code></p>
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>VOLUME应该被用来暴露所有的数据存储，配置存储，或者被容器创建的文件、目录。</li>
+<li>如果数据动态变化，强烈建议使用VOLUME。</li>
+</ol>
+<h2 id="12-EXPOSE"><a href="#12-EXPOSE" class="headerlink" title="12. EXPOSE"></a>12. EXPOSE</h2><p><strong>作用</strong><br>EXPOSE指令是声明运行时容器提供的服务端口，也只是一个声明，在容器运行时并不会因为这个声明应用就一定会开启这个端口的服务,容器启动时，还是需要通过 <code>-p host-port:container-port</code>来实现映射。EXPOSE主要是帮助镜像使用者了解这个镜像服务的监听端口，以方便进行映射配置，另一个用处是在运行时如果是使用随机端口映射，也就是通过 <code>docker run -P</code>的形式时，会自动随机映射EXPOSE声明的端口。使用格式，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">EXPOSE &lt;端口1&gt; [&lt;端口2&gt;...] </span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">**最佳实践建议**</span><br><span class="line">1. 应该使用常用的惯用的端口，如nginx 80，mongoDB 27017</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 13. USER</span></span></span><br><span class="line"></span><br><span class="line">**作用**</span><br><span class="line">USER指令和WORKDIR相似，都是改变环境状态并影响以后的层。 WORKDIR是改变工作目录， USER则是改变之后的层在执行RUN , CMD以及ENTRYPOINT这类命令时的身份。USER帮助你切换到指定的用户，这个用户必</span><br><span class="line">须是事先建立好的，否则无法切换。使用格式</span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line">USER &lt;用户名&gt;[:&lt;用户组&gt;]</span><br></pre></td></tr></table></figure>
+
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>如果一个服务不需要权限也能运行，则使用USER来切换到非root用户，如<code>RUN groupadd -r postgres &amp;&amp; useradd --no-log-init -r -g postgres postgres</code></li>
+<li>避免使用sudo，因为可能存在一些不可预见的TTY与信号转发行为导致问题，如果实在需要，考虑使用“gosu”。为了减少镜像层数，应避免不断切换USER<br>使用gosu示例</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 建立 redis 用户，并使用 gosu 换另一个用户执行命令</span></span><br><span class="line">RUN groupadd -r redis &amp;&amp; useradd -r -g redis redis</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载 gosu</span></span><br><span class="line">RUN wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/</span><br><span class="line">releases/download/1.7/gosu-amd64" \</span><br><span class="line">&amp;&amp; chmod +x /usr/local/bin/gosu \</span><br><span class="line">&amp;&amp; gosu nobody true</span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置 CMD，并以另外的用户执行</span></span><br><span class="line">CMD [ "exec", "gosu", "redis", "redis-server" ]</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="14-HEALTHCHECK"><a href="#14-HEALTHCHECK" class="headerlink" title="14. HEALTHCHECK"></a>14. HEALTHCHECK</h2><p><strong>作用</strong><br>HEALTHCHECK用于检查容器的健康状态，Docker可通过健康状态来决定是否对容器进行重新调度。使用格式</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HEALTHCHECK [选项] CMD &lt;命令&gt;</span><br></pre></td></tr></table></figure>
+
+<p>支持的选项为</p>
+<ul>
+<li>–interval=&lt;间隔&gt; ：两次健康检查的间隔，默认为30秒</li>
+<li>–timeout=&lt;时长&gt; ：执行健康检查命令的超时时间，如果超时，则本次健康检查就被视为失败，默认30秒</li>
+<li>–retries=&lt;次数&gt; ：当连续失败指定的次数后，将容器状态置为unhealthy ，默认3次</li>
+</ul>
+<p>命令的返回值决定了该次健康检查的成功与否—— 0 ：成功； 1 ：失败； 2 ：保留（不要使用这个值），如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">FROM nginx</span><br><span class="line">RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; rm -rf /var/lib</span><br><span class="line">/apt/lists/*</span><br><span class="line">HEALTHCHECK --interval=5s --timeout=3s \</span><br><span class="line">    CMD curl -fs http://localhost/ || exit 1</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">可以使用docker ps 或docker inspect来查看容器的健康状态。</span><br><span class="line"></span><br><span class="line">**最佳实践建议**</span><br><span class="line">1. 如果基础镜像有健康检查指令，想要屏蔽掉其健康检查，可以使用`HEALTHCHECK NONE`</span><br><span class="line">2. 对一些可能造成假死（进程还在， 但提供不了服务了）的服务建议提供健康检查，以便及时重新调度恢复服务</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 15. ONBUILD</span></span></span><br><span class="line"></span><br><span class="line">**作用**</span><br><span class="line">ONBUILD后跟的指令，只有当以当前镜像为基础镜像，去构建下一级镜像的时候才会被执行。使用格式</span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line">ONBUILD &lt;其它指令&gt;</span><br></pre></td></tr></table></figure>
+
+<p>它后面跟的是其它指令，比如 RUN , COPY 等，这些指令在当前镜像构建时并不会被执行。<br>ONBUILD命令在本镜像的子镜像中执行，把ONBUILD想象为父镜像为子镜像声明的一条指令，Docker会在子镜像所有命令之前执行ONBUILD指令。</p>
+<p><strong>最佳实践建议</strong></p>
+<ol>
+<li>当在ONBUILD指令中使用ADD或COPY时要注意，如果build context中没有指定的资源，可能导致灾难性的错误。</li>
+</ol>
+<h2 id="16-用缓存镜像提高效率"><a href="#16-用缓存镜像提高效率" class="headerlink" title="16. 用缓存镜像提高效率"></a>16. 用缓存镜像提高效率</h2><p>Docker在构建镜像时会复用缓存中已经存在的镜像，如果明确不使用缓存，则可加参数<code>docker build --no-cache=true</code><br>使用缓存镜像的规则</p>
+<ol>
+<li>从一个已存在于缓存的父镜像开始构建，则会将当前镜像的下一行指令与所有继承于那个父镜像的子镜像比较，如果其中没有一个是使用相同的指令构建的，则缓存失效</li>
+<li>大部分情况下，将Dockerfile中的指令与其中一个子镜像简单比较就够了，但是某些指令需要更多的检查与说明：对于ADD，COPY指令，文件内容会被检查，会计算每一个文件的checksum，checksum中不会考虑最后修改及最后访问时间，在缓存中查找时，checksum会与已经存在的镜像进行比较，如果文件中有修改，则缓存失效。除了ADD，COPY命令，缓存检查不会查看容器中的文件来决定缓存匹配，如处理<code>RUN apt-get -y update</code>命令时，容器中文件的更新不会进行检查来确定缓存是否命中， 这种情况下， 只会检查指令字符串本身是否匹配。</li>
+<li>一旦缓存失效，所有后续的指令都会产生新的镜像，不会再使用缓存。</li>
+</ol>
+<h2 id="17-其它镜像构建方式"><a href="#17-其它镜像构建方式" class="headerlink" title="17. 其它镜像构建方式"></a>17. 其它镜像构建方式</h2><ol>
+<li><p>通过标准输入来生成Dockerfile构建，不会发送build context（从stdin读取build context，只包含Dockerfile），适用于一次性构建，不需要写Dockerfile</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 将会构建一个名称与tag均为none的镜像</span></span><br><span class="line">echo -e 'FROM busybox\nRUN echo "hello world"' | docker build -</span><br><span class="line"><span class="meta">#</span><span class="bash">或 </span></span><br><span class="line">docker build - &lt;&lt;EOF</span><br><span class="line">FROM busybox</span><br><span class="line">RUN echo "hello world"</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 构建一个命名的镜像</span></span><br><span class="line">docker build -t myimage:latest - &lt;&lt;EOF</span><br><span class="line">FROM busybox</span><br><span class="line">RUN echo "hello world"</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+<p>连字符 - 作为文件名告诉Docker从stdin读取Dockerfile</p>
+</li>
+<li><p>使用stdin来生成Dockerfile， 但是使用当前目录作为build context</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> build an image using the current directory as context, and a Dockerfile passed through stdin</span></span><br><span class="line">docker build -t myimage:latest -f- . &lt;&lt;EOF</span><br><span class="line">FROM busybox</span><br><span class="line">COPY somefile.txt .</span><br><span class="line">RUN cat /somefile.txt</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用远程git仓库构建镜像，从stdin生成Dockerfile</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker build -t myimage:latest -f - https://github.com/docker-library/hello-world.git &lt;&lt;EOF</span><br><span class="line">FROM busybox</span><br><span class="line">COPY hello.c .</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+</br>     
+欢迎关注我的微信公众号：jboost-ksxy
+———————————————————————————————————————————————————————————————
+![微信公众号](/assets/qrcode-05.jpg) 
+
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/docker-11.html>http://blog.jboost.cn/docker-11.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-26T09:31:22+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-08-26</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/docker/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>docker</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/docker-11.html&title=Docker笔记（十一）：Dockerfile详解与最佳实践 - 半路雨歌&summary=Dockerfile是一个文本文件，包含了一条条指令，每条指令对应构建一层镜像，Docker基于它来构建一个完整镜像。本文介绍Dockerfile的常用指令及相应的最佳实践建议。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/docker-11.html&title=Docker笔记（十一）：Dockerfile详解与最佳实践 - 半路雨歌&summary=Dockerfile是一个文本文件，包含了一条条指令，每条指令对应构建一层镜像，Docker基于它来构建一个完整镜像。本文介绍Dockerfile的常用指令及相应的最佳实践建议。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/docker-11.html&title=Docker笔记（十一）：Dockerfile详解与最佳实践 - 半路雨歌&summary=Dockerfile是一个文本文件，包含了一条条指令，每条指令对应构建一层镜像，Docker基于它来构建一个完整镜像。本文介绍Dockerfile的常用指令及相应的最佳实践建议。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACTUlEQVR42u3bS27DMAwFwNz/0u0BgsD8uXGp0S5IbWnUzQPJvH4OXS9wcHBwcPBF8FdxXT3/tuGH5z79XXa/8HnBwcHBwcEXwsMB4AIQPcAVOLp/+rzg4ODg4OCL4dEA0QXcfdHg4ODg4ODggRcVCxfdQgU4ODg4ODj4XIC5qwHx+OQGDg4ODg7+IHi2MBA9aLaAEQ0wX+ukgIODg4ODPwheHpj70ufyecHBwcHBwRfBpxr308FlarDgbT9wcHBwcPBF8OiBpxoNXXB1YAAcHBwcHHwjPPqC6kZTjf6piwIHBwcHB98ErwaSagNguvCR/geAg4ODg4Mvgl9BswWBv35vNDiBg4ODg4NvhmcbA9mGw92DAOHCBDg4ODg4+MHwdoAoPpcGdgcDwMHBwcHB/wF8qsHfLRRUBwazgwPg4ODg4OCb4N8q8Fcvrh2AwMHBwcHBF8KjQSJbWOgGpPIgHzg4ODg4+IHwaJDJgrMBphqsLi8EHBwcHBx8EfyuQkM2kGTB2UADDg4ODg6+ER49+PTBqg2CbKEEHBwcHBz8BHi3odANMtMLHBwcHBz8JHi3sJ9tLFSDUHaQ4O084ODg4ODgi+DdgNAdvJsqPITfCw4ODg4OvhCeDRbdoBFuAAx/Dw4ODg4OvhleLSxELyAanMqFhmhDARwcHBwcHLz+w7ds8CgWIG4LMODg4ODg4IvgVWB3ICB9EeDg4ODg4Ivh2YZCtrCQDTCPHQwABwcHBwd/EHxqwG+qsd/dHxwcHBwc/AT4aQscHBwcHHzB+gU8zMGM/D8/TwAAAABJRU5ErkJggg==">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/nginx-1.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>nginx（一）：基本用途与用法</p>
+                <p class='content'>最近由于事情较多，加上个人的懈怠，有一段时间没更新了。习惯的养成很难，但一旦养成，从中的受益也常会超乎意料，还是得坚持。接下来准备对一些开发维护过程中常用的工具软件与服务进行整理，如本系列的ng...</p>
+              </a>
+            
+            
+              <a class='next' href='/jdk8.html'>
+                <p class='title'>JDK13，不如温习下Java8<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>JDK13于昨天正式GA，版本新特性可参考： https://www.oschina.net/news/109934/jdk-13-released 
+
+
+虽然JDK更新迅速，但开发者貌似并不买...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Docker笔记（十一）：Dockerfile详解与最佳实践',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-理解构建上下文（build-context）"><span class="toc-text">1. 理解构建上下文（build context）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-FROM"><span class="toc-text">2. FROM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-RUN"><span class="toc-text">3. RUN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-COPY-ADD"><span class="toc-text">4. COPY | ADD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-CMD"><span class="toc-text">5. CMD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-ENTRYPOINT"><span class="toc-text">6. ENTRYPOINT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-LABEL"><span class="toc-text">7. LABEL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-ENV"><span class="toc-text">8. ENV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-ARG"><span class="toc-text">9. ARG</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-WORKDIR"><span class="toc-text">10. WORKDIR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-EXPOSE"><span class="toc-text">12. EXPOSE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-HEALTHCHECK"><span class="toc-text">14. HEALTHCHECK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-用缓存镜像提高效率"><span class="toc-text">16. 用缓存镜像提高效率</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-其它镜像构建方式"><span class="toc-text">17. 其它镜像构建方式</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          , total visitors
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
