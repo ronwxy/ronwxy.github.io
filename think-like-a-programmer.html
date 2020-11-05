@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>像程序员一样思考——提高解决问题的能力 - 半路雨歌</title>
+  
+  
+    <meta name="description" content="在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
+最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或...">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/think-like-a-programmer.html">
+      像程序员一样思考——提高解决问题的能力
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2020-11-04</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/Career/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>Career</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。</p>
+<p>最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？</p>
+<a id="more"></a>
+
+<p>先罗列一两个遇到的现象：</p>
+<ol>
+<li><p>某同事汇报，测试提了一个Bug，当某个用户绑定的卡信息超过50个的时候，后台显示数据就会出现混乱，问能不能限制绑定的卡不超过50个。我问：数据显示出现混乱是什么意思？答：不清楚；我再问：为什么超过50个就会混乱了，少于50个有没有可能出现混乱，造成混乱的原因是什么？答：不知道。我说你先去搞清楚什么叫“混乱”，然后再搞清楚为什么会出现“混乱”再来说解决办法。经过与测试人员的一番沟通后，跟我反馈说不是显示混乱，是显示不全，自己通过查看实现是因为在服务端做了字符串拼接，超过多少就被截断了。</p>
+</li>
+<li><p>某同事在抱怨，这个问题很难复现，我不知道怎么解决，要不要把这块整体优化下算了。我问他你优化的目的是什么，是优化目前实现的流程、结构？还是通过优化来解决这个难以复现的问题？答：来解决这个问题。我说你问题都没定位到，怎么通过优化来解决，不怕老问题没解决，优化出新的问题出来了？</p>
+</li>
+</ol>
+<p>你有没有也曾经说过或听过“这个问题太复杂了， 我解决不了”，“这个功能我没办法实现”，“我也不知道为什么会出现这个问题”之类的话语。</p>
+<p>以上的现象与话语，可能都是一个人解决问题的能力或方式方法还不成熟的体现。那么如何来提高解决问题的能力，我想首先需要先从思维方式或思维习惯上寻求改变。在网上看到有这么一篇文章——《How to think like a programmer — lessons in problem solving》（文章地址见文末参考部分），介绍了通过5个步骤来帮忙人们建立高效解决问题的思维框架。本文以这5个步骤为基础，结合自身的理解与体会进行介绍。</p>
+<p><img src="/assets/Jobs.png" alt="Jobs"></p>
+<p>“这个国家的每个人都应该学计算机编程，因为它会教你如何思考” </p>
+<h2 id="像程序员一样思考"><a href="#像程序员一样思考" class="headerlink" title="像程序员一样思考"></a>像程序员一样思考</h2><p>像程序员一样思考，到底意味着什么，需要如何来做？</p>
+<p>像程序员一样思考本质上来说，是一种更为有效的解决问题的方法。</p>
+<h2 id="解决问题的能力是一项元技能"><a href="#解决问题的能力是一项元技能" class="headerlink" title="解决问题的能力是一项元技能"></a>解决问题的能力是一项元技能</h2><p>什么叫元技能？<br>类比于元数据——描述数据的数据叫元数据，我理解元技能就是提升技能的技能，就是说当你掌握了解决问题的能力，你就可以通过这种能力去提升其它各项专业技能。</p>
+<p>解决问题的能力也是最重要的能力，比精通编程语言，调试能力，以及系统设计能力都更为重要。</p>
+<h2 id="提高解决问题能力的方法"><a href="#提高解决问题能力的方法" class="headerlink" title="提高解决问题能力的方法"></a>提高解决问题能力的方法</h2><p>我们平时解决问题的方式可能是：</p>
+<ol>
+<li>尝试一种解决方案。</li>
+<li>如果这种解决方案无效，再尝试另一种方案。</li>
+<li>如果还是没有用，重复第二步直到你碰巧把问题解决了。</li>
+</ol>
+<p>这种方法被作者 Richard Reis 定义为解决问题最糟糕的方式。因为它不但浪费时间，而且能不能达到目的还得看运气。</p>
+<p>经过对优秀程序员在编程时的思维框架的分析，作者总结出提高解决问题能力的最好方法包括：</p>
+<ol>
+<li>有一个处理问题的框架</li>
+<li>按照这个框架反复练习</li>
+</ol>
+<p>那么，当你遇到一个新的问题时，该如何来解决？</p>
+<h3 id="第一步：理解"><a href="#第一步：理解" class="headerlink" title="第一步：理解"></a>第一步：理解</h3><p>遇到问题时，我们应该先要弄明白问题本身。大部分情况下，问题之所以难解决只是因为你没真正理解它们（很多时候是出于沟通的不充分），理解问题是解决问题的第一步。</p>
+<p>如何确定自己是否真正理解一个问题？</p>
+<p>最有效的方法是，尝试用自己的语言来说出它，看有没有逻辑漏洞。当你能讲清楚一个问题时，说明你理解了它。优秀的程序员编程时，一般都会写下自己遇到的问题，画出流程或序列草图，或同产品经理、其它开发人员、测试人员等一起讨论确认。这个过程，就是在确定自己对问题的理解有没有偏差。</p>
+<p>“如果你不能用简单的语言来解释一个事情，那意味着你根本就没有理解它” —— Richard Feynman</p>
+<p>面对一个新需求时，你应该了解这个需求产生的场景——什么人，在什么时候通过执行什么操作，来达到什么目的？这个场景及其中的行为逻辑是否合理，设计是否存在漏洞，然后带着问题来与需求提出方讨论确认，而不是断章取义或不经任何思考直接编码开干。不做代码的搬运工，要做有思想的程序员。</p>
+<p>同样，面对一个 Bug 时，你应该首先了解这个 Bug 产生的场景——什么人，在什么场景，通过什么操作会产生这个问题？要追本溯源，定位问题的本源在哪里。<br>我认为定位问题的本源比解决问题更重要！因为你只有正确地找到了问题的症结，才有可能去解决它，而解决办法却可能有多种。且从花费的时间来说，定位问题往往会占整个解决问题时间的一半以上。</p>
+<p>如果没有找到问题的本源，只是头痛医头脚痛医脚，那么可能不仅对解决问题无事无补，甚至还可能引进新的问题。常见的头痛医头脚痛医脚的处理方式包括，CPU占用高了，内存溢出了——升级服务器配置（可能过两天又得升级了！）；接口超时了——增大超时时间（可能导致用户投诉或其它依赖的服务级联超时），等等。</p>
+<p>那么日常工作中，如何来定位问题的根源？对于一般问题来说，可能通过查看日志大致就能找到问题所在，对于比较棘手的问题，针对问题的性质一般可通过如下方法进行定位：</p>
+<ul>
+<li>对于易复现的问题： 常用的就是 Debug，通过 IDE 断点来跟踪数据的流转与变更，一个个环节检查数据输入输出是否正确来进行排查。可借助条件断点、异常断点等技巧来提高 Debug 效率。</li>
+<li>对于不易复现的问题：可通过对比法——对比其它地方的类似功能或实现，寻找两者之间的差异，差异之处往往就是问题所在；分析法——走读整体流程代码，捋清各个环节的逻辑，分析定位问题；日志法——在各个关键环节添加日志，将场景镜像下来，当下次复现的时候，通过分析日志定位问题。</li>
+</ul>
+<h3 id="第二步：计划"><a href="#第二步：计划" class="headerlink" title="第二步：计划"></a>第二步：计划</h3><p>理解了问题，接下来就是解决问题的方案。没有明确的方案计划时，不要轻易去着手解决问题，不要寄希望于碰运气蒙混过关。许多开发人员习惯于快速扫一眼需求，就打开 IDE 开始垒代码，垒完发现要么与需求不符，要么漏洞百出。</p>
+<p><img src="/assets/nobug.png" alt="nobug"></p>
+<p>制定计划，就是制定解决问题的战略步骤。</p>
+<p>不论面对需求还是 Bug，都应该好好计划你的解决方案。设计好解决方案中的各个环节，如业务需求的数据表设计、接口设计、流程逻辑，Bug 修复的具体实施步骤。并给自己一点时间思考与预演，该解决方案可能存在的漏洞与影响有哪些，除了这样处理，还有没有另外更好的解决方案。</p>
+<p>在没有想清楚解决方案时，不要直接上来就撸代码，暂停一下，给你的大脑一些分析问题和处理信息的时间。</p>
+<h3 id="第三步：分解"><a href="#第三步：分解" class="headerlink" title="第三步：分解"></a>第三步：分解</h3><p>这是思维框架中最重要的一步。</p>
+<p>分解，就是化繁为简，就是我们常说的分治思想，拆分法——将大问题拆分为若干个小问题，然后逐个击破各个小问题，再合并总结。微服务架构，MapReduce 算法，都是这一思维（或思想）的体现。</p>
+<p>不要尝试一次解决一个复杂的大问题，而应把复杂的大问题分解成若干个简单的小问题（或子问题），从最简单的子问题开始（最简单意味着你知道怎么解决它或它更容易被解决，也或者这个子问题的解决不需要依赖于其它子问题），一个一个逐步解决。一旦你解决了所有的子问题，把它们串联起来，一般就意味着你解决了之前的那个复杂的大问题。</p>
+<p>分解问题的能力是解决问题的基石。这也是优秀的程序员在编程中最常用到的技能，对于他们来说，分解问题的能力，要比编程语言的熟练度、系统设计等技术更为重要。</p>
+<h3 id="第四步：卡壳了怎么办？"><a href="#第四步：卡壳了怎么办？" class="headerlink" title="第四步：卡壳了怎么办？"></a>第四步：卡壳了怎么办？</h3><p>当你理解了问题，做出了解决方案的计划，将复杂问题分解为子问题后，在处理子问题时依然卡壳了怎么办？</p>
+<p>首先，淡定！然后告诉自己，这很正常，每个人都会遇到。</p>
+<p>优秀程序员或解决问题的高手，与普通人之间的差别就在于，他们对问题更有求知欲，更有耐心，他们的注意力更多地是在如何解决问题上，而不是为此恼火或甩锅发牢骚。</p>
+<p>当遇到卡壳的情况时，可以试试这几种方法：</p>
+<ol>
+<li><p>Debug：与前面定位问题一样，一步一步调试，直到找出究竟哪里出错了。<br>“Debug 的艺术关键在于你究竟让软件干了些啥，而不是你以为你让软件干了些啥。”—— Andrew Singer</p>
+</li>
+<li><p>重新评估问题：退回去，从另一个角度重新审视问题，别让自己迷失在细节里，有时候我们容易迷失在具体的细节中而忽略了更一般的原则。重新评估问题的另一种途径是推倒重来，可以删除（回滚）所有已做的事，重新开始，有时这是非常行之有效的方式。</p>
+</li>
+<li><p>搜索解决方案：利用搜索引擎找到类似问题的解决办法，向他们学习。使用搜索引擎需要学会提炼关键字，关键字越有代表性，越容易找到答案。对搜索结果应该抱着参考的态度，而不是照搬，要明白为什么如此这般处理就能解决问题，并在解决问题后能依次延伸了解其上下游或相关知识，比如SQL查询慢，发现是索引未生效，则可以延伸了解都有哪些场景会导致索引失效；比如并发问题，则可以依此了解如何保证线程安全，同步机制，锁机制等相关知识。事实上，即使问题已经解决，你也可以经常这么做，因为这样你可以从其他人的解决方案中及上下游知识中学到更多。</p>
+</li>
+<li><p>寻求支援：当通过以上方法都无法获得解决办法时，向你的同事、上级或朋友求援，如果是开源项目，到开源社区、技术群，或 github 的 issue 列表中发帖求援。</p>
+</li>
+<li><p>记录问题与解决方案：将你本次遇到的问题与最终的解决方案用（电子）笔记本记录下来，便于后面回顾或参考。</p>
+</li>
+</ol>
+<h3 id="第五步：练习"><a href="#第五步：练习" class="headerlink" title="第五步：练习"></a>第五步：练习</h3><p>罗马不是一天建成的，你也不可能期盼通过解决一两个问题就能成为解决问题的高手。但是，如果你能以学习的态度来寻求问题的解决办法，通过以上四个步骤来建立一套解决问题的思维框架，每一个问题的处理都是提高你能力的机会。那么距离成为一个解决问题的高手，就只差一步了，那就是：练习，练习，再练习。在问题中练习，训练你的思维方式与习惯。</p>
+<p><img src="/assets/lixiaolong.png" alt="lixiaolong"><br>“我不害怕一次练习1000个踢打动作的人，但我害怕将一个踢打动作练习1000次的人”</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实，解决问题的能力，不论在IT技术领域，还是在其它各个领域，都是一种最基本的技能。当你在说出“这个问题我解决不了”，“这个问题我没办法定位”前，试试本文介绍的理解、计划、分解、卡壳时怎么处理的建议方法，多一些耐心，一步步实践，说不定慢慢就看到曙光了。按照这个处理模式或习惯，在日积月累的问题处理中，你可能已在不知不觉成为了解决问题的高手。</p>
+<p>参考： </p>
+<ol>
+<li><a href="https://www.freecodecamp.org/news/how-to-think-like-a-programmer-lessons-in-problem-solving-d1d8bf1de7d2/" target="_blank" rel="noopener">https://www.freecodecamp.org/news/how-to-think-like-a-programmer-lessons-in-problem-solving-d1d8bf1de7d2/</a></li>
+</ol>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/think-like-a-programmer.html>http://blog.jboost.cn/think-like-a-programmer.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-05T15:26:32+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2020-11-05</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/think-like-a-programmer.html&title=像程序员一样思考——提高解决问题的能力 - 半路雨歌&summary=在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
+最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/think-like-a-programmer.html&title=像程序员一样思考——提高解决问题的能力 - 半路雨歌&summary=在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
+最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/think-like-a-programmer.html&title=像程序员一样思考——提高解决问题的能力 - 半路雨歌&summary=在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
+最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAAC+klEQVR42u3aUVIjMQwE0Nz/0nAAoGy1FBjtPv+lmAz2y0+X2q8P69v1QgAGDBgwYMCsgXmF68sLD89Vv3f6fvq+4/8BAwYMGDBgwKyDuQ5Ah+d/OkAKV91P9zxgwIABAwYMmL0wadC6DVxjQSzc3/F5MGDAgAEDBsx/B3MbBNOBU/f9YMCAAQMGDBgw6eepoAgGDBgwYMCAATNWUA1fGKoWfNPPgwEDBgwYMGD2wXSLr6d9js8DBgwYMGDAgFkD012ngNZ9Pg1u8XnAgAEDBgwYMGtg0oBUBUgHWtXirbt/MGDAgAEDBswemGox9lvBLS3iqu87DqrAgAEDBgwYMI+FmS64bgPbdIF3C3V8HgwYMGDAgAGzBmaq6KqCpQea+n9gwIABAwYMmH8HZgogLejSYJj+ANcXoMGAAQMGDBgwj4VJB0/TkGkh1y0GwYABAwYMGDB7YbqBqPqebtBLA2N7UAUGDBgwYMCAWQNzC5ICvmvw1Q2mYMCAAQMGDJg9MFPFVRW6eqBu4XYNCQYMGDBgwIBZA5MGtqlAGA+UhvYFBgwYMGDAgNkPU93wbcE1VcxNFXfxBA8MGDBgwIABswam+3kKamrg1b44BAYMGDBgwIB5HMxUsZUWbulAqzqYuv6/YMCAAQMGDJh1MOULNuEFoKmLPl3QY+EGBgwYMGDAgFkDMz7wCb+fFm+vcMXJFwwYMGDAgAHzOJjbCzppkJv6QdL9HfcNBgwYMGDAgFkPkw6Spi4CTQe5632DAQMGDBgwYNbAdFd6cWfqh+kWhT8GPDBgwIABAwbM42HeFZTSA6XBbmyABgYMGDBgwIBZB1M9aLcQqwa0dHBW3S8YMGDAgAEDZi9MGqDSwVT3791gCgYMGDBgwIABc7uB6sBpeiD15wEPDBgwYMCAAfM4mHTwVb3oUy3mygESDBgwYMCAAbMWJi3I0gNVC7fb/aYXn8CAAQMGDBgw+2DS4qoK0H3+XYMuMGDAgAEDBsw+GAsMGDBgwIABs2x9AnQs4jusNdAiAAAAAElFTkSuQmCC">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/k8s8-logpilot-2.html'>
+                <p class='title'>Kubernetes笔记（八）：K8s中的日志采集实践——使用log-pilot（适配ELK7.x）<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>前文Kubernetes笔记（七）：K8s中的日志采集实践——log-pilot介绍我们对 k8s 集群中常用日志采集模式及阿里开源的 log-pilot 进行了介绍，本文介绍如何使 log-p...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: '像程序员一样思考——提高解决问题的能力',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#像程序员一样思考"><span class="toc-text">像程序员一样思考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决问题的能力是一项元技能"><span class="toc-text">解决问题的能力是一项元技能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#提高解决问题能力的方法"><span class="toc-text">提高解决问题能力的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一步：理解"><span class="toc-text">第一步：理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二步：计划"><span class="toc-text">第二步：计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三步：分解"><span class="toc-text">第三步：分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第四步：卡壳了怎么办？"><span class="toc-text">第四步：卡壳了怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第五步：练习"><span class="toc-text">第五步：练习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>博客內容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh_TW" target="_blank" rel="noopener">姓名標示-非商業性-相同方式分享 4.0 國際 (CC BY-NC-SA 4.0) 協議</a></p>
+</div>
+      
+    
+      
+        本站使用
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        作為主題<span id="busuanzi_container_site_pv" style='display:none'>，總訪問量為
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          ，總訪客量為
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          次</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
