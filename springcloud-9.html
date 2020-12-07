@@ -16,11 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>像程序员一样思考——提高解决问题的能力 - 半路雨歌</title>
+    <title>Spring Cloud（九）：服务发现，除了Eureka，还有Nacos - 半路雨歌</title>
+  
+    <meta name="keywords" content="SpringCloud,nacos">
   
   
-    <meta name="description" content="在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
-最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或...">
+    <meta name="description" content="服务注册中心是微服务的核心组件之一，目前常见的服务注册中心包括Eureka（参考：Spring Cloud（一）：服务注册中心Eureka），Zookeeper，Consul，CoreDNS，及 Nacos。">
   
 
   <!-- feed -->
@@ -285,8 +286,8 @@
         
           
   <h1 class="title">
-    <a href="/think-like-a-programmer.html">
-      像程序员一样思考——提高解决问题的能力
+    <a href="/springcloud-9.html">
+      Spring Cloud（九）：服务发现，除了Eureka，还有Nacos
     </a>
   </h1>
 
@@ -300,7 +301,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-11-04</p>
+    <p>2020-12-05</p>
   </a>
 </div>
 
@@ -310,9 +311,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/Career/' rel="nofollow">
+    <a href='/categories/SpringCloud/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Career</p>
+      <p>SpringCloud</p>
     </a>
   </div>
 
@@ -336,82 +337,108 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <p>在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。</p>
-<p>最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？</p>
+          <p>服务注册中心是微服务的核心组件之一，目前常见的服务注册中心包括Eureka（参考：<a href="http://blog.jboost.cn/springcloud-1.html">Spring Cloud（一）：服务注册中心Eureka</a>），Zookeeper，Consul，CoreDNS，及 Nacos。</p>
 <a id="more"></a>
 
-<p>先罗列一两个遇到的现象：</p>
-<ol>
-<li><p>某同事汇报，测试提了一个Bug，当某个用户绑定的卡信息超过50个的时候，后台显示数据就会出现混乱，问能不能限制绑定的卡不超过50个。我问：数据显示出现混乱是什么意思？答：不清楚；我再问：为什么超过50个就会混乱了，少于50个有没有可能出现混乱，造成混乱的原因是什么？答：不知道。我说你先去搞清楚什么叫“混乱”，然后再搞清楚为什么会出现“混乱”再来说解决办法。经过与测试人员的一番沟通后，跟我反馈说不是显示混乱，是显示不全，自己通过查看实现是因为在服务端做了字符串拼接，超过多少就被截断了。</p>
-</li>
-<li><p>某同事在抱怨，这个问题很难复现，我不知道怎么解决，要不要把这块整体优化下算了。我问他你优化的目的是什么，是优化目前实现的流程、结构？还是通过优化来解决这个难以复现的问题？答：来解决这个问题。我说你问题都没定位到，怎么通过优化来解决，不怕老问题没解决，优化出新的问题出来了？</p>
-</li>
-</ol>
-<p>你有没有也曾经说过或听过“这个问题太复杂了， 我解决不了”，“这个功能我没办法实现”，“我也不知道为什么会出现这个问题”之类的话语。</p>
-<p>以上的现象与话语，可能都是一个人解决问题的能力或方式方法还不成熟的体现。那么如何来提高解决问题的能力，我想首先需要先从思维方式或思维习惯上寻求改变。在网上看到有这么一篇文章——《How to think like a programmer — lessons in problem solving》（文章地址见文末参考部分），介绍了通过5个步骤来帮忙人们建立高效解决问题的思维框架。本文以这5个步骤为基础，结合自身的理解与体会进行介绍。</p>
-<p><img src="/assets/Jobs.png" alt="Jobs"></p>
-<p>“这个国家的每个人都应该学计算机编程，因为它会教你如何思考” </p>
-<h2 id="像程序员一样思考"><a href="#像程序员一样思考" class="headerlink" title="像程序员一样思考"></a>像程序员一样思考</h2><p>像程序员一样思考，到底意味着什么，需要如何来做？</p>
-<p>像程序员一样思考本质上来说，是一种更为有效的解决问题的方法。</p>
-<h2 id="解决问题的能力是一项元技能"><a href="#解决问题的能力是一项元技能" class="headerlink" title="解决问题的能力是一项元技能"></a>解决问题的能力是一项元技能</h2><p>什么叫元技能？<br>类比于元数据——描述数据的数据叫元数据，我理解元技能就是提升技能的技能，就是说当你掌握了解决问题的能力，你就可以通过这种能力去提升其它各项专业技能。</p>
-<p>解决问题的能力也是最重要的能力，比精通编程语言，调试能力，以及系统设计能力都更为重要。</p>
-<h2 id="提高解决问题能力的方法"><a href="#提高解决问题能力的方法" class="headerlink" title="提高解决问题能力的方法"></a>提高解决问题能力的方法</h2><p>我们平时解决问题的方式可能是：</p>
-<ol>
-<li>尝试一种解决方案。</li>
-<li>如果这种解决方案无效，再尝试另一种方案。</li>
-<li>如果还是没有用，重复第二步直到你碰巧把问题解决了。</li>
-</ol>
-<p>这种方法被作者 Richard Reis 定义为解决问题最糟糕的方式。因为它不但浪费时间，而且能不能达到目的还得看运气。</p>
-<p>经过对优秀程序员在编程时的思维框架的分析，作者总结出提高解决问题能力的最好方法包括：</p>
-<ol>
-<li>有一个处理问题的框架</li>
-<li>按照这个框架反复练习</li>
-</ol>
-<p>那么，当你遇到一个新的问题时，该如何来解决？</p>
-<h3 id="第一步：理解"><a href="#第一步：理解" class="headerlink" title="第一步：理解"></a>第一步：理解</h3><p>遇到问题时，我们应该先要弄明白问题本身。大部分情况下，问题之所以难解决只是因为你没真正理解它们（很多时候是出于沟通的不充分），理解问题是解决问题的第一步。</p>
-<p>如何确定自己是否真正理解一个问题？</p>
-<p>最有效的方法是，尝试用自己的语言来说出它，看有没有逻辑漏洞。当你能讲清楚一个问题时，说明你理解了它。优秀的程序员编程时，一般都会写下自己遇到的问题，画出流程或序列草图，或同产品经理、其它开发人员、测试人员等一起讨论确认。这个过程，就是在确定自己对问题的理解有没有偏差。</p>
-<p>“如果你不能用简单的语言来解释一个事情，那意味着你根本就没有理解它” —— Richard Feynman</p>
-<p>面对一个新需求时，你应该了解这个需求产生的场景——什么人，在什么时候通过执行什么操作，来达到什么目的？这个场景及其中的行为逻辑是否合理，设计是否存在漏洞，然后带着问题来与需求提出方讨论确认，而不是断章取义或不经任何思考直接编码开干。不做代码的搬运工，要做有思想的程序员。</p>
-<p>同样，面对一个 Bug 时，你应该首先了解这个 Bug 产生的场景——什么人，在什么场景，通过什么操作会产生这个问题？要追本溯源，定位问题的本源在哪里。<br>我认为定位问题的本源比解决问题更重要！因为你只有正确地找到了问题的症结，才有可能去解决它，而解决办法却可能有多种。且从花费的时间来说，定位问题往往会占整个解决问题时间的一半以上。</p>
-<p>如果没有找到问题的本源，只是头痛医头脚痛医脚，那么可能不仅对解决问题无事无补，甚至还可能引进新的问题。常见的头痛医头脚痛医脚的处理方式包括，CPU占用高了，内存溢出了——升级服务器配置（可能过两天又得升级了！）；接口超时了——增大超时时间（可能导致用户投诉或其它依赖的服务级联超时），等等。</p>
-<p>那么日常工作中，如何来定位问题的根源？对于一般问题来说，可能通过查看日志大致就能找到问题所在，对于比较棘手的问题，针对问题的性质一般可通过如下方法进行定位：</p>
+<h2 id="Nacos-介绍"><a href="#Nacos-介绍" class="headerlink" title="Nacos 介绍"></a>Nacos 介绍</h2><p>Nacos 是阿里开源的一个服务注册与配置管理的实现，提供动态的服务发现、服务配置、服务元数据及流量管理等功能。项目地址： <a href="https://github.com/alibaba/nacos" target="_blank" rel="noopener">https://github.com/alibaba/nacos</a></p>
+<p>Nacos的关键特性包括：</p>
 <ul>
-<li>对于易复现的问题： 常用的就是 Debug，通过 IDE 断点来跟踪数据的流转与变更，一个个环节检查数据输入输出是否正确来进行排查。可借助条件断点、异常断点等技巧来提高 Debug 效率。</li>
-<li>对于不易复现的问题：可通过对比法——对比其它地方的类似功能或实现，寻找两者之间的差异，差异之处往往就是问题所在；分析法——走读整体流程代码，捋清各个环节的逻辑，分析定位问题；日志法——在各个关键环节添加日志，将场景镜像下来，当下次复现的时候，通过分析日志定位问题。</li>
+<li>服务发现与服务健康监测</li>
 </ul>
-<h3 id="第二步：计划"><a href="#第二步：计划" class="headerlink" title="第二步：计划"></a>第二步：计划</h3><p>理解了问题，接下来就是解决问题的方案。没有明确的方案计划时，不要轻易去着手解决问题，不要寄希望于碰运气蒙混过关。许多开发人员习惯于快速扫一眼需求，就打开 IDE 开始垒代码，垒完发现要么与需求不符，要么漏洞百出。</p>
-<p><img src="/assets/nobug.png" alt="nobug"></p>
-<p>制定计划，就是制定解决问题的战略步骤。</p>
-<p>不论面对需求还是 Bug，都应该好好计划你的解决方案。设计好解决方案中的各个环节，如业务需求的数据表设计、接口设计、流程逻辑，Bug 修复的具体实施步骤。并给自己一点时间思考与预演，该解决方案可能存在的漏洞与影响有哪些，除了这样处理，还有没有另外更好的解决方案。</p>
-<p>在没有想清楚解决方案时，不要直接上来就撸代码，暂停一下，给你的大脑一些分析问题和处理信息的时间。</p>
-<h3 id="第三步：分解"><a href="#第三步：分解" class="headerlink" title="第三步：分解"></a>第三步：分解</h3><p>这是思维框架中最重要的一步。</p>
-<p>分解，就是化繁为简，就是我们常说的分治思想，拆分法——将大问题拆分为若干个小问题，然后逐个击破各个小问题，再合并总结。微服务架构，MapReduce 算法，都是这一思维（或思想）的体现。</p>
-<p>不要尝试一次解决一个复杂的大问题，而应把复杂的大问题分解成若干个简单的小问题（或子问题），从最简单的子问题开始（最简单意味着你知道怎么解决它或它更容易被解决，也或者这个子问题的解决不需要依赖于其它子问题），一个一个逐步解决。一旦你解决了所有的子问题，把它们串联起来，一般就意味着你解决了之前的那个复杂的大问题。</p>
-<p>分解问题的能力是解决问题的基石。这也是优秀的程序员在编程中最常用到的技能，对于他们来说，分解问题的能力，要比编程语言的熟练度、系统设计等技术更为重要。</p>
-<h3 id="第四步：卡壳了怎么办？"><a href="#第四步：卡壳了怎么办？" class="headerlink" title="第四步：卡壳了怎么办？"></a>第四步：卡壳了怎么办？</h3><p>当你理解了问题，做出了解决方案的计划，将复杂问题分解为子问题后，在处理子问题时依然卡壳了怎么办？</p>
-<p>首先，淡定！然后告诉自己，这很正常，每个人都会遇到。</p>
-<p>优秀程序员或解决问题的高手，与普通人之间的差别就在于，他们对问题更有求知欲，更有耐心，他们的注意力更多地是在如何解决问题上，而不是为此恼火或甩锅发牢骚。</p>
-<p>当遇到卡壳的情况时，可以试试这几种方法：</p>
-<ol>
-<li><p>Debug：与前面定位问题一样，一步一步调试，直到找出究竟哪里出错了。<br>“Debug 的艺术关键在于你究竟让软件干了些啥，而不是你以为你让软件干了些啥。”—— Andrew Singer</p>
-</li>
-<li><p>重新评估问题：退回去，从另一个角度重新审视问题，别让自己迷失在细节里，有时候我们容易迷失在具体的细节中而忽略了更一般的原则。重新评估问题的另一种途径是推倒重来，可以删除（回滚）所有已做的事，重新开始，有时这是非常行之有效的方式。</p>
-</li>
-<li><p>搜索解决方案：利用搜索引擎找到类似问题的解决办法，向他们学习。使用搜索引擎需要学会提炼关键字，关键字越有代表性，越容易找到答案。对搜索结果应该抱着参考的态度，而不是照搬，要明白为什么如此这般处理就能解决问题，并在解决问题后能依次延伸了解其上下游或相关知识，比如SQL查询慢，发现是索引未生效，则可以延伸了解都有哪些场景会导致索引失效；比如并发问题，则可以依此了解如何保证线程安全，同步机制，锁机制等相关知识。事实上，即使问题已经解决，你也可以经常这么做，因为这样你可以从其他人的解决方案中及上下游知识中学到更多。</p>
-</li>
-<li><p>寻求支援：当通过以上方法都无法获得解决办法时，向你的同事、上级或朋友求援，如果是开源项目，到开源社区、技术群，或 github 的 issue 列表中发帖求援。</p>
-</li>
-<li><p>记录问题与解决方案：将你本次遇到的问题与最终的解决方案用（电子）笔记本记录下来，便于后面回顾或参考。</p>
-</li>
+<p>Nacos 支持基于 DNS 和基于 RPC 的服务发现。服务提供者使用原生 SDK、OpenAPI、或一个独立的 Agent TODO 注册服务后，服务消费者可以使用 DNS TODO 或 HTTP&amp;API 来发现服务。<br>同时，Nacos 提供对服务的实时健康检查，阻止向不健康的服务实例发送请求。Nacos 支持传输层 (PING 或 TCP) 和应用层 (如 HTTP、MySQL、用户自定义）的健康检查。</p>
+<ul>
+<li>动态配置服务</li>
+</ul>
+<p>动态配置服务可以以中心化、外部化和动态化的方式管理所有环境的应用配置和服务配置。动态配置使得配置更新时，服务不需要重启就能完成动态更新。配置的中心化管理让实现无状态服务变得更简单，让服务按需弹性扩展变得更容易。<br>Nacos 提供了一个简洁易用的控制台界面来管理所有的服务和应用的配置。Nacos 还提供了包括配置版本跟踪、金丝雀发布、一键回滚配置以及客户端配置更新状态跟踪在内的一系列开箱即用的配置管理特性，帮助您更安全地在生产环境中管理配置变更和降低配置变更带来的风险。</p>
+<ul>
+<li>动态 DNS 服务</li>
+</ul>
+<p>动态 DNS 服务支持权重路由，让您更容易地实现中间层负载均衡、更灵活的路由策略、流量控制以及数据中心内网的简单DNS解析服务。动态DNS服务还能让您更容易地实现以 DNS 协议为基础的服务发现，以帮助您消除耦合到厂商私有服务发现 API 上的风险。Nacos 提供了一些简单的 DNS APIs TODO 帮助您管理服务的关联域名和可用的 IP:PORT 列表。</p>
+<ul>
+<li>服务及其元数据管理</li>
+</ul>
+<p>Nacos 能让您从微服务平台建设的视角管理数据中心的所有服务及元数据，包括管理服务的描述、生命周期、服务的静态依赖分析、服务的健康状态、服务的流量管理、路由及安全策略、服务的 SLA 以及最首要的 metrics 统计数据。</p>
+<h2 id="Nacos-部署"><a href="#Nacos-部署" class="headerlink" title="Nacos 部署"></a>Nacos 部署</h2><p>下载：<a href="https://github.com/alibaba/nacos/releases" target="_blank" rel="noopener">https://github.com/alibaba/nacos/releases</a> ， 目前最新版 1.4.0</p>
+<h3 id="单机模式"><a href="#单机模式" class="headerlink" title="单机模式"></a>单机模式</h3><p>启动</p>
+<p>windows 下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nacos-1.3.2\bin\startup.cmd -m standalone</span><br></pre></td></tr></table></figure>
+
+<p>linux下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nacos-1.3.2\bin\startup.sh -m standalone</span><br></pre></td></tr></table></figure>
+
+<p>单机模式适合在本地或开发测试环境中使用，如果是生产环境，则需要搭建集群模式或通过 k8s 部署来实现高可用。</p>
+<h3 id="集群模式"><a href="#集群模式" class="headerlink" title="集群模式"></a>集群模式</h3><ol>
+<li>集群配置</li>
 </ol>
-<h3 id="第五步：练习"><a href="#第五步：练习" class="headerlink" title="第五步：练习"></a>第五步：练习</h3><p>罗马不是一天建成的，你也不可能期盼通过解决一两个问题就能成为解决问题的高手。但是，如果你能以学习的态度来寻求问题的解决办法，通过以上四个步骤来建立一套解决问题的思维框架，每一个问题的处理都是提高你能力的机会。那么距离成为一个解决问题的高手，就只差一步了，那就是：练习，练习，再练习。在问题中练习，训练你的思维方式与习惯。</p>
-<p><img src="/assets/lixiaolong.png" alt="lixiaolong"><br>“我不害怕一次练习1000个踢打动作的人，但我害怕将一个踢打动作练习1000次的人”</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实，解决问题的能力，不论在IT技术领域，还是在其它各个领域，都是一种最基本的技能。当你在说出“这个问题我解决不了”，“这个问题我没办法定位”前，试试本文介绍的理解、计划、分解、卡壳时怎么处理的建议方法，多一些耐心，一步步实践，说不定慢慢就看到曙光了。按照这个处理模式或习惯，在日积月累的问题处理中，你可能已在不知不觉成为了解决问题的高手。</p>
-<p>参考： </p>
-<ol>
-<li><a href="https://www.freecodecamp.org/news/how-to-think-like-a-programmer-lessons-in-problem-solving-d1d8bf1de7d2/" target="_blank" rel="noopener">https://www.freecodecamp.org/news/how-to-think-like-a-programmer-lessons-in-problem-solving-d1d8bf1de7d2/</a></li>
+<p>将 nacos conf 目录下的 cluster.conf.example 文件重命名为 cluster.conf，添加集群节点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#it is ip</span><br><span class="line">#example</span><br><span class="line">192.168.40.111:8848</span><br><span class="line">192.168.40.112:8848</span><br><span class="line">192.168.40.113:8848</span><br></pre></td></tr></table></figure>
+
+<p>需要配置3个或3个以上的 Nacos 节点才能构成集群。</p>
+<ol start="2">
+<li>数据源配置 </li>
 </ol>
+<p>使用 <a href="https://github.com/alibaba/nacos/blob/master/distribution/conf/nacos-mysql.sql" target="_blank" rel="noopener">数据库脚本文件</a> 创建 MySQL 数据库<br>在 conf 目录下的 application.properties 配置文件中配置数据源</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#*************** Config Module Related Configurations ***************#</span><br><span class="line">### If use MySQL as datasource:</span><br><span class="line">spring.datasource.platform&#x3D;mysql</span><br><span class="line"></span><br><span class="line">### Count of DB:</span><br><span class="line">db.num&#x3D;1</span><br><span class="line"></span><br><span class="line">### Connect URL of DB:</span><br><span class="line">db.url.0&#x3D;jdbc:mysql:&#x2F;&#x2F;192.168.40.113:3306&#x2F;nacos?characterEncoding&#x3D;utf8&amp;connectTimeout&#x3D;1000&amp;socketTimeout&#x3D;3000&amp;autoReconnect&#x3D;true&amp;useUnicode&#x3D;true&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai</span><br><span class="line">db.user&#x3D;nacos</span><br><span class="line">db.password&#x3D;nacos</span><br></pre></td></tr></table></figure>
+
+<p>生产环境可采用主备模式，或者高可用数据库。</p>
+<ol start="3">
+<li>启动服务器</li>
+</ol>
+<p>在三台服务器节点上依次启动。</p>
+<p>启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh startup.sh</span><br></pre></td></tr></table></figure>
+
+<p>关闭</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh shutdown.sh</span><br></pre></td></tr></table></figure>
+
+<p>可以结合使用 keepalived 来实现集群的访问，部署结构如图（因作者使用 k8s 部署，集群的具体部署实现这里不详述，可自行查阅 keepalived 相关资料）</p>
+<p><img src="/assets/nacos-cluster.png" alt="nacos-cluster"></p>
+<h3 id="k8s部署"><a href="#k8s部署" class="headerlink" title="k8s部署"></a>k8s部署</h3><p>Nacos 也可以以 StatefulSet 类型的控制器部署在 k8s 中，并且可借助 NFS 与 MySQL 来实现自动扩容缩容和数据持久化功能。如何在 k8s 中部署，我们后续再单独详细介绍。</p>
+<h2 id="Nacos-注册中心集成"><a href="#Nacos-注册中心集成" class="headerlink" title="Nacos 注册中心集成"></a>Nacos 注册中心集成</h2><p>在 Spring Cloud 中使用 Nacos，只需要简单的配置就可以完成服务的注册与发现。</p>
+<ol>
+<li>pom.xml 中添加依赖</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-alibaba-nacos-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>bootstrap.yaml 中添加配置：</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">      <span class="comment"># 此部分为动态配置服务相关</span></span><br><span class="line">      <span class="attr">config:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">        <span class="attr">file-extension:</span> <span class="string">yaml</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在启动类上添加 @EnableDiscoveryClient 注解。不加也没关系。</li>
+</ol>
+<p>启动服务后，其它注册到 Nacos 的服务就可以通过 Feign 或 @LoadBalance 注解的 RestTemplate 来负载均衡地调用该服务接口了。</p>
+<ol start="4">
+<li>访问 Nacos 控制台</li>
+</ol>
+<p>浏览器访问 <a href="http://localhost:8848/nacos" target="_blank" rel="noopener">http://localhost:8848/nacos</a> ，账号密码默认为： nacos/nacos。</p>
+<p>点击 服务管理/服务列表，即可看到已经注册的服务，如图</p>
+<p><img src="/assets/nacos-reg1.png" alt="nacos-reg1"></p>
+<p>进入 服务详情，可对服务的元数据，服务下线、上线进行编辑控制，如图</p>
+<p><img src="/assets/nacos-reg2.png" alt="nacos-reg2"></p>
+<p>对服务实例进行下线后，其它服务将不再往该服务实例发送请求（可能有数秒的延迟）。</p>
+<ol start="5">
+<li>openAPI支持</li>
+</ol>
+<p>服务注册： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X PUT &#39;http:&#x2F;&#x2F;127.0.0.1:8848&#x2F;nacos&#x2F;v1&#x2F;ns&#x2F;instance?serviceName&#x3D;nacos.naming.serviceName&amp;ip&#x3D;192.168.40.234&amp;port&#x3D;8080&#39;</span><br></pre></td></tr></table></figure>
+
+<p>服务发现： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X GET &#39;http:&#x2F;&#x2F;127.0.0.1:8848&#x2F;nacos&#x2F;v1&#x2F;ns&#x2F;instance&#x2F;list?serviceName&#x3D;nacos.naming.serviceName&#39;</span><br></pre></td></tr></table></figure>
+
+<h2 id="其它注册中心了解"><a href="#其它注册中心了解" class="headerlink" title="其它注册中心了解"></a>其它注册中心了解</h2><ul>
+<li><p>Eureka：Eureka 包含 Eureka Server 与 Eureka Client 两个端，Eureka Client 通过服务注册接口将微服务所在的 IP，端口，hostname，健康检查 url 等信息注册到 Eureka Server，其它微服务可通过服务发现接口从 Eureka Server 获取服务列表信息。Eureka Server 可以运行多个实例来构成集群，提供注册服务的高可用。Eureka Server 集群采用的是 Peer to Peer 去中心化的架构，每一个实例都是对等的，彼此通过相互注册与数据复制同步来提高可用性。从 CAP 原则的角度说，Eureka 遵循的是 AP，即 Eureka 保障可用性与分区容忍性，但不保障一致性。这样 Eureka Client 获取服务列表信息时，有可能存在不一致性，比如针对某个服务新增一个实例，在注册信息还未在各个 Eureka Server 之间完成同步时，有可能部分 Eureka Client 能获取该实例信息，部分获取不到。但这对服务间的交互影响并不大，因为服务调用最终是通过负载均衡从服务实例列表中选取一个进行的。 Eureka 的具体介绍可参考 <a href="http://blog.jboost.cn/springcloud-1.html">Spring Cloud（一）：服务注册中心Eureka</a>。</p>
+</li>
+<li><p>Zookeeper: Zookeeper 就是个分布式的协调服务，服务提供者通过在 Zookeeper 的某一路径上创建一个 znode 节点完成服务注册，该节点存储了服务的 IP，端口，调用方式等信息。服务消费者通过 Zookeeper 获取到相应服务的 IP 地址列表，通过负载均衡算法从 IP 地址列表中取一个进行服务调用。与 Eureka 不同， Zookeeper 集群采用 Master/Slave 架构，如果集群中的 Master 挂了，集群就要进行 Master 的选举，在此过程中是无法处理请求的。因此 Zookeeper 在 CAP 原则中遵循的是 CP，保证了强一致性与分区容忍性，但并不保证高可用。</p>
+</li>
+<li><p>Consul: Consul 是 HashiCorp 公司推出的开源工具，用于实现分布式系统的服务发现与配置。Consul 使用 Go 语言编写，内置了服务注册与发现框架、分布式一致性协议实现、健康检查、Key/Value 存储、多数据中心方案等，Consul 不需要依赖其他工具（比如 ZooKeeper 等），使用起来也较为简单。Consul 同样遵循 CAP 原理中的 CP 原则，保证了强一致性和分区容错性。但服务注册的时间会稍长一些，因为 Consul 的 Raft 协议要求必须过半数的节点都写入成功才认为注册成功。并且同样在 leader 挂掉了之后，重新选举出 leader 之前会导致 Consul 服务的不可用。</p>
+</li>
+<li><p>CoreDNS: CoreDNS 是目前 Kubernetes 默认的 DNS 方案，其目标是成为云原生环境下的 DNS 服务器和服务发现解决方案。CoreDNS 采用 Go 编写，区别于 kube-dns，CoreDNS 编译出来就是一个单独的二进制可执行文件，内置了 cache，backend storage ，health check 等功能，无需第三方组件来辅助实现其他功能，从而使得部署更方便，内存管理更为安全。</p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Nacos 不仅能提供动态服务注册发现功能， 也能提供动态配置管理功能（不需要重启服务就能使配置生效）。从注册中心的功能角色来说，一致性要求并不太高，因此遵循 AP 的 Eureka 与 Nacos（Nacos 在服务注册中遵循 AP， 在配置管理中遵循 CP）更适合用于注册中心。但因为 Eureka Netflix 已经停止维护了，所以新项目可以使用 Nacos 来充当服务注册与配置管理的服务。</p>
+<p>参考：<a href="https://nacos.io/zh-cn/docs/what-is-nacos.html" target="_blank" rel="noopener">https://nacos.io/zh-cn/docs/what-is-nacos.html</a></p>
 
           
             <div class='article_footer'>
@@ -453,7 +480,7 @@
           
         
           
-            <p>本文链接：<a href=http://blog.jboost.cn/think-like-a-programmer.html>http://blog.jboost.cn/think-like-a-programmer.html</a></p>
+            <p>本文链接：<a href=http://blog.jboost.cn/springcloud-9.html>http://blog.jboost.cn/springcloud-9.html</a></p>
           
         
           
@@ -508,10 +535,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-05T15:26:32+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-07T20:06:15+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：2020-11-05</p>
+    <p>更新于：2020-12-07</p>
   </a>
 </div>
 
@@ -519,6 +546,9 @@
       
         
           
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/SpringCloud/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>SpringCloud</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/nacos/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>nacos</p></a></div>
+
 
         
       
@@ -535,8 +565,7 @@
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
           
-          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/think-like-a-programmer.html&title=像程序员一样思考——提高解决问题的能力 - 半路雨歌&summary=在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
-最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？"
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/springcloud-9.html&title=Spring Cloud（九）：服务发现，除了Eureka，还有Nacos - 半路雨歌&summary=服务注册中心是微服务的核心组件之一，目前常见的服务注册中心包括Eureka（参考：Spring Cloud（一）：服务注册中心Eureka），Zookeeper，Consul，CoreDNS，及 Nacos。"
           
           >
           
@@ -548,8 +577,7 @@
       
         <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
           
-          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/think-like-a-programmer.html&title=像程序员一样思考——提高解决问题的能力 - 半路雨歌&summary=在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
-最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？"
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/springcloud-9.html&title=Spring Cloud（九）：服务发现，除了Eureka，还有Nacos - 半路雨歌&summary=服务注册中心是微服务的核心组件之一，目前常见的服务注册中心包括Eureka（参考：Spring Cloud（一）：服务注册中心Eureka），Zookeeper，Consul，CoreDNS，及 Nacos。"
           
           >
           
@@ -561,8 +589,7 @@
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
           
-          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/think-like-a-programmer.html&title=像程序员一样思考——提高解决问题的能力 - 半路雨歌&summary=在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。
-最近一段时间，因工作中遇到一些现象，让我重又想起这句话，并且试图思考如何来提高解决问题的能力，有没有一种方法论的手段或者技术性的框架来实践？"
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/springcloud-9.html&title=Spring Cloud（九）：服务发现，除了Eureka，还有Nacos - 半路雨歌&summary=服务注册中心是微服务的核心组件之一，目前常见的服务注册中心包括Eureka（参考：Spring Cloud（一）：服务注册中心Eureka），Zookeeper，Consul，CoreDNS，及 Nacos。"
           
           >
           
@@ -576,7 +603,7 @@
         <div class='hoverbox'>
           <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
           <div class='target'>
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAAC+klEQVR42u3aUVIjMQwE0Nz/0nAAoGy1FBjtPv+lmAz2y0+X2q8P69v1QgAGDBgwYMCsgXmF68sLD89Vv3f6fvq+4/8BAwYMGDBgwKyDuQ5Ah+d/OkAKV91P9zxgwIABAwYMmL0wadC6DVxjQSzc3/F5MGDAgAEDBsx/B3MbBNOBU/f9YMCAAQMGDBgw6eepoAgGDBgwYMCAATNWUA1fGKoWfNPPgwEDBgwYMGD2wXSLr6d9js8DBgwYMGDAgFkD012ngNZ9Pg1u8XnAgAEDBgwYMGtg0oBUBUgHWtXirbt/MGDAgAEDBswemGox9lvBLS3iqu87DqrAgAEDBgwYMI+FmS64bgPbdIF3C3V8HgwYMGDAgAGzBmaq6KqCpQea+n9gwIABAwYMmH8HZgogLejSYJj+ANcXoMGAAQMGDBgwj4VJB0/TkGkh1y0GwYABAwYMGDB7YbqBqPqebtBLA2N7UAUGDBgwYMCAWQNzC5ICvmvw1Q2mYMCAAQMGDJg9MFPFVRW6eqBu4XYNCQYMGDBgwIBZA5MGtqlAGA+UhvYFBgwYMGDAgNkPU93wbcE1VcxNFXfxBA8MGDBgwIABswam+3kKamrg1b44BAYMGDBgwIB5HMxUsZUWbulAqzqYuv6/YMCAAQMGDJh1MOULNuEFoKmLPl3QY+EGBgwYMGDAgFkDMz7wCb+fFm+vcMXJFwwYMGDAgAHzOJjbCzppkJv6QdL9HfcNBgwYMGDAgFkPkw6Spi4CTQe5632DAQMGDBgwYNbAdFd6cWfqh+kWhT8GPDBgwIABAwbM42HeFZTSA6XBbmyABgYMGDBgwIBZB1M9aLcQqwa0dHBW3S8YMGDAgAEDZi9MGqDSwVT3791gCgYMGDBgwIABc7uB6sBpeiD15wEPDBgwYMCAAfM4mHTwVb3oUy3mygESDBgwYMCAAbMWJi3I0gNVC7fb/aYXn8CAAQMGDBgw+2DS4qoK0H3+XYMuMGDAgAEDBsw+GAsMGDBgwIABs2x9AnQs4jusNdAiAAAAAElFTkSuQmCC">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACU0lEQVR42u3aQW6EQAwEQP7/6eQeKcJtTxJiam6wC0zBpWX7+njpusDBwcHBwRfBr+b67vqv5787rp6/e168X3BwcHBw8IXwcgAIQdX/d58f7xccHBwcHHwxvBpY7qDT+6TH5SAFDg4ODg4Ofp0KNNPCBTg4ODg4OPg8wFSvT5/7+OQGDg4ODg7+IHi3oJ828qfP+fNOCjg4ODg4+IPg0wG/3z5+zGQjODg4ODj4H8Knq1uomN6nvV9wcHBwcPBF8LuAMB0YmJ6fvrh2JwUcHBwcHPwfwLsFgWpDYdoISAsN5YYCODg4ODj4AvipoJE2/k+/kPIHAAcHBwcHXwSvBoafKgxMGxlpcAIHBwcHB38TvFvwj4PF8IWU9wcODg4ODr4QnjYYukHiVDBqfwBwcHBwcPAXwLsNgHTDaaC5mgscHBwcHHwjfBoouoWBbuDpNhLAwcHBwcE3wk81FqYbqoKnDQpwcHBwcPCN8O4AXrWwcOq6acMBHBwcHBx8E3w6ADANOOkLHw8ggoODg4ODL4J3GwfdAYD2houDBeDg4ODg4G+EX4fW3YZOD+6lQQgcHBwcHHwjvLuq8LSx0A02tx8EHBwcHBx8EfxUULkLJunxNBiVBwPAwcHBwcEXwNPAUm0spMEkbhCEv4ODg4ODg2+GpwEibfBPBw3SQAUODg4ODg5+jQf7q6BuwaJ8HTg4ODg4OHh7Q9OGwPhFgIODg4ODL4Z3CwYpMA04jxsMAAcHBwcHfxA8XelgwE83EMr3BwcHBwcHXwR/2wIHBwcHB1+wPgGV5MGMp61NTAAAAABJRU5ErkJggg==">
           </div>
         </div>
       
@@ -596,15 +623,10 @@
         
           <div class="prev-next">
             
-              <a class='prev' href='/springcloud-9.html'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spring Cloud（九）：服务发现，除了Eureka，还有Nacos</p>
-                <p class='content'>服务注册中心是微服务的核心组件之一，目前常见的服务注册中心包括Eureka（参考：Spring Cloud（一）：服务注册中心Eureka），Zookeeper，Consul，CoreDNS，及...</p>
-              </a>
             
-            
-              <a class='next' href='/k8s8-logpilot-2.html'>
-                <p class='title'>Kubernetes笔记（八）：K8s中的日志采集实践——使用log-pilot（适配ELK7.x）<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>前文Kubernetes笔记（七）：K8s中的日志采集实践——log-pilot介绍我们对 k8s 集群中常用日志采集模式及阿里开源的 log-pilot 进行了介绍，本文介绍如何使 log-p...</p>
+              <a class='next' href='/think-like-a-programmer.html'>
+                <p class='title'>像程序员一样思考——提高解决问题的能力<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>在以前的文章中，曾经提过“技术人员的价值，不在于你能写出多么优美的代码，也不在于你能设计出一个多么大而全的高屋建瓴的架构，而在于你实实在在的解决问题的能力，在于你使用技术手段服务于业务的能力”。...</p>
               </a>
             
           </div>
@@ -648,7 +670,7 @@
 
   <script>
     window.subData = {
-      title: '像程序员一样思考——提高解决问题的能力',
+      title: 'Spring Cloud（九）：服务发现，除了Eureka，还有Nacos',
       tools: true
     }
   </script>
@@ -699,7 +721,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#像程序员一样思考"><span class="toc-text">像程序员一样思考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决问题的能力是一项元技能"><span class="toc-text">解决问题的能力是一项元技能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#提高解决问题能力的方法"><span class="toc-text">提高解决问题能力的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一步：理解"><span class="toc-text">第一步：理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二步：计划"><span class="toc-text">第二步：计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三步：分解"><span class="toc-text">第三步：分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第四步：卡壳了怎么办？"><span class="toc-text">第四步：卡壳了怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第五步：练习"><span class="toc-text">第五步：练习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Nacos-介绍"><span class="toc-text">Nacos 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nacos-部署"><span class="toc-text">Nacos 部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#单机模式"><span class="toc-text">单机模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集群模式"><span class="toc-text">集群模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#k8s部署"><span class="toc-text">k8s部署</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nacos-注册中心集成"><span class="toc-text">Nacos 注册中心集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它注册中心了解"><span class="toc-text">其它注册中心了解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     </div>
   </section>
 
