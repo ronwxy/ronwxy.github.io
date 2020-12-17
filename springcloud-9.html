@@ -437,7 +437,7 @@
 <li><p>CoreDNS: CoreDNS 是目前 Kubernetes 默认的 DNS 方案，其目标是成为云原生环境下的 DNS 服务器和服务发现解决方案。CoreDNS 采用 Go 编写，区别于 kube-dns，CoreDNS 编译出来就是一个单独的二进制可执行文件，内置了 cache，backend storage ，health check 等功能，无需第三方组件来辅助实现其他功能，从而使得部署更方便，内存管理更为安全。</p>
 </li>
 </ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Nacos 不仅能提供动态服务注册发现功能， 也能提供动态配置管理功能（不需要重启服务就能使配置生效）。从注册中心的功能角色来说，一致性要求并不太高，因此遵循 AP 的 Eureka 与 Nacos（Nacos 在服务注册中遵循 AP， 在配置管理中遵循 CP）更适合用于注册中心。但因为 Eureka Netflix 已经停止维护了，所以新项目可以使用 Nacos 来充当服务注册与配置管理的服务。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Nacos 不仅能提供动态服务注册发现功能， 也能提供动态配置管理功能（不需要重启服务就能使配置生效）。从注册中心的功能角色来说，一致性要求并不太高，因此遵循 AP 的 Eureka 与 Nacos（Nacos 在服务注册中遵循 AP， 在配置管理中遵循 CP）更适合用于注册中心。但因为 Eureka 2.x Netflix 已经停止更新维护了，所以新项目可以使用 Nacos 来充当服务注册与配置管理的服务。</p>
 <p>参考：<a href="https://nacos.io/zh-cn/docs/what-is-nacos.html" target="_blank" rel="noopener">https://nacos.io/zh-cn/docs/what-is-nacos.html</a></p>
 
           
@@ -535,10 +535,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-07T20:06:15+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-08T08:51:49+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：2020-12-07</p>
+    <p>更新于：2020-12-08</p>
   </a>
 </div>
 
@@ -622,6 +622,11 @@
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/springcloud-10.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spring Cloud（十）：配置管理，除了Config，还有Nacos</p>
+                <p class='content'>使用 Spring Cloud Config 我们可以实现配置的集中化管理，但 Spring Cloud Config 如果要实现配置的动态更新， 则需要借助 Spring Cloud Bus（...</p>
+              </a>
             
             
               <a class='next' href='/think-like-a-programmer.html'>
@@ -771,20 +776,20 @@
       
     
       
-        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+        <div><p>本站所有内容版权归作者所有，转载请注明出处</p>
 </div>
       
     
       
-        Use
+        本站使用
         <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
-        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+        作为主题<span id="busuanzi_container_site_pv" style='display:none'>，总访问量为
           <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
           <span id="busuanzi_container_site_uv" style='display:none'>
-          , total visitors
+          ，总访客量
           <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
-          times</span>
+          次</span>
         
       
     
