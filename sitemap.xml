@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/framework-base.html</loc>
+    
+    <lastmod>2021-01-16T03:51:39.070Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/springcloud-10.html</loc>
     
     <lastmod>2020-12-17T11:17:06.210Z</lastmod>
