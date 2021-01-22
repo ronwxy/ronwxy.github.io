@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>写一个自己的脚手架——单体应用篇</title>
+      <link href="/framework-boot.html"/>
+      <url>/framework-boot.html</url>
+      
+        <content type="html"><![CDATA[<p>接上一篇 <a href="/framework-base.html">写一个自己的脚手架——基础组件篇</a>，本篇为基于基础组件搭建的单体应用框架介绍。单体应用框架提供常见的一些基础通用功能实现，目前主要为权限管理，提供前后端分离的后端 Spring Boot 项目与前端 Vue 项目。</p><p>本项目还在持续完善中。</p><a id="more"></a><h3 id="后端-Spring-Boot-项目"><a href="#后端-Spring-Boot-项目" class="headerlink" title="后端 Spring Boot 项目"></a>后端 Spring Boot 项目</h3><p>依赖基础组件项目：<a href="https://github.com/ronwxy/jboost-base" target="_blank" rel="noopener">https://github.com/ronwxy/jboost-base</a></p><p>目前包含模块：</p><ol><li><p>jboost-auth： 权限管理，</p><p>包含基本功能：</p><ul><li>登录、鉴权</li><li>用户管理</li><li>角色管理</li><li>部门管理</li><li>菜单管理</li></ul></li><li><p>jboost-bootstrap： 项目启动入口</p><p>目前暂无其它功能</p></li></ol><p>开发规范</p><ol><li><p>模块命名使用 <code>jboost-模块名</code>，如 <code>jboost-auth</code></p></li><li><p>模块根包命名使用 <code>cn.jboost.boot.模块名</code> 开头，如 <code>cn.jboost.boot.auth</code></p><p>但 <code>jboost-bootstrap</code> 模块根包名为 <code>cn.jboost.boot</code>，便于启动类扫描整个项目</p></li><li><p>各模块包含基本结构：</p></li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-- controller    </span><br><span class="line">-- mapper   </span><br><span class="line">-- pojo       </span><br><span class="line">   -- dto</span><br><span class="line">      -- converter  </span><br><span class="line">   -- entity</span><br><span class="line">   -- query </span><br><span class="line">-- service</span><br></pre></td></tr></table></figure><ol start="4"><li><p>Service 层对于只有一个实现的，无需定义 Interface</p></li><li><p>包名、类名都使用单数形式，如 User， 而不是 Users</p></li></ol><p>以上代码结构可使用 jboost-base 中的 jboost-generator 生成，生成配置参考项目 <code>resource/generator.yaml</code> 中的注释说明。</p><h3 id="前端-Vue-项目"><a href="#前端-Vue-项目" class="headerlink" title="前端 Vue 项目"></a>前端 Vue 项目</h3><p>基于 <a href="http://panjiachen.github.io/vue-admin-template" target="_blank" rel="noopener">vue-admin-template</a> 搭建</p><blockquote><p>vue-admin-template 是一个极简的 vue admin 管理后台。它只包含了 Element UI &amp; axios &amp; iconfont &amp; permission control &amp; lint，这些搭建后台必要的东西。</p></blockquote><p>项目包含基本的登录，含用户名登录与手机验证码登录（需自行配置 sms 服务），登录页效果如图</p><p><img src="/assets/jboost-admin-1.png" alt="jboost-admin-login"></p><p>及基本的系统管理功能，如下图所示</p><p><img src="/assets/jboost-admin-2.png" alt="jboost-admin-main"></p><p>项目的运行及打包可参考项目的 README 文档。</p><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>单体应用框架包含一个系统常用的基础功能，基于此可进行其它业务模块开发，提高开发效率。本文对单体应用框架的前后端项目进行了简单介绍，目前项目只包含基本的权限管理功能，其它基础功能待持续完善。因水平有限，疏漏、错误之处难免，欢迎指正。</p><p>单体应用框架项目源码： </p><ul><li>服务端： <a href="https://github.com/ronwxy/jboost-boot.git" target="_blank" rel="noopener">https://github.com/ronwxy/jboost-boot.git</a></li><li>Web端： <a href="https://github.com/ronwxy/jboost-admin.git" target="_blank" rel="noopener">https://github.com/ronwxy/jboost-admin.git</a> </li></ul><p>如对你有帮助，可以大方地 star 一下。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Framework </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> springboot </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>写一个自己的脚手架——基础组件篇</title>
       <link href="/framework-base.html"/>
       <url>/framework-base.html</url>
