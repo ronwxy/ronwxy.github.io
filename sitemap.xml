@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/yapi.html</loc>
+    
+    <lastmod>2021-04-01T10:56:32.162Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/framework-auth.html</loc>
     
     <lastmod>2021-01-25T04:54:03.481Z</lastmod>
