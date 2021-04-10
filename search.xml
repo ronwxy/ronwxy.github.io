@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Docker笔记（十四）：Dockerfile最佳实践——多阶段构建</title>
+      <link href="/docker-14.html"/>
+      <url>/docker-14.html</url>
+      
+        <content type="html"><![CDATA[<p>Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 <code>FROM</code> 指令来引入。</p><a id="more"></a><h3 id="多阶段构建概念"><a href="#多阶段构建概念" class="headerlink" title="多阶段构建概念"></a>多阶段构建概念</h3><p>当我们的镜像构建过程需要依赖多个基础镜像时， 我们没办法在 <code>FROM</code> 指令中加入多个基础镜像来实现，事实上也没必要在我们构建的镜像中包含多个基础镜像，因为除了运行时环境基础镜像，其它都只是为编译、打包之类中间过程服务，在运行时不再需要，没必要添加在镜像中增大镜像的大小。此时我们可以使用 Dockerfile 的 <strong>多阶段构建</strong> 来实现。</p><p>所谓多阶段构建，就是允许一个 Dockerfile 中出现多条 <code>FROM</code> 指令，但只有最后一条 <code>FROM</code> 指令中的基础镜像作为本次构建镜像的基础镜像，其它均只为中间过程服务。</p><p>每一条 <code>FROM</code> 指令都表示一个构建阶段，多条 <code>FROM</code> 指令就表示多阶段构建，后面的构建阶段可以拷贝前面构建阶段产生的文件 —— 这也是多阶段构建的意义所在。</p><p>多阶段构建适用于编译、打包与运行环境分离的场景。事实上，在前文 <a href="/yapi.html">使用YApi来统一管理项目API文档(Docker部署)</a> 中， 我们已经使用了这一技术。以下即以此为例进行说明。</p><h3 id="多阶段构建实践"><a href="#多阶段构建实践" class="headerlink" title="多阶段构建实践"></a>多阶段构建实践</h3><p>我们构建一个 YApi 镜像包括几步：</p><ol><li>下载 YApi 源码</li><li>安装依赖，编译</li><li>将编译好的文件夹拷贝到镜像目录</li></ol><p>在 1,2 步中，我们需要 wget，python，make 等工具来完成，这些工具对 YApi 程序的运行是非必需的。所以我们有两种选择，一是先在宿主机中把 1,2 完成，然后只在 Dockerfile 中执行 3， 二是将这 1,2,3 都放在 Dockerfile 中执行，在编译完成后，再执行安装工具的清理工作。 </p><p>两个选择对应两个问题：</p><ol><li>宿主机中可能不存在需要的工具或依赖，安装起来麻烦，且需要手动（或配置自动化程序）执行</li><li>程序运行的环境可能跟编译打包的环境要求完全不一样，如 go 语言程序， 编译需要 golang 环境，而运行则不需要</li></ol><p>我们采用多阶段构建则可以比较完美地解决以上问题。构建 YApi 镜像的 Dockerfile 如下，</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM node:12-alpine as builder</span><br><span class="line">WORKDIR &#x2F;yapi</span><br><span class="line">RUN apk add --no-cache wget python make</span><br><span class="line">ENV VERSION&#x3D;1.9.2</span><br><span class="line">RUN wget https:&#x2F;&#x2F;github.com&#x2F;YMFE&#x2F;yapi&#x2F;archive&#x2F;refs&#x2F;tags&#x2F;v$&#123;VERSION&#125;.zip</span><br><span class="line">RUN unzip v$&#123;VERSION&#125;.zip &amp;&amp; mv yapi-$&#123;VERSION&#125; vendors</span><br><span class="line">RUN cd &#x2F;yapi&#x2F;vendors &amp;&amp; npm install --production --registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"></span><br><span class="line">FROM node:12-alpine</span><br><span class="line">MAINTAINER ronwxy</span><br><span class="line">ENV TZ&#x3D;&quot;Asia&#x2F;Shanghai&quot;</span><br><span class="line">WORKDIR &#x2F;yapi&#x2F;vendors</span><br><span class="line">COPY --from&#x3D;builder &#x2F;yapi&#x2F;vendors &#x2F;yapi&#x2F;vendors</span><br><span class="line">RUN mv &#x2F;yapi&#x2F;vendors&#x2F;config_example.json &#x2F;yapi&#x2F;config.json</span><br><span class="line">EXPOSE 3000</span><br><span class="line">ENTRYPOINT [&quot;node&quot;]</span><br></pre></td></tr></table></figure><p>在该 Dockerfile 中， 两条 <code>FROM</code> 指令代表两个阶段的构建，第一阶段完成步骤 1,2， 在第二阶段中可以直接使用第一阶段生成的内容。<br>指令 <code>COPY --from=builder /yapi/vendors /yapi/vendors</code> 就表示从命名为 builder 的阶段中拷贝 <code>/yapi/vendors</code> 到当前阶段中</p><blockquote><p>也可以使用 <code>--from=n</code> 来表示从第几个阶段中拷贝内容，n从0开始计</p></blockquote><p><code>COPY --from</code> 除了能从前面的构建阶段中拷贝内容，还能直接从已经存在的镜像中拷贝，这在我们需要依赖其它已存在镜像中的某些内容时非常方便实用。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Docker </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> docker </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>使用YApi来统一管理项目API文档(Docker部署)</title>
       <link href="/yapi.html"/>
       <url>/yapi.html</url>

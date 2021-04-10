@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta name="renderer" content="webkit">
@@ -18,8 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>Archive: 2019/10 - 半路雨歌</title>
+    <title>Docker笔记（十四）：Dockerfile最佳实践——多阶段构建 - 半路雨歌</title>
   
+    <meta name="keywords" content="docker">
+  
+  
+    <meta name="description" content="Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 FROM 指令来引入。">
   
 
   <!-- feed -->
@@ -269,22 +271,11 @@
       
 
 <div class='l_main'>
-	
-		
-  <section class="post-list ">
-    
-      
-        
-          
-        
-      
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
   
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
 
 
   <section class='meta'>
@@ -294,11 +285,11 @@
       <div class="meta" id="header-meta">
         
           
-  <h2 class="title">
-    <a href="/nginx-1.html">
-      nginx（一）：基本用途与用法
+  <h1 class="title">
+    <a href="/docker-14.html">
+      Docker笔记（十四）：Dockerfile最佳实践——多阶段构建
     </a>
-  </h2>
+  </h1>
 
 
         
@@ -310,7 +301,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-10-07</p>
+    <p>2021-04-08</p>
   </a>
 </div>
 
@@ -320,27 +311,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/DevOps/' rel="nofollow">
+    <a href='/categories/Docker/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>DevOps</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2.1k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>8 min</p>
+      <p>Docker</p>
     </a>
   </div>
 
@@ -361,40 +334,273 @@
   </section>
 
 
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>最近由于事情较多，加上个人的懈怠，有一段时间没更新了。习惯的养成很难，但一旦养成，从中的受益也常会超乎意料，还是得坚持。接下来准备对一些开发维护过程中常用的工具软件与服务进行整理，如本系列的nginx，后续的redis，消息队列，jenkins等，欢迎关注。</p>
-<p>nginx是一个轻量级的高性能的HTTP服务器，在Web应用部署中很常见。也正因为很常见，所以掌握其基本原理与用法显得很有必要，本系列文章对nginx的相关内容进行梳理，以供初学者参考、熟悉者回顾。</p>
-      
-    </div>
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 <code>FROM</code> 指令来引入。</p>
+<a id="more"></a>
+
+<h3 id="多阶段构建概念"><a href="#多阶段构建概念" class="headerlink" title="多阶段构建概念"></a>多阶段构建概念</h3><p>当我们的镜像构建过程需要依赖多个基础镜像时， 我们没办法在 <code>FROM</code> 指令中加入多个基础镜像来实现，事实上也没必要在我们构建的镜像中包含多个基础镜像，因为除了运行时环境基础镜像，其它都只是为编译、打包之类中间过程服务，在运行时不再需要，没必要添加在镜像中增大镜像的大小。此时我们可以使用 Dockerfile 的 <strong>多阶段构建</strong> 来实现。</p>
+<p>所谓多阶段构建，就是允许一个 Dockerfile 中出现多条 <code>FROM</code> 指令，但只有最后一条 <code>FROM</code> 指令中的基础镜像作为本次构建镜像的基础镜像，其它均只为中间过程服务。</p>
+<p>每一条 <code>FROM</code> 指令都表示一个构建阶段，多条 <code>FROM</code> 指令就表示多阶段构建，后面的构建阶段可以拷贝前面构建阶段产生的文件 —— 这也是多阶段构建的意义所在。</p>
+<p>多阶段构建适用于编译、打包与运行环境分离的场景。事实上，在前文 <a href="/yapi.html">使用YApi来统一管理项目API文档(Docker部署)</a> 中， 我们已经使用了这一技术。以下即以此为例进行说明。</p>
+<h3 id="多阶段构建实践"><a href="#多阶段构建实践" class="headerlink" title="多阶段构建实践"></a>多阶段构建实践</h3><p>我们构建一个 YApi 镜像包括几步：</p>
+<ol>
+<li>下载 YApi 源码</li>
+<li>安装依赖，编译</li>
+<li>将编译好的文件夹拷贝到镜像目录</li>
+</ol>
+<p>在 1,2 步中，我们需要 wget，python，make 等工具来完成，这些工具对 YApi 程序的运行是非必需的。所以我们有两种选择，一是先在宿主机中把 1,2 完成，然后只在 Dockerfile 中执行 3， 二是将这 1,2,3 都放在 Dockerfile 中执行，在编译完成后，再执行安装工具的清理工作。 </p>
+<p>两个选择对应两个问题：</p>
+<ol>
+<li>宿主机中可能不存在需要的工具或依赖，安装起来麻烦，且需要手动（或配置自动化程序）执行</li>
+<li>程序运行的环境可能跟编译打包的环境要求完全不一样，如 go 语言程序， 编译需要 golang 环境，而运行则不需要</li>
+</ol>
+<p>我们采用多阶段构建则可以比较完美地解决以上问题。构建 YApi 镜像的 Dockerfile 如下，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM node:12-alpine as builder</span><br><span class="line">WORKDIR &#x2F;yapi</span><br><span class="line">RUN apk add --no-cache wget python make</span><br><span class="line">ENV VERSION&#x3D;1.9.2</span><br><span class="line">RUN wget https:&#x2F;&#x2F;github.com&#x2F;YMFE&#x2F;yapi&#x2F;archive&#x2F;refs&#x2F;tags&#x2F;v$&#123;VERSION&#125;.zip</span><br><span class="line">RUN unzip v$&#123;VERSION&#125;.zip &amp;&amp; mv yapi-$&#123;VERSION&#125; vendors</span><br><span class="line">RUN cd &#x2F;yapi&#x2F;vendors &amp;&amp; npm install --production --registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"></span><br><span class="line">FROM node:12-alpine</span><br><span class="line">MAINTAINER ronwxy</span><br><span class="line">ENV TZ&#x3D;&quot;Asia&#x2F;Shanghai&quot;</span><br><span class="line">WORKDIR &#x2F;yapi&#x2F;vendors</span><br><span class="line">COPY --from&#x3D;builder &#x2F;yapi&#x2F;vendors &#x2F;yapi&#x2F;vendors</span><br><span class="line">RUN mv &#x2F;yapi&#x2F;vendors&#x2F;config_example.json &#x2F;yapi&#x2F;config.json</span><br><span class="line">EXPOSE 3000</span><br><span class="line">ENTRYPOINT [&quot;node&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>在该 Dockerfile 中， 两条 <code>FROM</code> 指令代表两个阶段的构建，第一阶段完成步骤 1,2， 在第二阶段中可以直接使用第一阶段生成的内容。<br>指令 <code>COPY --from=builder /yapi/vendors /yapi/vendors</code> 就表示从命名为 builder 的阶段中拷贝 <code>/yapi/vendors</code> 到当前阶段中</p>
+<blockquote>
+<p>也可以使用 <code>--from=n</code> 来表示从第几个阶段中拷贝内容，n从0开始计</p>
+</blockquote>
+<p><code>COPY --from</code> 除了能从前面的构建阶段中拷贝内容，还能直接从已经存在的镜像中拷贝，这在我们需要依赖其它已存在镜像中的某些内容时非常方便实用。</p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/docker-14.html>http://blog.jboost.cn/docker-14.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
     
       
-        <div class="button readmore">
-          <a href="/nginx-1.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-10T17:13:05+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021-04-10</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/docker/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>docker</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/docker-14.html&title=Docker笔记（十四）：Dockerfile最佳实践——多阶段构建 - 半路雨歌&summary=Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 FROM 指令来引入。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/docker-14.html&title=Docker笔记（十四）：Dockerfile最佳实践——多阶段构建 - 半路雨歌&summary=Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 FROM 指令来引入。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/docker-14.html&title=Docker笔记（十四）：Dockerfile最佳实践——多阶段构建 - 半路雨歌&summary=Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 FROM 指令来引入。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACVElEQVR42u3aS46DQAwFwNz/0pn9SAj/EoKp3qEQ6Go2lp9f74euFzg4ODg4+CL4q7gOH/zv96P/HT3n7H3d/YKDg4ODg2+EhwuAIDy64ez7uvsFBwcHBwffDI8WEGfQ7EFMvf/0fnBwcHBwcPD2/dVCBRwcHBwcHPz9NUi2cREtiMDBwcHBwcEHGvTJQYHpgOGyJAUcHBwcHPyH4OWBuYuuxwb8wMHBwcHBbwzvrqmNVxsZ6f2Cg4ODg4MvglcLhOiBVBsM2QZGOMAABwcHBwdfDM8GBZ8aAKw2GtpJCjg4ODg4+I3h6Qc1B/miBznVmAAHBwcHB38CvNsYyIKyB5z9QODg4ODg4Bvh2WBgqvEwXphkAwVwcHBwcPBF8GxDotuYmAoQ0tfg4ODg4OAPgE8NBEwdWLYxUi5gwMHBwcHBbwyfCuyrQUK1sCkHCuDg4ODg4DeGTzUMqo2IbiOkXMCAg4ODg4MvglcH5sKFQ3GwoFvQHAYK4ODg4ODgi+DZxn534K9boJQbHODg4ODg4IvhUeBUg2B6gKAdKICDg4ODgy+AVw+gvKHkBygPLICDg4ODgy+Cd9dUoB9tOLQPBhwcHBwcfBH8VVzdjVeDh2zBctqIAAcHBwcHXwDvFizdQb1u4yNaSIGDg4ODg2+GTw/wVYOCbqCQLmDAwcHBwcEfDP/0AMBUIAEODg4ODg5evz8b/HcLnq9XbuDg4ODg4BfCs4FCNUCYCgouS1LAwcHBwcF/CJ5d4Qb+UFAQLlCygQI4ODg4OPiN4U9b4ODg4ODgC9Yfd5kDPUa9koIAAAAASUVORK5CYII=">
+          </div>
         </div>
       
     
-  </section>
-</article>
+  </div>
+</div>
 
-          </div>
+
+
         
       
-    
+    </div>
   </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/yapi.html'>
+                <p class='title'>使用YApi来统一管理项目API文档(Docker部署)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>一般项目都集成了 Swagger 来提供接口文档，项目一多，前端开发人员就需分别记录各个项目的接口文档地址，不便于统一管理与维护。 YApi（开源地址： https://github.com/Y...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
   
-    
-    <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
-    
-    
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
 
   
 
 
-	
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Docker笔记（十四）：Dockerfile最佳实践——多阶段构建',
+      tools: true
+    }
+  </script>
+
+
 </div>
 <aside class='l_side'>
   
@@ -428,93 +634,19 @@
   
     
     
-  
 
-  <section class="widget category shadow desktop">
+
+  <section class="widget toc-wrapper shadow desktop mobile">
     
   <header>
     
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span>
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
     
   </header>
 
 
     <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/Architecture/" href="/categories/Architecture/"
-            id="categoriesArchitecture"
-            ><div class='name'>Architecture</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Career/" href="/categories/Career/"
-            id="categoriesCareer"
-            ><div class='name'>Career</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/DevOps/" href="/categories/DevOps/"
-            id="categoriesDevOps"
-            ><div class='name'>DevOps</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Docker/" href="/categories/Docker/"
-            id="categoriesDocker"
-            ><div class='name'>Docker</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Framework/" href="/categories/Framework/"
-            id="categoriesFramework"
-            ><div class='name'>Framework</div><div class='badge'>(3)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Java/" href="/categories/Java/"
-            id="categoriesJava"
-            ><div class='name'>Java</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Kubernetes/" href="/categories/Kubernetes/"
-            id="categoriesKubernetes"
-            ><div class='name'>Kubernetes</div><div class='badge'>(10)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/SpringBoot/" href="/categories/SpringBoot/"
-            id="categoriesSpringBoot"
-            ><div class='name'>SpringBoot</div><div class='badge'>(13)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/SpringCloud/" href="/categories/SpringCloud/"
-            id="categoriesSpringCloud"
-            ><div class='name'>SpringCloud</div><div class='badge'>(10)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Teamwork/" href="/categories/Teamwork/"
-            id="categoriesTeamwork"
-            ><div class='name'>Teamwork</div><div class='badge'>(3)</div></a></li>
-        
-      </ul>
-    </div>
-  </section>
-
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow desktop mobile">
-    
-  <header>
-    
-      <i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 21.78px; color: #646464">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/nacos/" style="font-size: 15.11px; color: #919191">nacos</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 22.89px; color: #5d5d5d">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/yapi/" style="font-size: 14px; color: #999">yapi</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#多阶段构建概念"><span class="toc-text">多阶段构建概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多阶段构建实践"><span class="toc-text">多阶段构建实践</span></a></li></ol>
     </div>
   </section>
 
@@ -612,14 +744,6 @@ $(document).ready(function() {
        	
 });  
 </script>
-
-
-
-
-	<!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
-	
-
-	
 
 
       <script>setLoadingBarProgress(60);</script>
@@ -733,6 +857,60 @@ $(document).ready(function() {
 
 
 
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
 
 

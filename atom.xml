@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.jboost.cn/"/>
-  <updated>2021-04-01T10:56:32.162Z</updated>
+  <updated>2021-04-10T09:13:05.284Z</updated>
   <id>http://blog.jboost.cn/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Docker笔记（十四）：Dockerfile最佳实践——多阶段构建</title>
+    <link href="http://blog.jboost.cn/docker-14.html"/>
+    <id>http://blog.jboost.cn/docker-14.html</id>
+    <published>2021-04-08T06:08:12.000Z</published>
+    <updated>2021-04-10T09:13:05.284Z</updated>
+    
+    <content type="html"><![CDATA[<p>Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 <code>FROM</code> 指令来引入。</p><a id="more"></a><h3 id="多阶段构建概念"><a href="#多阶段构建概念" class="headerlink" title="多阶段构建概念"></a>多阶段构建概念</h3><p>当我们的镜像构建过程需要依赖多个基础镜像时， 我们没办法在 <code>FROM</code> 指令中加入多个基础镜像来实现，事实上也没必要在我们构建的镜像中包含多个基础镜像，因为除了运行时环境基础镜像，其它都只是为编译、打包之类中间过程服务，在运行时不再需要，没必要添加在镜像中增大镜像的大小。此时我们可以使用 Dockerfile 的 <strong>多阶段构建</strong> 来实现。</p><p>所谓多阶段构建，就是允许一个 Dockerfile 中出现多条 <code>FROM</code> 指令，但只有最后一条 <code>FROM</code> 指令中的基础镜像作为本次构建镜像的基础镜像，其它均只为中间过程服务。</p><p>每一条 <code>FROM</code> 指令都表示一个构建阶段，多条 <code>FROM</code> 指令就表示多阶段构建，后面的构建阶段可以拷贝前面构建阶段产生的文件 —— 这也是多阶段构建的意义所在。</p><p>多阶段构建适用于编译、打包与运行环境分离的场景。事实上，在前文 <a href="/yapi.html">使用YApi来统一管理项目API文档(Docker部署)</a> 中， 我们已经使用了这一技术。以下即以此为例进行说明。</p><h3 id="多阶段构建实践"><a href="#多阶段构建实践" class="headerlink" title="多阶段构建实践"></a>多阶段构建实践</h3><p>我们构建一个 YApi 镜像包括几步：</p><ol><li>下载 YApi 源码</li><li>安装依赖，编译</li><li>将编译好的文件夹拷贝到镜像目录</li></ol><p>在 1,2 步中，我们需要 wget，python，make 等工具来完成，这些工具对 YApi 程序的运行是非必需的。所以我们有两种选择，一是先在宿主机中把 1,2 完成，然后只在 Dockerfile 中执行 3， 二是将这 1,2,3 都放在 Dockerfile 中执行，在编译完成后，再执行安装工具的清理工作。 </p><p>两个选择对应两个问题：</p><ol><li>宿主机中可能不存在需要的工具或依赖，安装起来麻烦，且需要手动（或配置自动化程序）执行</li><li>程序运行的环境可能跟编译打包的环境要求完全不一样，如 go 语言程序， 编译需要 golang 环境，而运行则不需要</li></ol><p>我们采用多阶段构建则可以比较完美地解决以上问题。构建 YApi 镜像的 Dockerfile 如下，</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM node:12-alpine as builder</span><br><span class="line">WORKDIR &#x2F;yapi</span><br><span class="line">RUN apk add --no-cache wget python make</span><br><span class="line">ENV VERSION&#x3D;1.9.2</span><br><span class="line">RUN wget https:&#x2F;&#x2F;github.com&#x2F;YMFE&#x2F;yapi&#x2F;archive&#x2F;refs&#x2F;tags&#x2F;v$&#123;VERSION&#125;.zip</span><br><span class="line">RUN unzip v$&#123;VERSION&#125;.zip &amp;&amp; mv yapi-$&#123;VERSION&#125; vendors</span><br><span class="line">RUN cd &#x2F;yapi&#x2F;vendors &amp;&amp; npm install --production --registry https:&#x2F;&#x2F;registry.npm.taobao.org</span><br><span class="line"></span><br><span class="line">FROM node:12-alpine</span><br><span class="line">MAINTAINER ronwxy</span><br><span class="line">ENV TZ&#x3D;&quot;Asia&#x2F;Shanghai&quot;</span><br><span class="line">WORKDIR &#x2F;yapi&#x2F;vendors</span><br><span class="line">COPY --from&#x3D;builder &#x2F;yapi&#x2F;vendors &#x2F;yapi&#x2F;vendors</span><br><span class="line">RUN mv &#x2F;yapi&#x2F;vendors&#x2F;config_example.json &#x2F;yapi&#x2F;config.json</span><br><span class="line">EXPOSE 3000</span><br><span class="line">ENTRYPOINT [&quot;node&quot;]</span><br></pre></td></tr></table></figure><p>在该 Dockerfile 中， 两条 <code>FROM</code> 指令代表两个阶段的构建，第一阶段完成步骤 1,2， 在第二阶段中可以直接使用第一阶段生成的内容。<br>指令 <code>COPY --from=builder /yapi/vendors /yapi/vendors</code> 就表示从命名为 builder 的阶段中拷贝 <code>/yapi/vendors</code> 到当前阶段中</p><blockquote><p>也可以使用 <code>--from=n</code> 来表示从第几个阶段中拷贝内容，n从0开始计</p></blockquote><p><code>COPY --from</code> 除了能从前面的构建阶段中拷贝内容，还能直接从已经存在的镜像中拷贝，这在我们需要依赖其它已存在镜像中的某些内容时非常方便实用。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 &lt;code&gt;FROM&lt;/code&gt; 指令来引入。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Docker" scheme="http://blog.jboost.cn/categories/Docker/"/>
+    
+    
+      <category term="docker" scheme="http://blog.jboost.cn/tags/docker/"/>
+    
+  </entry>
   
   <entry>
     <title>使用YApi来统一管理项目API文档(Docker部署)</title>
@@ -477,31 +500,6 @@
     <summary type="html">
     
       &lt;p&gt;前面我们对K8s的基本组件与概念有了个大致的印象，并且基于K8s实现了一个初步的CI/CD流程，但对里面涉及的各个对象（如Namespace, Pod, Deployment, Service, Ingress, PVC等）及各对象的管理可能还缺乏深入的理解与实践，接下来的文章就让我们一起深入K8s的各组件内部来一探究竟吧。下图是基于个人的理解梳理的一个K8s结构图，示例了各个组件（只包含了主要组件）如何协同。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="Kubernetes" scheme="http://blog.jboost.cn/categories/Kubernetes/"/>
-    
-    
-      <category term="kubernetes" scheme="http://blog.jboost.cn/tags/kubernetes/"/>
-    
-      <category term="k8s" scheme="http://blog.jboost.cn/tags/k8s/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>解决K8s “kernel:unregister_netdevice:waiting for vethxxx to become free. Usage count=1” 的问题（Kernel升级）</title>
-    <link href="http://blog.jboost.cn/k8s-netdevice-issue.html"/>
-    <id>http://blog.jboost.cn/k8s-netdevice-issue.html</id>
-    <published>2020-05-22T03:35:05.000Z</published>
-    <updated>2020-08-26T01:43:56.751Z</updated>
-    
-    <content type="html"><![CDATA[<p>k8s集群运行过程中，经常出现节点上报出类似 “kernel:unregister_netdevice:waiting for vethxxx to become free. Usage count=1” 的错误信息，一方面影响交互，另一方面，对于有些操作比如 <code>docker stop</code>，半天没有响应，处于hang住的状态。</p><a id="more"></a><h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>操作系统及内核版本为</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-2 ~]# cat /etc/redhat-release </span><br><span class="line">CentOS Linux release 7.6.1810 (Core) </span><br><span class="line"></span><br><span class="line">[root@dev-server-2 ~]# uname -a</span><br><span class="line">Linux dev-server-2 3.10.0-957.el7.x86_64 #1 SMP Thu Nov 8 23:39:32 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux</span><br></pre></td></tr></table></figure><p>经常有节点报出类似如下错误</p><p><img src="/assets/docker-bug.png" alt="docker-bug"></p><p>查看一些网上资料，一般都说是Kernel的Bug，并且虽然有些地方说在先前版本已经修复，但是在较高版本上仍有出现。</p><p>有一些解决办法是停止syslog服务，让其不将错误信息显示到控制台，</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-2 ~]# systemctl stop rsyslog</span><br></pre></td></tr></table></figure><p>但这只能解决影响交互的问题，对于容器引擎被hang住的问题并没有解决，治标不治本。</p><p>也有人对此Bug的原因进行了追踪分析，判断可能是net_device引用计数器泄露的原因（参考：<a href="https://zhuanlan.zhihu.com/p/66895097" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/66895097</a> ），并给出了修复补丁，尝试着安装给出的补丁，但没有成功。</p><p>查看了目前elrepo的kernel的ml（mainline stable，稳定的主线版本）版本已经到了 5.6.14-1.el7.elrepo， 于是尝试着对kernel进行升级。</p><h2 id="升级Kernel"><a href="#升级Kernel" class="headerlink" title="升级Kernel"></a>升级Kernel</h2><ol><li>更新yum仓库</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@dev-server-2 ~]# yum -y update</span><br></pre></td></tr></table></figure><ol start="2"><li>导入elrepo仓库</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">导入elrepo仓库的公钥</span></span><br><span class="line">[root@dev-server-2 ~]# rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org</span><br><span class="line"><span class="meta">#</span><span class="bash">安装ELRepo仓库的yum源</span></span><br><span class="line">[root@dev-server-2 ~]# rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm</span><br><span class="line"><span class="meta">#</span><span class="bash">查看可用的kerner版本</span></span><br><span class="line">[root@dev-server-2 ~]# yum --disablerepo="*" --enablerepo="elrepo-kernel" list available</span><br></pre></td></tr></table></figure><ol start="3"><li>升级内核</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">安装最新版的内核</span></span><br><span class="line">[root@dev-server-2 ~]# yum --enablerepo=elrepo-kernel install kernel-ml</span><br></pre></td></tr></table></figure><ol start="4"><li>设置默认启动内核</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">查看系统已有内核</span></span><br><span class="line">[root@dev-server-2 ~]# sudo awk -F\' '$1=="menuentry " &#123;print i++ " : " $2&#125;' /etc/grub2.cfg</span><br><span class="line">0 : CentOS Linux (5.6.14-1.el7.elrepo.x86_64) 7 (Core)</span><br><span class="line">1 : CentOS Linux (3.10.0-957.el7.x86_64) 7 (Core)</span><br><span class="line">2 : CentOS Linux (0-rescue-f638aa03cdcf42998b077254bde50b53) 7 (Core)</span><br><span class="line"><span class="meta">#</span><span class="bash">设置默认启动内核，其中0为上述查出内核的索引</span></span><br><span class="line">grub2-set-default 0</span><br><span class="line"><span class="meta">#</span><span class="bash">生成grub配置文件</span></span><br><span class="line">grub2-mkconfig -o /boot/grub2/grub.cfg</span><br></pre></td></tr></table></figure><ol start="5"><li>重启验证</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">重启</span></span><br><span class="line">[root@dev-server-2 devuser]# reboot</span><br><span class="line"><span class="meta">#</span><span class="bash">查看当前内核版本</span></span><br><span class="line">[root@dev-server-2 devuser]# uname -a</span><br><span class="line">Linux dev-server-2 5.6.14-1.el7.elrepo.x86_64 #1 SMP Tue May 19 12:17:13 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux</span><br></pre></td></tr></table></figure><ol start="6"><li>删除旧内核</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">查看现有内核</span></span><br><span class="line">[root@dev-server-2 devuser]# rpm -qa | grep kernel</span><br><span class="line">kernel-tools-3.10.0-957.el7.x86_64</span><br><span class="line">kernel-headers-3.10.0-1062.1.1.el7.x86_64</span><br><span class="line">kernel-debuginfo-3.10.0-957.el7.x86_64</span><br><span class="line">kernel-tools-libs-3.10.0-957.el7.x86_64</span><br><span class="line">kernel-debuginfo-common-x86_64-3.10.0-957.el7.x86_64</span><br><span class="line">kernel-3.10.0-957.el7.x86_64</span><br><span class="line">kernel-ml-5.6.14-1.el7.elrepo.x86_64</span><br><span class="line"><span class="meta">#</span><span class="bash">删除旧的内核</span></span><br><span class="line">[root@dev-server-2 devuser]# yum remove ernel-tools-3.10.0-957.el7.x86_64 kernel-headers-3.10.0-1062.1.1.el7.x86_64 kernel-debuginfo-3.10.0-957.el7.x86_64 kernel-tools-libs-3.10.0-957.el7.x86_64 kernel-debuginfo-common-x86_64-3.10.0-957.el7.x86_64 kernel-3.10.0-957.el7.x86_64</span><br></pre></td></tr></table></figure><h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><p>通过升级内核重启后，问题目前没有再复现。但是否彻底解决该Bug待进一步跟进（至少不需要重装系统了）。</p><p>参考：</p><ol><li><a href="https://zhuanlan.zhihu.com/p/66895097" target="_blank" rel="noopener">诊断修复 TiDB Operator 在 K8s 测试中遇到的 Linux 内核问题</a></li><li><a href="https://www.cnblogs.com/xzkzzz/p/9627658.html" target="_blank" rel="noopener">Centos7 升级内核版本</a></li></ol>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;k8s集群运行过程中，经常出现节点上报出类似 “kernel:unregister_netdevice:waiting for vethxxx to become free. Usage count=1” 的错误信息，一方面影响交互，另一方面，对于有些操作比如 &lt;code&gt;docker stop&lt;/code&gt;，半天没有响应，处于hang住的状态。&lt;/p&gt;
     
     </summary>
     
