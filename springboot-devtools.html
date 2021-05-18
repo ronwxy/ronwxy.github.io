@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta name="renderer" content="webkit">
@@ -18,7 +16,9 @@
 
   <!-- 页面元数据 -->
   
-    <title>Tag: helm - 半路雨歌</title>
+    <title>Spring Boot（十四）：基于Devtools的热部署 - 半路雨歌</title>
+  
+    <meta name="keywords" content="java,springboot">
   
   
 
@@ -268,25 +268,12 @@
     <div class='body-wrapper'>
       
 
-
 <div class='l_main'>
   
-    
-      
-  <section class="post-list ">
-    
-      
-        
-          
-        
-      
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
+
   
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
 
 
   <section class='meta'>
@@ -296,11 +283,11 @@
       <div class="meta" id="header-meta">
         
           
-  <h2 class="title">
-    <a href="/k8s3-cd.html">
-      Kubernetes笔记（三）：Gitlab+Jenkins Pipeline+Docker+k8s+Helm自动化部署实践（干货！）
+  <h1 class="title">
+    <a href="/springboot-devtools.html">
+      Spring Boot（十四）：基于Devtools的热部署
     </a>
-  </h2>
+  </h1>
 
 
         
@@ -312,7 +299,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2020-05-09</p>
+    <p>2021-04-13</p>
   </a>
 </div>
 
@@ -322,27 +309,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/Kubernetes/' rel="nofollow">
+    <a href='/categories/SpringBoot/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Kubernetes</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>3.2k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>13 min</p>
+      <p>SpringBoot</p>
     </a>
   </div>
 
@@ -363,40 +332,261 @@
   </section>
 
 
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>通过前面两篇文章，我们已经有了一个“嗷嗷待哺”的K8s集群环境，也对相关的概念与组件有了一个基本了解（前期对概念有个印象即可，因为只有实践了才能对其有深入理解，所谓“纸上得来终觉浅，绝知此事要躬行”），本文从实践角度介绍如何结合我们常用的Gitlab与Jenkins，通过K8s来实现项目的自动化部署，示例将包括基于SpringBoot的服务端项目与基于Vue.js的Web项目。</p>
-      
-    </div>
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/springboot-devtools.html>http://blog.jboost.cn/springboot-devtools.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
     
       
-        <div class="button readmore">
-          <a href="/k8s3-cd.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-13T08:55:58+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021-04-13</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/springboot/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>springboot</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/springboot-devtools.html&title=Spring Boot（十四）：基于Devtools的热部署 - 半路雨歌&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/springboot-devtools.html&title=Spring Boot（十四）：基于Devtools的热部署 - 半路雨歌&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/springboot-devtools.html&title=Spring Boot（十四）：基于Devtools的热部署 - 半路雨歌&summary="
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAADA0lEQVR42u3aQXIbMQwEQP//08ndiUrAAIoFpXnT2rskm5cpgF+/jL+OLwRgwIABAwbMGZivcPzxwW/Pn/2uzv9wA+H3ns0DBgwYMGDAgLkHUw5Axf9/BPNwQUWI9ADK6wQDBgwYMGDAnIXpbqAcnJobjwPadD9gwIABAwYMmP8OZivoVQMdGDBgwIABAwbM9sTTAlPa0AMDBgwYMGDAgEkbadsXeKYB8sc7kWDAgAEDBgyYfwaz3eD66d/xfsCAAQMGDBgwZ2Cmo9oYqxakqkHsVQMMGDBgwIABcwcmDUjdwlE3KKaFqfH6wYABAwYMGDDnYNKG11ZArAbH6nvdIAoGDBgwYMCAuQuzXZCafu9ZYOv+vQwOBgwYMGDAgDkHMw1SWxeL0ve6cGDAgAEDBgyYz4F5FsDSgJUWqLahypBgwIABAwYMmDMw6UKrkGnQ2gJsHzQYMGDAgAED5hxM2ijbulhULiQVC13jhhsYMGDAgAED5u1hthYQL2SpUJYWrMCAAQMGDBgwd2G6H5w24qYHkc5fPkgwYMCAAQMGzDmYZx+sLjQtPKXBsHwhqBoQwYABAwYMGDBnYNKGVVoo2i6Ebc8DBgwYMGDAgLkDM73A86qGWNqom150AgMGDBgwYMDcg9m+gJMGyK3GWvfAwIABAwYMGDD3YNKAlQa2KkgXfNqgAwMGDBgwYMDchXlZA2v5+9ODeAoIBgwYMGDAgDkPkxaS0g1O5+s23uKABwYMGDBgwIB5e5itYNZ9nl4E6hbcHj4HAwYMGDBgwJyBmY6tjaYNta2GIBgwYMCAAQPmHsw0KE0DXVrAmhbIyg03MGDAgAEDBszbw3QDXffiTnVhaWHqZQEPDBgwYMCAAXMGJr0QVAXZKlylATXuRIIBAwYMGDBgPhamGqy6Qa+70fF7YMCAAQMGDBgwYUMtLUClhbByww0MGDBgwIAB8/YwaSGpC5cGs61GHRgwYMCAAQPmc2C2GlfTjXQD4nTdYMCAAQMGDJi7MAYYMGDAgAED5tj4DWRX5Q5fWrj0AAAAAElFTkSuQmCC">
+          </div>
         </div>
       
     
-  </section>
-</article>
+  </div>
+</div>
 
-          </div>
+
+
         
       
-    
+    </div>
   </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/mysql-i1.html'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>MySQL:Specified key was too long</p>
+                <p class='content'>距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。
+最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。
+
+
+
+问题
+
+某项目用到 xxl-job（一个开源的...</p>
+              </a>
+            
+            
+              <a class='next' href='/docker-14.html'>
+                <p class='title'>Docker笔记（十四）：Dockerfile最佳实践——多阶段构建<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Dockerfile 是一个用来构建镜像的文本文件，它包含了一条条指令，大部分指令都对应构建一层镜像。并且，我们构建镜像时，都需要基于一个基础镜像，通过 FROM 指令来引入。
+
+
+多阶段构建概...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
   
-    
-    <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
-    
-    
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
 
   
 
 
-    
-  
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Spring Boot（十四）：基于Devtools的热部署',
+      tools: true
+    }
+  </script>
+
+
 </div>
 <aside class='l_side'>
   
@@ -430,95 +620,7 @@
   
     
     
-  
 
-  <section class="widget category shadow desktop">
-    
-  <header>
-    
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span>
-    
-  </header>
-
-
-    <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/Architecture/" href="/categories/Architecture/"
-            id="categoriesArchitecture"
-            ><div class='name'>Architecture</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Career/" href="/categories/Career/"
-            id="categoriesCareer"
-            ><div class='name'>Career</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/DevOps/" href="/categories/DevOps/"
-            id="categoriesDevOps"
-            ><div class='name'>DevOps</div><div class='badge'>(15)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Docker/" href="/categories/Docker/"
-            id="categoriesDocker"
-            ><div class='name'>Docker</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Framework/" href="/categories/Framework/"
-            id="categoriesFramework"
-            ><div class='name'>Framework</div><div class='badge'>(3)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Java/" href="/categories/Java/"
-            id="categoriesJava"
-            ><div class='name'>Java</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Kubernetes/" href="/categories/Kubernetes/"
-            id="categoriesKubernetes"
-            ><div class='name'>Kubernetes</div><div class='badge'>(10)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/SpringBoot/" href="/categories/SpringBoot/"
-            id="categoriesSpringBoot"
-            ><div class='name'>SpringBoot</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/SpringCloud/" href="/categories/SpringCloud/"
-            id="categoriesSpringCloud"
-            ><div class='name'>SpringCloud</div><div class='badge'>(10)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Teamwork/" href="/categories/Teamwork/"
-            id="categoriesTeamwork"
-            ><div class='name'>Teamwork</div><div class='badge'>(3)</div></a></li>
-        
-      </ul>
-    </div>
-  </section>
-
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow desktop mobile">
-    
-  <header>
-    
-      <i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 21.78px; color: #646464">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px; color: #999">mysql</a> <a href="/tags/nacos/" style="font-size: 15.11px; color: #919191">nacos</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 22.89px; color: #5d5d5d">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/yapi/" style="font-size: 14px; color: #999">yapi</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
-    </div>
-  </section>
 
 
   
@@ -727,6 +829,60 @@ $(document).ready(function() {
 
 
 
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
 
 

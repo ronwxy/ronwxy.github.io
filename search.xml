@@ -4,6 +4,58 @@
   
     
     <entry>
+      <title>MySQL:Specified key was too long</title>
+      <link href="/mysql-i1.html"/>
+      <url>/mysql-i1.html</url>
+      
+        <content type="html"><![CDATA[<p>距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。</p><p>最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。</p><a id="more"></a><ol><li>问题</li></ol><p>某项目用到 xxl-job（一个开源的定时任务管理项目），其中有一个表其建表语句为</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`xxl_job_registry`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`registry_group`</span> <span class="built_in">varchar</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_key`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_value`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`update_time`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`i_g_k_v`</span> (<span class="string">`registry_group`</span>,<span class="string">`registry_key`</span>,<span class="string">`registry_value`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4;</span><br></pre></td></tr></table></figure><p>在本地测试环境部署项目创建表时没发现什么问题，上线时在线上数据库执行建表时报如下错 </p><p><code>Specified key was too long; max key length is 767 bytes</code></p><p>字面意思是指定的索引列太长，最大长度为 767 个字节。</p><ol start="2"><li>MySQL 索引列限制与字符编码</li></ol><p>通过查资料（其实就是B度 ‘Specified key was too long’）了解，MySQL 的 varchar 类型的索引列只支持不超过 767 个字节， 或者 768/2=384 个双字节， 或者 767/3=255 个三字节， 或者 767/4=191 个四字节 的字段。 </p><p>Mysql 不同编码字符对应的字节数如下表</p><table><thead><tr><th align="center">编码</th><th align="center">字符占的字节数</th><th align="center">汉字占的字符数</th><th align="center">说明</th></tr></thead><tbody><tr><td align="center">latin1</td><td align="center">1</td><td align="center">2</td><td align="center">varchar(100)，表明它可以存储 50 个汉字或者 100 个字母</td></tr><tr><td align="center">gbk</td><td align="center">2</td><td align="center">1</td><td align="center">varchar(100)，表明它可以存储 100 个汉字或者 100 个字母</td></tr><tr><td align="center">utf8</td><td align="center">3</td><td align="center">1</td><td align="center">varchar(100)，表明它可以存储 100 个汉字或者 100 个字母</td></tr><tr><td align="center">utf8mb4</td><td align="center">4</td><td align="center">1</td><td align="center">varchar(100)，表明它可以存储 100 个汉字或者 100 个字母</td></tr></tbody></table><p>其中 utf8mb4 通常用于需要存储 emoji 表情的场景，如微信那些乱七八糟的昵称。</p><p>前面表格使用的 utf8mb4 编码， 所以索引列最多只能 767/4=191 个字符，其中两列定义 255 个字符，因而报错。</p><p>事情到这里就完了吗？ 前面说在本地测试环境创建没出现什么问题，在线上数据库执行就报错，事情好像还没完。</p><p>莫非是测试数据库用的编码不一样？一样的建表语句指定编码，应该是一致的。可通过命令 <code>SHOW CREATE TABLE xxl_job_registry;</code> 确认。</p><ol start="3"><li>InnoDB 存储引擎索引列限制</li></ol><p>继续探索，发现 InnoDB 存储引擎对联合索引（多列索引）的限制为：每个列的长度不能大于 767 bytes，所有组成索引列的长度之和不能大于 3072 bytes。</p><p>这个限制可以通过 innodb_large_prefix 参数来修改，这个参数可设置的值及含义如下：</p><ul><li>ON: InnoDB 表的行记录格式是 Dynamic 或 Compressed 的前提下，单列索引及联合索引的总长度上限不能大于 3072 个字节</li><li>OFF: InnoDB 表的单例索引长度最多为 767 个字节，索引长度超出后，主键索引会创建失败，辅助索引会被截断成为前缀索引；联合索引总长度最大为 3072 个字节，且组成联合索引的各列最大长度为 767 个字节</li></ul><p>innodb_large_prefix 在 MySQL 5.7 默认为 ON， 在 MySQL 5.6 中默认为 OFF。</p><p>查看测试环境与线上环境数据库，版本皆为 5.7， 再查看 innodb_large_prefix 参数值，</p><p>  <code>show variables like &#39;innodb_large_prefix&#39;;</code></p><p>发现测试环境为 ON， 线上环境为 OFF。这就是为啥测试环境没问题，线上报错的原因！</p><ol start="4"><li>解决方案</li></ol><p>知道了问题的原因，如何来解决？ 结合场景考虑，至少有三种方案：</p><ol><li>减小字段长度，如将 registry_key， registry_value 都改为 varchar(191)。该方案限制了数据长度，可能对数据造成影响，不太妥。</li><li>将 innodb_large_prefix 设置为 ON，放开对单列的限制。该方案涉及到改线上库的配置，风险可能较大。</li><li>使用前缀索引，将联合索引的 registry_key， registry_value 字段只取前面 191 个字符作为索引列。该方案影响最小。</li></ol><p>于是将建表语句改为 </p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`xxl_job_registry`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`registry_group`</span> <span class="built_in">varchar</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_key`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_value`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`update_time`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`i_g_k_v`</span> (<span class="string">`registry_group`</span>,<span class="string">`registry_key`</span>(<span class="number">191</span>),<span class="string">`registry_value`</span>(<span class="number">191</span>))</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4;</span><br></pre></td></tr></table></figure><p>成功完成建表。</p><ol start="5"><li>总结</li></ol><p>就不凑字数了。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> DevOps </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> mysql </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Spring Boot（十四）：基于Devtools的热部署</title>
+      <link href="/springboot-devtools.html"/>
+      <url>/springboot-devtools.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> SpringBoot </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> java </tag>
+            
+            <tag> springboot </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Docker笔记（十四）：Dockerfile最佳实践——多阶段构建</title>
       <link href="/docker-14.html"/>
       <url>/docker-14.html</url>

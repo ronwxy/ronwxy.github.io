@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.jboost.cn/mysql-i1.html</loc>
+    
+    <lastmod>2021-05-18T11:05:07.542Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.jboost.cn/springboot-devtools.html</loc>
+    
+    <lastmod>2021-04-13T00:55:58.418Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.jboost.cn/docker-14.html</loc>
     
     <lastmod>2021-04-10T09:13:05.284Z</lastmod>

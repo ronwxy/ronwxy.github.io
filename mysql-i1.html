@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta name="renderer" content="webkit">
@@ -18,8 +16,13 @@
 
   <!-- 页面元数据 -->
   
-    <title>Tag: docker - 半路雨歌</title>
+    <title>MySQL:Specified key was too long - 半路雨歌</title>
   
+    <meta name="keywords" content="mysql">
+  
+  
+    <meta name="description" content="距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。
+最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。">
   
 
   <!-- feed -->
@@ -268,19 +271,12 @@
     <div class='body-wrapper'>
       
 
-
 <div class='l_main'>
   
-    
-      
-  <section class="post-list ">
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
+
   
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
 
 
   <section class='meta'>
@@ -290,11 +286,11 @@
       <div class="meta" id="header-meta">
         
           
-  <h2 class="title">
-    <a href="/docker-5.html">
-      Docker笔记（五）：整一个自己的镜像
+  <h1 class="title">
+    <a href="/mysql-i1.html">
+      MySQL:Specified key was too long
     </a>
-  </h2>
+  </h1>
 
 
         
@@ -306,7 +302,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-07-17</p>
+    <p>2021-05-18</p>
   </a>
 </div>
 
@@ -316,27 +312,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/Docker/' rel="nofollow">
+    <a href='/categories/DevOps/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Docker</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>7 min</p>
+      <p>DevOps</p>
     </a>
   </div>
 
@@ -357,459 +335,335 @@
   </section>
 
 
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>获取镜像的途径有两个，一是从镜像仓库获取，如官方的Docker Hub，二是自定义。上文已经介绍如何从镜像仓库获取镜像，本文基于一个Springboot项目，来介绍自定义一个镜像的基本流程。</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/docker-5.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。</p>
+<p>最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。</p>
+<a id="more"></a>
 
-          </div>
+<ol>
+<li>问题</li>
+</ol>
+<p>某项目用到 xxl-job（一个开源的定时任务管理项目），其中有一个表其建表语句为</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`xxl_job_registry`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`registry_group`</span> <span class="built_in">varchar</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_key`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_value`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`update_time`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`i_g_k_v`</span> (<span class="string">`registry_group`</span>,<span class="string">`registry_key`</span>,<span class="string">`registry_value`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4;</span><br></pre></td></tr></table></figure>
+
+<p>在本地测试环境部署项目创建表时没发现什么问题，上线时在线上数据库执行建表时报如下错 </p>
+<p><code>Specified key was too long; max key length is 767 bytes</code></p>
+<p>字面意思是指定的索引列太长，最大长度为 767 个字节。</p>
+<ol start="2">
+<li>MySQL 索引列限制与字符编码</li>
+</ol>
+<p>通过查资料（其实就是B度 ‘Specified key was too long’）了解，MySQL 的 varchar 类型的索引列只支持不超过 767 个字节， 或者 768/2=384 个双字节， 或者 767/3=255 个三字节， 或者 767/4=191 个四字节 的字段。 </p>
+<p>Mysql 不同编码字符对应的字节数如下表</p>
+<table>
+<thead>
+<tr>
+<th align="center">编码</th>
+<th align="center">字符占的字节数</th>
+<th align="center">汉字占的字符数</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">latin1</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">varchar(100)，表明它可以存储 50 个汉字或者 100 个字母</td>
+</tr>
+<tr>
+<td align="center">gbk</td>
+<td align="center">2</td>
+<td align="center">1</td>
+<td align="center">varchar(100)，表明它可以存储 100 个汉字或者 100 个字母</td>
+</tr>
+<tr>
+<td align="center">utf8</td>
+<td align="center">3</td>
+<td align="center">1</td>
+<td align="center">varchar(100)，表明它可以存储 100 个汉字或者 100 个字母</td>
+</tr>
+<tr>
+<td align="center">utf8mb4</td>
+<td align="center">4</td>
+<td align="center">1</td>
+<td align="center">varchar(100)，表明它可以存储 100 个汉字或者 100 个字母</td>
+</tr>
+</tbody></table>
+<p>其中 utf8mb4 通常用于需要存储 emoji 表情的场景，如微信那些乱七八糟的昵称。</p>
+<p>前面表格使用的 utf8mb4 编码， 所以索引列最多只能 767/4=191 个字符，其中两列定义 255 个字符，因而报错。</p>
+<p>事情到这里就完了吗？ 前面说在本地测试环境创建没出现什么问题，在线上数据库执行就报错，事情好像还没完。</p>
+<p>莫非是测试数据库用的编码不一样？一样的建表语句指定编码，应该是一致的。可通过命令 <code>SHOW CREATE TABLE xxl_job_registry;</code> 确认。</p>
+<ol start="3">
+<li>InnoDB 存储引擎索引列限制</li>
+</ol>
+<p>继续探索，发现 InnoDB 存储引擎对联合索引（多列索引）的限制为：每个列的长度不能大于 767 bytes，所有组成索引列的长度之和不能大于 3072 bytes。</p>
+<p>这个限制可以通过 innodb_large_prefix 参数来修改，这个参数可设置的值及含义如下：</p>
+<ul>
+<li>ON: InnoDB 表的行记录格式是 Dynamic 或 Compressed 的前提下，单列索引及联合索引的总长度上限不能大于 3072 个字节</li>
+<li>OFF: InnoDB 表的单例索引长度最多为 767 个字节，索引长度超出后，主键索引会创建失败，辅助索引会被截断成为前缀索引；联合索引总长度最大为 3072 个字节，且组成联合索引的各列最大长度为 767 个字节</li>
+</ul>
+<p>innodb_large_prefix 在 MySQL 5.7 默认为 ON， 在 MySQL 5.6 中默认为 OFF。</p>
+<p>查看测试环境与线上环境数据库，版本皆为 5.7， 再查看 innodb_large_prefix 参数值，</p>
+<p>  <code>show variables like &#39;innodb_large_prefix&#39;;</code></p>
+<p>发现测试环境为 ON， 线上环境为 OFF。这就是为啥测试环境没问题，线上报错的原因！</p>
+<ol start="4">
+<li>解决方案</li>
+</ol>
+<p>知道了问题的原因，如何来解决？ 结合场景考虑，至少有三种方案：</p>
+<ol>
+<li>减小字段长度，如将 registry_key， registry_value 都改为 varchar(191)。该方案限制了数据长度，可能对数据造成影响，不太妥。</li>
+<li>将 innodb_large_prefix 设置为 ON，放开对单列的限制。该方案涉及到改线上库的配置，风险可能较大。</li>
+<li>使用前缀索引，将联合索引的 registry_key， registry_value 字段只取前面 191 个字符作为索引列。该方案影响最小。</li>
+</ol>
+<p>于是将建表语句改为 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`xxl_job_registry`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`registry_group`</span> <span class="built_in">varchar</span>(<span class="number">50</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_key`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`registry_value`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`update_time`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`i_g_k_v`</span> (<span class="string">`registry_group`</span>,<span class="string">`registry_key`</span>(<span class="number">191</span>),<span class="string">`registry_value`</span>(<span class="number">191</span>))</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4;</span><br></pre></td></tr></table></figure>
+
+<p>成功完成建表。</p>
+<ol start="5">
+<li>总结</li>
+</ol>
+<p>就不凑字数了。</p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
         
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/mysql-i1.html>http://blog.jboost.cn/mysql-i1.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
       
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
         
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
   
 
 
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
+              
+            </div>
+          
+        </div>
         
           
-  <h2 class="title">
-    <a href="/docker-4.html">
-      Docker笔记（四）：Docker镜像管理
-    </a>
-  </h2>
 
 
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
         
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-05-18T19:05:07+08:00">
   <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-07-16</p>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021-05-18</p>
   </a>
 </div>
 
-            
+        
+      
+        
           
-            
-              
   
-  <div class='new-meta-item category'>
-    <a href='/categories/Docker/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Docker</p>
-    </a>
-  </div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/mysql/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>mysql</p></a></div>
 
 
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2.9k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>10 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
         
-          <hr>
+      
         
-      </div>
-    
-  </section>
+          
 
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
+        
       
-        <p>在Docker中，应用是通过容器来运行的，而容器的运行是基于镜像的，类似面向对象设计中类与对象的关系——没有类的定义就谈不上实例的创建与使用，没有镜像的定义就谈不上容器的创建与运行。</p>
-      
-    </div>
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
     
       
-        <div class="button readmore">
-          <a href="/docker-4.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/mysql-i1.html&title=MySQL:Specified key was too long - 半路雨歌&summary=距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。
+最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
       
     
-  </section>
-</article>
-
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/mysql-i1.html&title=MySQL:Specified key was too long - 半路雨歌&summary=距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。
+最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/mysql-i1.html&title=MySQL:Specified key was too long - 半路雨歌&summary=距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。
+最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACQklEQVR42u3bQXICMQwEwP3/p8kLKKSRIaBt31JZ1m7nIjTK9bjpusDBwcHBwRfBr3CVN3ryfLrf9Lzg4ODg4OAb4e+GxAXHE3j8eXBwcHBw8MXwagFRPUj6+e7+5efBwcHBwcHBr9OFS/dCwMHBwcHBwd9XwKRBATg4ODg4OHgOTwuNUwMG3cbGvyUp4ODg4ODgXwSfDtx9+udjA37g4ODg4OA/DJ+uVwfrPlf9fXxecHBwcHDwRfC0QEgP2g0KpkEFODg4ODj4neDVwP1UoTEFdi8aHBwcHBz8DvBuYZEG/NXA4lRjAhwcHBwcfCO8O3iXHuhT+z19Lzg4ODg4+CJ4tbFQDfzTBsW4MOkGCuDg4ODg4DeCdw9++uK6g4MvAwVwcHBwcPCF8GnDv/r5agOiG2zEBQw4ODg4OPgPwk+9MC1c3jXgV05SwMHBwcHBfxjebsgPC5W0wZA2RMDBwcHBwTfDp8H+qYJnemHlwAEcHBwcHHwxvLphF5ReTPW95T8UODg4ODj4Ynj5C/2hoKA7ADAurMDBwcHBwW8Mb3/xHxY8pwILcHBwcHDwjfDpusKVwtL9wcHBwcHBN8KnB682AqagY+8FBwcHBwdfCO8WLN2G/7ThcWoAARwcHBwcfDM8DQzSwiYNMOLBBHBwcHBwcPArLSDSYGAadICDg4ODg4Pn/6B3qmHxdQUMODg4ODj4F8HTRsKngoLxBYKDg4ODgy+EpwN+1Q2nQcGpxgc4ODg4OPgm+N0WODg4ODj4gvUHLoYCTHXErPwAAAAASUVORK5CYII=">
           </div>
-        
+        </div>
       
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
     
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/docker-3.html">
-      Docker笔记（三）：Docker安装与配置
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-07-14</p>
-  </a>
+  </div>
 </div>
 
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/Docker/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Docker</p>
-    </a>
-  </div>
 
 
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>2.2k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>8 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
         
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Docker分为Docker CE社区免费版与Docker EE企业收费版。Docker EE主要是在安全性及镜像、容器高级管理方面提供了一些额外的支持。对于中小型企业、团队或个人来说，用Docker CE即可。</p>
       
     </div>
-    
-      
-        <div class="button readmore">
-          <a href="/docker-3.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
   </section>
-</article>
 
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/springboot-devtools.html'>
+                <p class='title'>Spring Boot（十四）：基于Devtools的热部署<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'></p>
+              </a>
+            
           </div>
         
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
+      </section>
+    </article>
   
 
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/docker-2.html">
-      Docker笔记（二）：Docker管理的对象
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-07-14</p>
-  </a>
-</div>
-
-            
-          
-            
-              
   
-  <div class='new-meta-item category'>
-    <a href='/categories/Docker/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Docker</p>
-    </a>
-  </div>
+    <!-- 显示推荐文章和评论 -->
 
 
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.6k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>5 min</p>
-    </a>
-  </div>
 
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
       
-        <p>在<a href="/docker-1.html">Docker笔记（一）：什么是Docker</a>中，我们提到了Docker管理的对象包含镜像、容器、网络、数据卷等，本文就来介绍下这些对象及用途。</p>
       
-    </div>
-    
       
-        <div class="button readmore">
-          <a href="/docker-2.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
       
-    
-  </section>
-</article>
-
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
           </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
+        </section>
       
       
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/docker-1.html">
-      Docker笔记（一）：什么是Docker
-    </a>
-  </h2>
+    </section>
+  </article>
 
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2019-07-13</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/Docker/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>Docker</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-  <div class="new-meta-item wordcount">
-    <a class='notlink'>
-      <i class="fas fa-keyboard fa-fw" aria-hidden="true"></i>
-      <p>1.3k words</p>
-    </a>
-  </div>
-  <div class="new-meta-item readtime">
-    <a class='notlink'>
-      <i class="fas fa-hourglass-half fa-fw" aria-hidden="true"></i>
-      <p>4 min</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h2><p>接触Docker也有两年多了，断断续续玩过一些应用场景，如安装一些常用工具服务，部署业务项目，基于gitlab+jenkins pipeline+docker的CI/CD实现等。了解其基本知识与操作，但不能说深度掌握，故借此系列进行梳理与学习，也希望对有意学习Docker的人提供参考。</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/docker-1.html">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-    
-  </section>
-  
-    
-      <br>
-      <div class="prev-next">
-        
-          <a class="prev" rel="prev" href="/tags/docker/">
-            <section class="post prev white-box shadow" >
-              <i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;Previous&nbsp;
-            </section>
-          </a>
-        
-        <p class="current">
-          2 / 2
-        </p>
-        
-      </div>
-    
-    <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
-    
-    
 
   
 
 
-    
-  
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'MySQL:Specified key was too long',
+      tools: true
+    }
+  </script>
+
+
 </div>
 <aside class='l_side'>
   
@@ -843,95 +697,7 @@
   
     
     
-  
 
-  <section class="widget category shadow desktop">
-    
-  <header>
-    
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span>
-    
-  </header>
-
-
-    <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/Architecture/" href="/categories/Architecture/"
-            id="categoriesArchitecture"
-            ><div class='name'>Architecture</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Career/" href="/categories/Career/"
-            id="categoriesCareer"
-            ><div class='name'>Career</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/DevOps/" href="/categories/DevOps/"
-            id="categoriesDevOps"
-            ><div class='name'>DevOps</div><div class='badge'>(15)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Docker/" href="/categories/Docker/"
-            id="categoriesDocker"
-            ><div class='name'>Docker</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Framework/" href="/categories/Framework/"
-            id="categoriesFramework"
-            ><div class='name'>Framework</div><div class='badge'>(3)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Java/" href="/categories/Java/"
-            id="categoriesJava"
-            ><div class='name'>Java</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Kubernetes/" href="/categories/Kubernetes/"
-            id="categoriesKubernetes"
-            ><div class='name'>Kubernetes</div><div class='badge'>(10)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/SpringBoot/" href="/categories/SpringBoot/"
-            id="categoriesSpringBoot"
-            ><div class='name'>SpringBoot</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/SpringCloud/" href="/categories/SpringCloud/"
-            id="categoriesSpringCloud"
-            ><div class='name'>SpringCloud</div><div class='badge'>(10)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/Teamwork/" href="/categories/Teamwork/"
-            id="categoriesTeamwork"
-            ><div class='name'>Teamwork</div><div class='badge'>(3)</div></a></li>
-        
-      </ul>
-    </div>
-  </section>
-
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow desktop mobile">
-    
-  <header>
-    
-      <i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/RateLimiter/" style="font-size: 15.11px; color: #919191">RateLimiter</a> <a href="/tags/SpringCloud/" style="font-size: 19.56px; color: #737373">SpringCloud</a> <a href="/tags/agile/" style="font-size: 14px; color: #999">agile</a> <a href="/tags/ansible/" style="font-size: 15.11px; color: #919191">ansible</a> <a href="/tags/arch/" style="font-size: 15.11px; color: #919191">arch</a> <a href="/tags/concurrency/" style="font-size: 14px; color: #999">concurrency</a> <a href="/tags/cpu100/" style="font-size: 14px; color: #999">cpu100%</a> <a href="/tags/docker/" style="font-size: 21.78px; color: #646464">docker</a> <a href="/tags/elk/" style="font-size: 14px; color: #999">elk</a> <a href="/tags/git/" style="font-size: 16.22px; color: #8a8a8a">git</a> <a href="/tags/helm/" style="font-size: 14px; color: #999">helm</a> <a href="/tags/idea/" style="font-size: 14px; color: #999">idea</a> <a href="/tags/java/" style="font-size: 24px; color: #555">java</a> <a href="/tags/jenkins/" style="font-size: 14px; color: #999">jenkins</a> <a href="/tags/k8s/" style="font-size: 20.67px; color: #6c6c6c">k8s</a> <a href="/tags/kubernetes/" style="font-size: 18.44px; color: #7b7b7b">kubernetes</a> <a href="/tags/kvm/" style="font-size: 14px; color: #999">kvm</a> <a href="/tags/linux/" style="font-size: 15.11px; color: #919191">linux</a> <a href="/tags/log-pilot/" style="font-size: 14px; color: #999">log-pilot</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mybatis/" style="font-size: 14px; color: #999">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px; color: #999">mysql</a> <a href="/tags/nacos/" style="font-size: 15.11px; color: #919191">nacos</a> <a href="/tags/nginx/" style="font-size: 16.22px; color: #8a8a8a">nginx</a> <a href="/tags/node/" style="font-size: 14px; color: #999">node</a> <a href="/tags/npm/" style="font-size: 14px; color: #999">npm</a> <a href="/tags/redis/" style="font-size: 17.33px; color: #828282">redis</a> <a href="/tags/redission/" style="font-size: 14px; color: #999">redission</a> <a href="/tags/session/" style="font-size: 14px; color: #999">session</a> <a href="/tags/springboot/" style="font-size: 22.89px; color: #5d5d5d">springboot</a> <a href="/tags/swagger/" style="font-size: 14px; color: #999">swagger</a> <a href="/tags/threadpool/" style="font-size: 14px; color: #999">threadpool</a> <a href="/tags/tomcat/" style="font-size: 14px; color: #999">tomcat</a> <a href="/tags/vue/" style="font-size: 14px; color: #999">vue</a> <a href="/tags/web/" style="font-size: 14px; color: #999">web</a> <a href="/tags/yapi/" style="font-size: 14px; color: #999">yapi</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%99%90%E6%B5%81/" style="font-size: 14px; color: #999">限流</a>
-    </div>
-  </section>
 
 
   
@@ -1140,6 +906,60 @@ $(document).ready(function() {
 
 
 
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
 
 
