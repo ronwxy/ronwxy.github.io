@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.5'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Android同时上内外网方案探索 - 半路雨歌</title>
+  
+    <meta name="keywords" content="android">
+  
+  
+    <meta name="description" content="前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
+业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。">
+  
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="半路雨歌">
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  <!-- import link -->
+  
+
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  <script data-ad-client="ca-pub-3748140524379452" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+  
+  
+</head>
+
+<body>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+            半路雨歌
+          
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>首页
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/android-multi-network.html">
+      Android同时上内外网方案探索
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>2021-05-24</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/DevOps/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>DevOps</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <p>前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。</p>
+<p>业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。</p>
+<a id="more"></a>
+
+<p>即实现如下两种模式的网络拓扑：</p>
+<p>场景一：两主板直接通过网线互联，其中一个主板通过 WIFI 与本地局域网及互联网通信</p>
+<p><img src="/assets/android-wifi-internet.png" alt="WIFI上外网场景"></p>
+<p>场景二：两主板通过内置路由器互联，其中一个主板通过以太网与互联网通信，通过 WIFI 与本地局域网通信</p>
+<p><img src="/assets/android-ethernet-internet.png" alt="WIFI上外网场景"></p>
+<p>一开始，借鉴网上的方案 —— 大多是修改源码支持多网络共存，修改路由表支持同时上内外网。经过多次验证，发现单纯修改路由表虽然当时能解决上网问题，但是一旦网络出现变化，如关闭打开其中一个网络，或断开重新连接一个网络，路由表便会发生变化，导致无法按预期访问网络，表现不太稳定。经过一段时间的自行探索，及大量的测试验证，目前实现的方案表现较为稳定，现记录如下。</p>
+<p>说明：本文基于 Android 5.1，版本较低，对于高版本可能网络实现方式不同，不保证适配。</p>
+<h2 id="一-网络配置使用"><a href="#一-网络配置使用" class="headerlink" title="一. 网络配置使用"></a>一. 网络配置使用</h2><h3 id="1-功能特性"><a href="#1-功能特性" class="headerlink" title="1. 功能特性"></a>1. 功能特性</h3><ol>
+<li>提供了双网卡（WIFI 与以太网）同时上网支持，满足前文提到的两种网络拓扑需求</li>
+<li>支持默认网络的切换（默认网络即上外网的网络）</li>
+</ol>
+<h3 id="2-默认网络切换"><a href="#2-默认网络切换" class="headerlink" title="2. 默认网络切换"></a>2. 默认网络切换</h3><ol>
+<li>系统默认为WIFI上外网，以太网上内网的模式（该模式不需要额外内置路由器）</li>
+<li>修改文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 内容为 WIFI，重启系统，将切换为WIFI上外网，以太网上内网模式（APP可提供配置界面进行配置）</li>
+<li>修改文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 内容为 Ethernet，重启系统，将切换为以太网上外网，WIFI上内网模式（APP可提供配置界面进行配置）</li>
+<li>除WIFI，Ethernet外，暂不支持其它值</li>
+</ol>
+<h2 id="二-具体实现说明"><a href="#二-具体实现说明" class="headerlink" title="二. 具体实现说明"></a>二. 具体实现说明</h2><h3 id="1-支持多网络共存"><a href="#1-支持多网络共存" class="headerlink" title="1. 支持多网络共存"></a>1. 支持多网络共存</h3><p>Android 系统与 Windows 系统不太一样，针对移动场景下降低功耗的需求做了一些优化，在网络部分设计了评分机制（Android 5.1中 WIFI：60，以太网：150），当有高分网络可用时，就会释放低分网络的资源。所以默认情况下只有一个网络可用，可以通过修改源码解决多网络共存问题。 </p>
+<p>frameworks/base/services/core/java/com/android/server/ConnectivityService.java<br><img src="/assets/android-source-multinet.png" alt="Android多网络共存"></p>
+<h3 id="2-修改路由表"><a href="#2-修改路由表" class="headerlink" title="2. 修改路由表"></a>2. 修改路由表</h3><p>Android 系统的路由表规则较为复杂，路由表由系统自动生成，根据网络类型不同自动生成对应路由表，如以太网路由表，WIFI 路由表等。所以，即使以太网和 WIFI 可以共存，但是系统默认还是优先走优先级更高的路由表规则，我们需要修改优先级更高的路由表来支持内外网的同时访问。</p>
+<p>但是路由表是动态生成的，每次网络变化路由表也会随着动态变化，比如网络断开，之前存在的路由表项会默认被清掉，重连之后它不会自动添加我们之前添加的规则，需要再次手动添加。这时我们可以通过监测网络状态变化事件，动态修改路由表，但是该实现较为复杂，且稳定性也有待验证。</p>
+<p>Android 系统中的 main 路由表包含了各个网络路由表的路由规则（除了默认路由），并且能根据网络状态变化动态变化，满足我们的需要，所以我们只需要修改一下 main 路由表的优先级，把它调到最高就可以实现两个网段的访问。</p>
+<p>查看 main 路由表内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~]# ip route list table main</span><br><span class="line">10.168.200.0/24 dev eth0  proto kernel  scope link  src 10.168.200.136</span><br><span class="line">192.168.150.0/24 dev wlan0  proto kernel  scope link  src 192.168.150.230</span><br></pre></td></tr></table></figure>
+
+<p>将 main 路由表的优先级设置为9000:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3-制定脚本，开机执行修改路由表"><a href="#3-制定脚本，开机执行修改路由表" class="headerlink" title="3. 制定脚本，开机执行修改路由表"></a>3. 制定脚本，开机执行修改路由表</h3><p>以上命令在系统重启后就失效了，可以通过开机执行命令来解决。</p>
+<p>3.1 创建开机启动脚本 </p>
+<p>创建启动脚本文件： <code>device/rockchip/rk3288/mainroute.sh</code>，启动脚本内容如下： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/system/bin/sh</span></span><br><span class="line">echo "modify route table"</span><br><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure>
+
+<p>3.2 copy 启动脚本到 android 镜像</p>
+<p>修改 <code>device/rockchip/rk3288/device.mk</code>, 增加如下语句：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">mainroute</span></span><br><span class="line">PRODUCT_COPY_FILES += \</span><br><span class="line">        device/rockchip/rk3288/mainroute.sh:system/bin/mainroute.sh</span><br></pre></td></tr></table></figure>
+
+<p>3.3 增加启动语句</p>
+<p>修改 <code>device/rockchip/common/init.rk30board.rc</code> ，添加如下内容</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">service mainroute /system/bin/mainroute.sh</span><br><span class="line">   class main</span><br><span class="line">   user root</span><br><span class="line">   group root</span><br><span class="line">   disabled</span><br><span class="line">   oneshot</span><br><span class="line">on property:sys.boot_completed=1</span><br><span class="line">   start mainroute</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-修改切换默认网络规则"><a href="#4-修改切换默认网络规则" class="headerlink" title="4. 修改切换默认网络规则"></a>4. 修改切换默认网络规则</h3><p>main 路由表中只有 IP 网段的路由规则，如果需要访问外网，则需要将默认路由指定为能上外网的网卡，经过查看日志及验证，Android 5.1中默认路由由默认网络确定，即如果WIFI 为默认网络，则默认路由走 WIFI。而默认网络的切换是根据网络评分来的，参考源码如下：</p>
+<p><code>frameworks/base/services/core/java/com/android/server/ConnectivityService.java</code><br><img src="/assets/android-source-defaultnet.png" alt="Android默认网络判断"></p>
+<p>既然我们只需要支持固定的某个网卡上内网、某个网卡上外网的场景，则可以将其直接写定，而不根据网络评分（会动态变化）来评判。只需要将上外网的网络直接设定为默认网络即可达到目的，修改源码如下：</p>
+<p><code>frameworks/base/services/core/java/com/android/server/ConnectivityService.java</code><br><img src="/assets/android-source-changedefaultnet.png" alt="Android默认网络判断"></p>
+<p>在 <code>ConnectivityService</code> 初始化时从文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 读取默认网络配置，读取失败，则默认网络设置为 WIFI。<br>然后将默认网络切换的判断条件由评分高低改为是否为设置的默认网络<br><img src="/assets/android-source-changedefaultnet2.png" alt="Android默认网络判断"></p>
+<h2 id="三-相关命令参考"><a href="#三-相关命令参考" class="headerlink" title="三. 相关命令参考"></a>三. 相关命令参考</h2><ol>
+<li>列出路由策略（路由表列表）</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip rule list</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>打印路由表 eth0 的路由规则</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route list table eth0</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>将main路由的表的优先级设置为9000</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>查看某个IP访问的路由</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route get 47.110.189.28</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>查看DNS</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getprop |grep dns</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>添加dns</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setprop net.eth0.dns1 8.8.8.8</span><br><span class="line">setprop net.eth0.dns2 114.114.114.114</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>查询 eth0 配置</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getprop | grep eth0</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>往wlan0路由表中添加一条路由规则”10.0.200.0/24 dev eth0 proto static scope link”</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add 10.0.200.0/24 dev eth0 proto static scope link table wlan0</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li>获取内核日志</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dmesg &gt; dmesg.txt</span><br></pre></td></tr></table></figure>
+
+<ol start="10">
+<li>获取logcat日志</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb logcat -v time &gt; E:/android/logcat.txt</span><br></pre></td></tr></table></figure>
+
+<h2 id="四-总结"><a href="#四-总结" class="headerlink" title="四. 总结"></a>四. 总结</h2><p>本文介绍了一种 Android 系统下同时支持访问内外网的方案，经过测试验证，表现较为稳定，能满足文中提到的两种场景需求。但正如文章开头所说，研究 Android 属于“不务正业”，理解偏颇之处在所难免，且仅在 Android 5.1版本下验证过，仅供参考。</p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>作者：雨歌</p>
+
+          
+        
+          
+            <p>本文版权归作者所有，转载请明确注明出处</p>
+
+          
+        
+          
+            <p>本文链接：<a href=http://blog.jboost.cn/android-multi-network.html>http://blog.jboost.cn/android-multi-network.html</a></p>
+          
+        
+          
+            <p>如果觉得本文对你有帮助，请扫描下方二维码，关注作者公众号，感谢支持！</p>
+
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-05-26T17:51:12+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021-05-26</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/android/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>android</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/android-multi-network.html&title=Android同时上内外网方案探索 - 半路雨歌&summary=前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
+业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
+          
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/android-multi-network.html&title=Android同时上内外网方案探索 - 半路雨歌&summary=前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
+业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
+          
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/android-multi-network.html&title=Android同时上内外网方案探索 - 半路雨歌&summary=前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
+业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/weibo.png">
+          
+        </a>
+      
+    
+      
+        
+        <div class='hoverbox'>
+          <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAAC2UlEQVR42u3aW3ICMQwEQO5/aXKBUGuNBIXY9l/CPuzmZ2rE42n9ux4IwIABAwYMmDUwj3C9fPCLz0/vm3pPeh4wYMCAAQMGzD6Y4wAUXn+5oSHw7nnAgAEDBgwYMHthqgc4vb96XfX+sfOAAQMGDBgwYG4Lkwa+q+u6+wMDBgwYMGDAgKlenwbDLigYMGDAgAED5n4w5QFVWCSlB10ziQQDBgwYMGDAfAymO/j6tr/j84ABAwYMGDBg1sB0V7c46gbL5/ACAwYMGDBgwOyBSQPSKVQaFKvPH9s/GDBgwIABA2YtTFoQVYNf+sVU911+LhgwYMCAAQNmLUz1IF2QdID2rqIMDBgwYMCAAbMHZrqgqgat9HlTxRYYMGDAgAEDZj9MXOw0AboB8jTgnQY9MGDAgAEDBsw+mOoAa+og6fO7QGDAgAEDBgyY34GZHohVA2E6QKuu8sANDBgwYMCAAfP1MGkAOwXrDuY+VZyBAQMGDBgwYPbAdAuedOB1CtsdBJbfCwYMGDBgwIBZA3P1wtONpwXUNHj6fzBgwIABAwbMXpi06KkGqbQQSwdx1f2CAQMGDBgwYPbCvGt1A15aTJWDIxgwYMCAAQNmHUy38Ik3EgbKFOTyvWDAgAEDBgyYNTDxYCoES+9Pi6nqc8CAAQMGDBgw+2GmBm5pAEtB06ILDBgwYMCAAbMf5lOBq1tcVX9wdBoAwYABAwYMGDD7YaYGaWnxVT1oCgcGDBgwYMCA2QvTXSnUuwZ3KSQYMGDAgAEDZh/M2KDqS4qqNjwYMGDAgAEDZh1MNdBVg1v3fdUDggEDBgwYMGDuBzMVoKbh0uBXhQUDBgwYMGDAgEkHcN1BXfUcYMCAAQMGDBgwaTF0WjClga/8RYABAwYMGDBg1sJMbbj7Q59u8VT94RMYMGDAgAEDZi9Md0Pp4KxcJDX3e7k/MGDAgAEDBswaGAsMGDBgwIABs2z9AUV0ZY77KRJiAAAAAElFTkSuQmCC">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/mysql-i1.html'>
+                <p class='title'>MySQL:Specified key was too long<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。
+最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。
+
+
+
+问题
+
+某项目用到 xxl-job（一个开源的...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Android同时上内外网方案探索',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+<section class="widget qrcode shadow desktop mobile">
+  
+  <header>
+    
+      <i class="fab fa-weixin fa-fw" aria-hidden="true"></i><span class='name'>关注作者</span>
+    
+  </header>
+
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='/assets/qrcode-05.jpg'
+        
+          height='200px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一-网络配置使用"><span class="toc-text">一. 网络配置使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-功能特性"><span class="toc-text">1. 功能特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-默认网络切换"><span class="toc-text">2. 默认网络切换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二-具体实现说明"><span class="toc-text">二. 具体实现说明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-支持多网络共存"><span class="toc-text">1. 支持多网络共存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-修改路由表"><span class="toc-text">2. 修改路由表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-制定脚本，开机执行修改路由表"><span class="toc-text">3. 制定脚本，开机执行修改路由表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-修改切换默认网络规则"><span class="toc-text">4. 修改切换默认网络规则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三-相关命令参考"><span class="toc-text">三. 相关命令参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四-总结"><span class="toc-text">四. 总结</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/assets/qrcode-05.jpg"
+                class="social fab fa-weixin flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:ray4work@126.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/ronwxy"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme<span id="busuanzi_container_site_pv" style='display:none'>, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+          , total visitors
+          <span id="busuanzi_value_site_uv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times</span>
+        
+      
+    
+      
+        <div class='copyright'>
+        <p>Copyright@2019-2020 半路雨歌</p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>
+setLoadingBarProgress(80);
+$(document).ready(function() {
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var pvOffset = 25000;  // 初始化首次数据
+    var uvOffset = 12000;
+
+    function fixCount() {            
+        if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_uv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});  
+</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["assets/sea01.jpg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('') {
+          $('').backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "30000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "g1Ew6IgbqodabnGjq0nDI39n-gzGzoHsz",
+    appKey: "PhFNiYoBJ1Fge6n8stpsfggG",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.4/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("div.fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

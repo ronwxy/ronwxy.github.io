@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Android同时上内外网方案探索</title>
+      <link href="/android-multi-network.html"/>
+      <url>/android-multi-network.html</url>
+      
+        <content type="html"><![CDATA[<p>前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。</p><p>业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。</p><a id="more"></a><p>即实现如下两种模式的网络拓扑：</p><p>场景一：两主板直接通过网线互联，其中一个主板通过 WIFI 与本地局域网及互联网通信</p><p><img src="/assets/android-wifi-internet.png" alt="WIFI上外网场景"></p><p>场景二：两主板通过内置路由器互联，其中一个主板通过以太网与互联网通信，通过 WIFI 与本地局域网通信</p><p><img src="/assets/android-ethernet-internet.png" alt="WIFI上外网场景"></p><p>一开始，借鉴网上的方案 —— 大多是修改源码支持多网络共存，修改路由表支持同时上内外网。经过多次验证，发现单纯修改路由表虽然当时能解决上网问题，但是一旦网络出现变化，如关闭打开其中一个网络，或断开重新连接一个网络，路由表便会发生变化，导致无法按预期访问网络，表现不太稳定。经过一段时间的自行探索，及大量的测试验证，目前实现的方案表现较为稳定，现记录如下。</p><p>说明：本文基于 Android 5.1，版本较低，对于高版本可能网络实现方式不同，不保证适配。</p><h2 id="一-网络配置使用"><a href="#一-网络配置使用" class="headerlink" title="一. 网络配置使用"></a>一. 网络配置使用</h2><h3 id="1-功能特性"><a href="#1-功能特性" class="headerlink" title="1. 功能特性"></a>1. 功能特性</h3><ol><li>提供了双网卡（WIFI 与以太网）同时上网支持，满足前文提到的两种网络拓扑需求</li><li>支持默认网络的切换（默认网络即上外网的网络）</li></ol><h3 id="2-默认网络切换"><a href="#2-默认网络切换" class="headerlink" title="2. 默认网络切换"></a>2. 默认网络切换</h3><ol><li>系统默认为WIFI上外网，以太网上内网的模式（该模式不需要额外内置路由器）</li><li>修改文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 内容为 WIFI，重启系统，将切换为WIFI上外网，以太网上内网模式（APP可提供配置界面进行配置）</li><li>修改文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 内容为 Ethernet，重启系统，将切换为以太网上外网，WIFI上内网模式（APP可提供配置界面进行配置）</li><li>除WIFI，Ethernet外，暂不支持其它值</li></ol><h2 id="二-具体实现说明"><a href="#二-具体实现说明" class="headerlink" title="二. 具体实现说明"></a>二. 具体实现说明</h2><h3 id="1-支持多网络共存"><a href="#1-支持多网络共存" class="headerlink" title="1. 支持多网络共存"></a>1. 支持多网络共存</h3><p>Android 系统与 Windows 系统不太一样，针对移动场景下降低功耗的需求做了一些优化，在网络部分设计了评分机制（Android 5.1中 WIFI：60，以太网：150），当有高分网络可用时，就会释放低分网络的资源。所以默认情况下只有一个网络可用，可以通过修改源码解决多网络共存问题。 </p><p>frameworks/base/services/core/java/com/android/server/ConnectivityService.java<br><img src="/assets/android-source-multinet.png" alt="Android多网络共存"></p><h3 id="2-修改路由表"><a href="#2-修改路由表" class="headerlink" title="2. 修改路由表"></a>2. 修改路由表</h3><p>Android 系统的路由表规则较为复杂，路由表由系统自动生成，根据网络类型不同自动生成对应路由表，如以太网路由表，WIFI 路由表等。所以，即使以太网和 WIFI 可以共存，但是系统默认还是优先走优先级更高的路由表规则，我们需要修改优先级更高的路由表来支持内外网的同时访问。</p><p>但是路由表是动态生成的，每次网络变化路由表也会随着动态变化，比如网络断开，之前存在的路由表项会默认被清掉，重连之后它不会自动添加我们之前添加的规则，需要再次手动添加。这时我们可以通过监测网络状态变化事件，动态修改路由表，但是该实现较为复杂，且稳定性也有待验证。</p><p>Android 系统中的 main 路由表包含了各个网络路由表的路由规则（除了默认路由），并且能根据网络状态变化动态变化，满足我们的需要，所以我们只需要修改一下 main 路由表的优先级，把它调到最高就可以实现两个网段的访问。</p><p>查看 main 路由表内容：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~]# ip route list table main</span><br><span class="line">10.168.200.0/24 dev eth0  proto kernel  scope link  src 10.168.200.136</span><br><span class="line">192.168.150.0/24 dev wlan0  proto kernel  scope link  src 192.168.150.230</span><br></pre></td></tr></table></figure><p>将 main 路由表的优先级设置为9000:</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure><h3 id="3-制定脚本，开机执行修改路由表"><a href="#3-制定脚本，开机执行修改路由表" class="headerlink" title="3. 制定脚本，开机执行修改路由表"></a>3. 制定脚本，开机执行修改路由表</h3><p>以上命令在系统重启后就失效了，可以通过开机执行命令来解决。</p><p>3.1 创建开机启动脚本 </p><p>创建启动脚本文件： <code>device/rockchip/rk3288/mainroute.sh</code>，启动脚本内容如下： </p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/system/bin/sh</span></span><br><span class="line">echo "modify route table"</span><br><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure><p>3.2 copy 启动脚本到 android 镜像</p><p>修改 <code>device/rockchip/rk3288/device.mk</code>, 增加如下语句：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">mainroute</span></span><br><span class="line">PRODUCT_COPY_FILES += \</span><br><span class="line">        device/rockchip/rk3288/mainroute.sh:system/bin/mainroute.sh</span><br></pre></td></tr></table></figure><p>3.3 增加启动语句</p><p>修改 <code>device/rockchip/common/init.rk30board.rc</code> ，添加如下内容</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">service mainroute /system/bin/mainroute.sh</span><br><span class="line">   class main</span><br><span class="line">   user root</span><br><span class="line">   group root</span><br><span class="line">   disabled</span><br><span class="line">   oneshot</span><br><span class="line">on property:sys.boot_completed=1</span><br><span class="line">   start mainroute</span><br></pre></td></tr></table></figure><h3 id="4-修改切换默认网络规则"><a href="#4-修改切换默认网络规则" class="headerlink" title="4. 修改切换默认网络规则"></a>4. 修改切换默认网络规则</h3><p>main 路由表中只有 IP 网段的路由规则，如果需要访问外网，则需要将默认路由指定为能上外网的网卡，经过查看日志及验证，Android 5.1中默认路由由默认网络确定，即如果WIFI 为默认网络，则默认路由走 WIFI。而默认网络的切换是根据网络评分来的，参考源码如下：</p><p><code>frameworks/base/services/core/java/com/android/server/ConnectivityService.java</code><br><img src="/assets/android-source-defaultnet.png" alt="Android默认网络判断"></p><p>既然我们只需要支持固定的某个网卡上内网、某个网卡上外网的场景，则可以将其直接写定，而不根据网络评分（会动态变化）来评判。只需要将上外网的网络直接设定为默认网络即可达到目的，修改源码如下：</p><p><code>frameworks/base/services/core/java/com/android/server/ConnectivityService.java</code><br><img src="/assets/android-source-changedefaultnet.png" alt="Android默认网络判断"></p><p>在 <code>ConnectivityService</code> 初始化时从文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 读取默认网络配置，读取失败，则默认网络设置为 WIFI。<br>然后将默认网络切换的判断条件由评分高低改为是否为设置的默认网络<br><img src="/assets/android-source-changedefaultnet2.png" alt="Android默认网络判断"></p><h2 id="三-相关命令参考"><a href="#三-相关命令参考" class="headerlink" title="三. 相关命令参考"></a>三. 相关命令参考</h2><ol><li>列出路由策略（路由表列表）</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip rule list</span><br></pre></td></tr></table></figure><ol start="2"><li>打印路由表 eth0 的路由规则</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route list table eth0</span><br></pre></td></tr></table></figure><ol start="3"><li>将main路由的表的优先级设置为9000</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure><ol start="4"><li>查看某个IP访问的路由</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route get 47.110.189.28</span><br></pre></td></tr></table></figure><ol start="5"><li>查看DNS</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getprop |grep dns</span><br></pre></td></tr></table></figure><ol start="6"><li>添加dns</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setprop net.eth0.dns1 8.8.8.8</span><br><span class="line">setprop net.eth0.dns2 114.114.114.114</span><br></pre></td></tr></table></figure><ol start="7"><li>查询 eth0 配置</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getprop | grep eth0</span><br></pre></td></tr></table></figure><ol start="8"><li>往wlan0路由表中添加一条路由规则”10.0.200.0/24 dev eth0 proto static scope link”</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add 10.0.200.0/24 dev eth0 proto static scope link table wlan0</span><br></pre></td></tr></table></figure><ol start="9"><li>获取内核日志</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dmesg &gt; dmesg.txt</span><br></pre></td></tr></table></figure><ol start="10"><li>获取logcat日志</li></ol><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb logcat -v time &gt; E:/android/logcat.txt</span><br></pre></td></tr></table></figure><h2 id="四-总结"><a href="#四-总结" class="headerlink" title="四. 总结"></a>四. 总结</h2><p>本文介绍了一种 Android 系统下同时支持访问内外网的方案，经过测试验证，表现较为稳定，能满足文中提到的两种场景需求。但正如文章开头所说，研究 Android 属于“不务正业”，理解偏颇之处在所难免，且仅在 Android 5.1版本下验证过，仅供参考。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> DevOps </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> android </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>MySQL:Specified key was too long</title>
       <link href="/mysql-i1.html"/>
       <url>/mysql-i1.html</url>
@@ -45,9 +70,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -808,9 +833,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
             <tag> redis </tag>
             
@@ -1203,9 +1228,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -1503,9 +1528,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -1555,9 +1580,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -1809,9 +1834,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -1917,9 +1942,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
             <tag> logback </tag>
             
@@ -1971,9 +1996,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -2023,9 +2048,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -2150,9 +2175,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -2177,9 +2202,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -2204,9 +2229,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -2231,9 +2256,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -2258,9 +2283,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> springboot </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
