@@ -16,13 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>Android同时上内外网方案探索 - 半路雨歌</title>
+    <title>Kubernetes笔记（九）：kubeadm集群升级 - 半路雨歌</title>
   
-    <meta name="keywords" content="android">
+    <meta name="keywords" content="kubernetes,k8s">
   
   
-    <meta name="description" content="前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
-业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。">
+    <meta name="description" content="本文记录对使用 kubeadm 创建的 kubernetes 集群进行升级的过程。">
   
 
   <!-- feed -->
@@ -287,8 +286,8 @@
         
           
   <h1 class="title">
-    <a href="/android-multi-network.html">
-      Android同时上内外网方案探索
+    <a href="/k8s9-upgrade.html">
+      Kubernetes笔记（九）：kubeadm集群升级
     </a>
   </h1>
 
@@ -302,7 +301,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>2021-05-24</p>
+    <p>2021-11-12</p>
   </a>
 </div>
 
@@ -312,9 +311,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/DevOps/' rel="nofollow">
+    <a href='/categories/Kubernetes/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>DevOps</p>
+      <p>Kubernetes</p>
     </a>
   </div>
 
@@ -338,108 +337,86 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <p>前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。</p>
-<p>业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。</p>
+          <p>本文记录对使用 kubeadm 创建的 kubernetes 集群进行升级的过程。</p>
 <a id="more"></a>
 
-<p>即实现如下两种模式的网络拓扑：</p>
-<p>场景一：两主板直接通过网线互联，其中一个主板通过 WIFI 与本地局域网及互联网通信</p>
-<p><img src="/assets/android-wifi-internet.png" alt="WIFI上外网场景"></p>
-<p>场景二：两主板通过内置路由器互联，其中一个主板通过以太网与互联网通信，通过 WIFI 与本地局域网通信</p>
-<p><img src="/assets/android-ethernet-internet.png" alt="WIFI上外网场景"></p>
-<p>一开始，借鉴网上的方案 —— 大多是修改源码支持多网络共存，修改路由表支持同时上内外网。经过多次验证，发现单纯修改路由表虽然当时能解决上网问题，但是一旦网络出现变化，如关闭打开其中一个网络，或断开重新连接一个网络，路由表便会发生变化，导致无法按预期访问网络，表现不太稳定。经过一段时间的自行探索，及大量的测试验证，目前实现的方案表现较为稳定，现记录如下。</p>
-<p>说明：本文基于 Android 5.1，版本较低，对于高版本可能网络实现方式不同，不保证适配。</p>
-<h2 id="一-网络配置使用"><a href="#一-网络配置使用" class="headerlink" title="一. 网络配置使用"></a>一. 网络配置使用</h2><h3 id="1-功能特性"><a href="#1-功能特性" class="headerlink" title="1. 功能特性"></a>1. 功能特性</h3><ol>
-<li>提供了双网卡（WIFI 与以太网）同时上网支持，满足前文提到的两种网络拓扑需求</li>
-<li>支持默认网络的切换（默认网络即上外网的网络）</li>
+<p>升级流程为：</p>
+<ol>
+<li>升级一个 master node</li>
+<li>升级其它 master node</li>
+<li>升级 work node</li>
 </ol>
-<h3 id="2-默认网络切换"><a href="#2-默认网络切换" class="headerlink" title="2. 默认网络切换"></a>2. 默认网络切换</h3><ol>
-<li>系统默认为WIFI上外网，以太网上内网的模式（该模式不需要额外内置路由器）</li>
-<li>修改文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 内容为 WIFI，重启系统，将切换为WIFI上外网，以太网上内网模式（APP可提供配置界面进行配置）</li>
-<li>修改文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 内容为 Ethernet，重启系统，将切换为以太网上外网，WIFI上内网模式（APP可提供配置界面进行配置）</li>
-<li>除WIFI，Ethernet外，暂不支持其它值</li>
-</ol>
-<h2 id="二-具体实现说明"><a href="#二-具体实现说明" class="headerlink" title="二. 具体实现说明"></a>二. 具体实现说明</h2><h3 id="1-支持多网络共存"><a href="#1-支持多网络共存" class="headerlink" title="1. 支持多网络共存"></a>1. 支持多网络共存</h3><p>Android 系统与 Windows 系统不太一样，针对移动场景下降低功耗的需求做了一些优化，在网络部分设计了评分机制（Android 5.1中 WIFI：60，以太网：150），当有高分网络可用时，就会释放低分网络的资源。所以默认情况下只有一个网络可用，可以通过修改源码解决多网络共存问题。 </p>
-<p>frameworks/base/services/core/java/com/android/server/ConnectivityService.java<br><img src="/assets/android-source-multinet.png" alt="Android多网络共存"></p>
-<h3 id="2-修改路由表"><a href="#2-修改路由表" class="headerlink" title="2. 修改路由表"></a>2. 修改路由表</h3><p>Android 系统的路由表规则较为复杂，路由表由系统自动生成，根据网络类型不同自动生成对应路由表，如以太网路由表，WIFI 路由表等。所以，即使以太网和 WIFI 可以共存，但是系统默认还是优先走优先级更高的路由表规则，我们需要修改优先级更高的路由表来支持内外网的同时访问。</p>
-<p>但是路由表是动态生成的，每次网络变化路由表也会随着动态变化，比如网络断开，之前存在的路由表项会默认被清掉，重连之后它不会自动添加我们之前添加的规则，需要再次手动添加。这时我们可以通过监测网络状态变化事件，动态修改路由表，但是该实现较为复杂，且稳定性也有待验证。</p>
-<p>Android 系统中的 main 路由表包含了各个网络路由表的路由规则（除了默认路由），并且能根据网络状态变化动态变化，满足我们的需要，所以我们只需要修改一下 main 路由表的优先级，把它调到最高就可以实现两个网段的访问。</p>
-<p>查看 main 路由表内容：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~]# ip route list table main</span><br><span class="line">10.168.200.0/24 dev eth0  proto kernel  scope link  src 10.168.200.136</span><br><span class="line">192.168.150.0/24 dev wlan0  proto kernel  scope link  src 192.168.150.230</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p> <strong>说明：</strong> 升级时，只能从一个次版本升级到下一个次版本，或者同一个次版本的补丁版，无法跳版本升级。 比如，只能从 1.16 升级到 1.17，或从1.16.10-0升级到1.16.12-0，不能从1.16直接升级到1.18。</p>
+</blockquote>
+<blockquote>
+<p><strong>说明：</strong> 升级完成后，因为容器 spec 的哈希值被更改，所有的容器都会重新启动。</p>
+</blockquote>
+<p>以下以 1.16 升级到 1.17 为例，其它更高版本的升级流程类似。</p>
+<h3 id="1-升级一个-master-node"><a href="#1-升级一个-master-node" class="headerlink" title="1. 升级一个 master node"></a>1. 升级一个 master node</h3><p>1） 查看可用的 kubeadm 版本，在版本中找到 1.17 最新的补丁版，比如 1.17.17-0</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Centos</span></span><br><span class="line">yum list --showduplicates kubeadm --disableexcludes=kubernetes</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Ubuntu</span></span><br><span class="line">apt update</span><br><span class="line">apt-cache policy kubeadm</span><br></pre></td></tr></table></figure>
 
-<p>将 main 路由表的优先级设置为9000:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure>
+<p>2） 安装升级新版的 kubeadm</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Centos</span></span><br><span class="line">yum install -y kubeadm-1.17.17-0 --disableexcludes=kubernetes</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Ubuntu</span></span><br><span class="line">apt-mark unhold kubeadm &amp;&amp; \</span><br><span class="line">apt-get update &amp;&amp; apt-get install -y kubeadm=1.17.17-0 &amp;&amp; \</span><br><span class="line">apt-mark hold kubeadm</span><br></pre></td></tr></table></figure>
 
+<p>3） 查看验证 kubeadm 版本，确认是否正确</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubeadm version</span><br><span class="line">kubeadm version: &amp;version.Info&#123;Major:"1", Minor:"17", GitVersion:"v1.17.17", GitCommit:"f3abc15296f3a3f54e4ee42e830c61047b13895f", GitTreeState:"clean", BuildDate:"2021-01-13T13:18:52Z", GoVersion:"go1.13.15", Compiler:"gc", Platform:"linux/amd64"&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="3-制定脚本，开机执行修改路由表"><a href="#3-制定脚本，开机执行修改路由表" class="headerlink" title="3. 制定脚本，开机执行修改路由表"></a>3. 制定脚本，开机执行修改路由表</h3><p>以上命令在系统重启后就失效了，可以通过开机执行命令来解决。</p>
-<p>3.1 创建开机启动脚本 </p>
-<p>创建启动脚本文件： <code>device/rockchip/rk3288/mainroute.sh</code>，启动脚本内容如下： </p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/system/bin/sh</span></span><br><span class="line">echo "modify route table"</span><br><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure>
+<p>4） 检查集群是否可升级</p>
+<p>执行如下命令，将看到执行结果的最后显示可以执行 <code>kubeadm upgrade apply v1.17.17</code> 命令来升级</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm upgrade plan</span><br></pre></td></tr></table></figure>
+<p>5） 执行 kubeadm 升级</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm upgrade apply v1.17.17</span><br></pre></td></tr></table></figure>
 
-<p>3.2 copy 启动脚本到 android 镜像</p>
-<p>修改 <code>device/rockchip/rk3288/device.mk</code>, 增加如下语句：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">mainroute</span></span><br><span class="line">PRODUCT_COPY_FILES += \</span><br><span class="line">        device/rockchip/rk3288/mainroute.sh:system/bin/mainroute.sh</span><br></pre></td></tr></table></figure>
+<p>6） 标记当前节点为不可调度，驱逐其上所有的 Pod，便于升级 kubelet</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl drain kmaster --ignore-daemonsets</span><br><span class="line"></span><br><span class="line">[root@kmaster ~]# kubectl get node </span><br><span class="line">NAME      STATUS                     ROLES    AGE    VERSION</span><br><span class="line">kmaster   Ready,SchedulingDisabled   master   569d   v1.16.0</span><br><span class="line">knode1    Ready                      &lt;none&gt;   569d   v1.16.0</span><br><span class="line">knode2    Ready                      &lt;none&gt;   569d   v1.16.0</span><br><span class="line">knode3    Ready                      &lt;none&gt;   569d   v1.16.0</span><br></pre></td></tr></table></figure>
+<p>7） 升级 kubelet 和 kubectl </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> CentOS</span></span><br><span class="line">yum install -y kubelet-1.17.17-0 kubectl-1.17.17-0 --disableexcludes=kubernetes</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Ubuntu</span></span><br><span class="line">apt-mark unhold kubelet kubectl &amp;&amp; \</span><br><span class="line">apt-get update &amp;&amp; apt-get install -y kubelet=1.17.17-0 kubectl=1.17.17-0 &amp;&amp; \</span><br><span class="line">apt-mark hold kubelet kubectl</span><br></pre></td></tr></table></figure>
 
-<p>3.3 增加启动语句</p>
-<p>修改 <code>device/rockchip/common/init.rk30board.rc</code> ，添加如下内容</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">service mainroute /system/bin/mainroute.sh</span><br><span class="line">   class main</span><br><span class="line">   user root</span><br><span class="line">   group root</span><br><span class="line">   disabled</span><br><span class="line">   oneshot</span><br><span class="line">on property:sys.boot_completed=1</span><br><span class="line">   start mainroute</span><br></pre></td></tr></table></figure>
+<p>8） 重启 kubelet</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
 
-<h3 id="4-修改切换默认网络规则"><a href="#4-修改切换默认网络规则" class="headerlink" title="4. 修改切换默认网络规则"></a>4. 修改切换默认网络规则</h3><p>main 路由表中只有 IP 网段的路由规则，如果需要访问外网，则需要将默认路由指定为能上外网的网卡，经过查看日志及验证，Android 5.1中默认路由由默认网络确定，即如果WIFI 为默认网络，则默认路由走 WIFI。而默认网络的切换是根据网络评分来的，参考源码如下：</p>
-<p><code>frameworks/base/services/core/java/com/android/server/ConnectivityService.java</code><br><img src="/assets/android-source-defaultnet.png" alt="Android默认网络判断"></p>
-<p>既然我们只需要支持固定的某个网卡上内网、某个网卡上外网的场景，则可以将其直接写定，而不根据网络评分（会动态变化）来评判。只需要将上外网的网络直接设定为默认网络即可达到目的，修改源码如下：</p>
-<p><code>frameworks/base/services/core/java/com/android/server/ConnectivityService.java</code><br><img src="/assets/android-source-changedefaultnet.png" alt="Android默认网络判断"></p>
-<p>在 <code>ConnectivityService</code> 初始化时从文件 <code>/data/data/com.android.launcher3/default_network.txt</code> 读取默认网络配置，读取失败，则默认网络设置为 WIFI。<br>然后将默认网络切换的判断条件由评分高低改为是否为设置的默认网络<br><img src="/assets/android-source-changedefaultnet2.png" alt="Android默认网络判断"></p>
-<h2 id="三-相关命令参考"><a href="#三-相关命令参考" class="headerlink" title="三. 相关命令参考"></a>三. 相关命令参考</h2><ol>
-<li>列出路由策略（路由表列表）</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip rule list</span><br></pre></td></tr></table></figure>
+<p>9） 恢复节点的调度</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl uncordon kmaster</span><br><span class="line">node/kmaster uncordoned</span><br></pre></td></tr></table></figure>
 
-<ol start="2">
-<li>打印路由表 eth0 的路由规则</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route list table eth0</span><br></pre></td></tr></table></figure>
+<p>10） 验证升级是否成功</p>
+<p>这是查看 master node 的版本已经更新完成</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl get node</span><br><span class="line">NAME      STATUS   ROLES    AGE    VERSION</span><br><span class="line">kmaster   Ready    master   569d   v1.17.17</span><br><span class="line">knode1    Ready    &lt;none&gt;   569d   v1.16.0</span><br><span class="line">knode2    Ready    &lt;none&gt;   569d   v1.16.0</span><br><span class="line">knode3    Ready    &lt;none&gt;   569d   v1.16.0</span><br></pre></td></tr></table></figure>
 
-<ol start="3">
-<li>将main路由的表的优先级设置为9000</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">busybox ip rule add from all lookup main pref 9000</span><br></pre></td></tr></table></figure>
+<h3 id="2-升级其它-master-node"><a href="#2-升级其它-master-node" class="headerlink" title="2. 升级其它 master node"></a>2. 升级其它 master node</h3><p>直接运行如下命令即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm upgrade node experimental-control-plane</span><br></pre></td></tr></table></figure>
 
-<ol start="4">
-<li>查看某个IP访问的路由</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route get 47.110.189.28</span><br></pre></td></tr></table></figure>
+<h3 id="3-升级-work-node"><a href="#3-升级-work-node" class="headerlink" title="3. 升级 work node"></a>3. 升级 work node</h3><p>work node 最好一个一个节点升级，或者一次执行几个节点，不影响到现有业务的服务能力为宜。</p>
+<p>1） 升级 kubeadm</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> CentOS</span></span><br><span class="line">yum install -y kubeadm-1.17.17-0 --disableexcludes=kubernetes</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Ubuntu</span></span><br><span class="line">apt-mark unhold kubeadm &amp;&amp; \</span><br><span class="line">apt-get update &amp;&amp; apt-get install -y kubeadm=1.17.17-0 &amp;&amp; \</span><br><span class="line">apt-mark hold kubeadm</span><br></pre></td></tr></table></figure>
 
-<ol start="5">
-<li>查看DNS</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getprop |grep dns</span><br></pre></td></tr></table></figure>
+<p>2） 升级 kubelet 配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm upgrade node --kubelet-version v1.17.17</span><br></pre></td></tr></table></figure>
 
-<ol start="6">
-<li>添加dns</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setprop net.eth0.dns1 8.8.8.8</span><br><span class="line">setprop net.eth0.dns2 114.114.114.114</span><br></pre></td></tr></table></figure>
+<p>3） 将节点标记为不可调度，并驱逐其上的 Pod</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl drain $NODENAME --ignore-daemonsets</span><br></pre></td></tr></table></figure>
 
-<ol start="7">
-<li>查询 eth0 配置</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getprop | grep eth0</span><br></pre></td></tr></table></figure>
+<p>4） 升级 kubelet 与 kubectl</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> CentOS</span></span><br><span class="line">yum install -y kubelet-1.17.17-0 kubectl-1.17.17-0 --disableexcludes=kubernetes</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> Ubuntu</span></span><br><span class="line">apt-mark unhold kubelet kubectl &amp;&amp; \</span><br><span class="line">apt-get update &amp;&amp; apt-get install -y kubelet=1.17.17-0 kubectl=1.17.17-0 &amp;&amp; \</span><br><span class="line">apt-mark hold kubelet kubectl</span><br></pre></td></tr></table></figure>
+<p>5） 重启 kubelet</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
 
-<ol start="8">
-<li>往wlan0路由表中添加一条路由规则”10.0.200.0/24 dev eth0 proto static scope link”</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add 10.0.200.0/24 dev eth0 proto static scope link table wlan0</span><br></pre></td></tr></table></figure>
+<p>6） 将节点恢复调度</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl uncordon $NODENAME</span><br></pre></td></tr></table></figure>
+<h3 id="4-验证与恢复"><a href="#4-验证与恢复" class="headerlink" title="4. 验证与恢复"></a>4. 验证与恢复</h3><p>所有节点升级完成后，验证集群状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# kubectl get node</span><br><span class="line">NAME      STATUS   ROLES    AGE    VERSION</span><br><span class="line">kmaster   Ready    master   569d   v1.17.17</span><br><span class="line">knode1    Ready    &lt;none&gt;   569d   v1.17.17</span><br><span class="line">knode2    Ready    &lt;none&gt;   569d   v1.17.17</span><br><span class="line">knode3    Ready    &lt;none&gt;   569d   v1.17.17</span><br></pre></td></tr></table></figure>
 
-<ol start="9">
-<li>获取内核日志</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dmesg &gt; dmesg.txt</span><br></pre></td></tr></table></figure>
+<p>如果 kubeadm upgrade 失败并且没有回滚，例如由于执行期间意外关闭，您可以再次运行 <code>kubeadm upgrade</code> 命令，此命令是幂等的，并最终确保实际状态是你声明的所需状态。要从故障状态恢复，您还可以运行 <code>kubeadm upgrade --force</code> 而不去更改集群正在运行的版本。</p>
+<p>在 master node 升级期间，kubeadm 会向 /etc/kubernetes/tmp 目录写入备份数据：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@kmaster ~]# ll /etc/kubernetes/tmp</span><br><span class="line">total 0</span><br><span class="line">drwx------ 3 root root  18 Nov 12 15:39 kubeadm-backup-etcd-2021-11-12-15-39-52</span><br><span class="line">drwx------ 2 root root 113 Nov 12 15:45 kubeadm-backup-manifests-2021-11-12-15-39-52</span><br></pre></td></tr></table></figure>
+<p>其中 kubeadm-backup-etcd-xxx 包含当前 master node 本地 etcd 成员数据的备份。 如果 etcd 升级失败并且无法自动回滚，则可以将此文件夹中的内容复制到 /var/lib/etcd 进行手工修复。如果使用的是外部的 etcd，则此备份文件夹为空。</p>
+<p>kubeadm-backup-manifests-xxx 包含当前 master node 上的静态 Pod 清单文件的备份版本。 如果升级失败并且无法自动回滚，则可将此文件夹中的内容复制到 /etc/kubernetes/manifests 目录实现手工恢复。 </p>
+<h3 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h3><p>本文介绍了使用 Kubeadm 创建的 k8s 集群升级的过程，适用于 1.16 到 1.17 的升级，其它版本的升级大同小异，具体可参考 <a href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/" target="_blank" rel="noopener">官方文档</a>。需要注意的是 k8s 只能逐级升级，不能跨级升级，且升级前，最好做好相关备份。</p>
+<p>本文中使用的 kubectl 命令汇总：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看集群节点信息，添加 -o wide 后可显示节点IP，内核版本等额外信息</span></span><br><span class="line">kubectl get node  </span><br><span class="line"><span class="meta">#</span><span class="bash"> 标记节点为不可调度，并驱逐其上的所有 Pod，--ignore-daemonsets 表示忽略 DaemonSet 管理的 Pod</span></span><br><span class="line">kubectl drain &lt;node-name&gt; --ignore-daemonsets</span><br><span class="line"><span class="meta">#</span><span class="bash"> 解除节点的不可调度状态</span></span><br><span class="line">kubectl uncordon &lt;node-name&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 另一个相关命令，标记节点为不可调度，但不驱逐其上的 Pod</span></span><br><span class="line">kubectl cordon &lt;node-name&gt;</span><br></pre></td></tr></table></figure>
 
-<ol start="10">
-<li>获取logcat日志</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb logcat -v time &gt; E:/android/logcat.txt</span><br></pre></td></tr></table></figure>
-
-<h2 id="四-总结"><a href="#四-总结" class="headerlink" title="四. 总结"></a>四. 总结</h2><p>本文介绍了一种 Android 系统下同时支持访问内外网的方案，经过测试验证，表现较为稳定，能满足文中提到的两种场景需求。但正如文章开头所说，研究 Android 属于“不务正业”，理解偏颇之处在所难免，且仅在 Android 5.1版本下验证过，仅供参考。</p>
+<p>————————————————————————————————————————</p>
+<p><img src="/assets/qrcode-05.jpg" alt="微信公众号"><br>欢迎关注我的微信公众号，及时获取最新分享</p>
 
           
             <div class='article_footer'>
@@ -481,7 +458,7 @@
           
         
           
-            <p>本文链接：<a href=http://blog.jboost.cn/android-multi-network.html>http://blog.jboost.cn/android-multi-network.html</a></p>
+            <p>本文链接：<a href=http://blog.jboost.cn/k8s9-upgrade.html>http://blog.jboost.cn/k8s9-upgrade.html</a></p>
           
         
           
@@ -536,10 +513,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-05-26T17:51:12+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-11-12T18:13:38+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：2021-05-26</p>
+    <p>更新于：2021-11-12</p>
   </a>
 </div>
 
@@ -548,7 +525,7 @@
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/android/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>android</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/kubernetes/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>kubernetes</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/k8s/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>k8s</p></a></div>
 
 
         
@@ -566,8 +543,7 @@
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer"
           
-          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/android-multi-network.html&title=Android同时上内外网方案探索 - 半路雨歌&summary=前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
-业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。"
+          href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.jboost.cn/k8s9-upgrade.html&title=Kubernetes笔记（九）：kubeadm集群升级 - 半路雨歌&summary=本文记录对使用 kubeadm 创建的 kubernetes 集群进行升级的过程。"
           
           >
           
@@ -579,8 +555,7 @@
       
         <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer"
           
-          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/android-multi-network.html&title=Android同时上内外网方案探索 - 半路雨歌&summary=前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
-业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。"
+          href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://blog.jboost.cn/k8s9-upgrade.html&title=Kubernetes笔记（九）：kubeadm集群升级 - 半路雨歌&summary=本文记录对使用 kubeadm 创建的 kubernetes 集群进行升级的过程。"
           
           >
           
@@ -592,8 +567,7 @@
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer"
           
-          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/android-multi-network.html&title=Android同时上内外网方案探索 - 半路雨歌&summary=前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
-业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局域网或互联网）。"
+          href="http://service.weibo.com/share/share.php?url=http://blog.jboost.cn/k8s9-upgrade.html&title=Kubernetes笔记（九）：kubeadm集群升级 - 半路雨歌&summary=本文记录对使用 kubeadm 创建的 kubernetes 集群进行升级的过程。"
           
           >
           
@@ -607,7 +581,7 @@
         <div class='hoverbox'>
           <a><img src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/logo/128/wechat.png"></a>
           <div class='target'>
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAEYCAAAAACi5bZQAAAC2UlEQVR42u3aW3ICMQwEQO5/aXKBUGuNBIXY9l/CPuzmZ2rE42n9ux4IwIABAwYMmDUwj3C9fPCLz0/vm3pPeh4wYMCAAQMGzD6Y4wAUXn+5oSHw7nnAgAEDBgwYMHthqgc4vb96XfX+sfOAAQMGDBgwYG4Lkwa+q+u6+wMDBgwYMGDAgKlenwbDLigYMGDAgAED5n4w5QFVWCSlB10ziQQDBgwYMGDAfAymO/j6tr/j84ABAwYMGDBg1sB0V7c46gbL5/ACAwYMGDBgwOyBSQPSKVQaFKvPH9s/GDBgwIABA2YtTFoQVYNf+sVU911+LhgwYMCAAQNmLUz1IF2QdID2rqIMDBgwYMCAAbMHZrqgqgat9HlTxRYYMGDAgAEDZj9MXOw0AboB8jTgnQY9MGDAgAEDBsw+mOoAa+og6fO7QGDAgAEDBgyY34GZHohVA2E6QKuu8sANDBgwYMCAAfP1MGkAOwXrDuY+VZyBAQMGDBgwYPbAdAuedOB1CtsdBJbfCwYMGDBgwIBZA3P1wtONpwXUNHj6fzBgwIABAwbMXpi06KkGqbQQSwdx1f2CAQMGDBgwYPbCvGt1A15aTJWDIxgwYMCAAQNmHUy38Ik3EgbKFOTyvWDAgAEDBgyYNTDxYCoES+9Pi6nqc8CAAQMGDBgw+2GmBm5pAEtB06ILDBgwYMCAAbMf5lOBq1tcVX9wdBoAwYABAwYMGDD7YaYGaWnxVT1oCgcGDBgwYMCA2QvTXSnUuwZ3KSQYMGDAgAEDZh/M2KDqS4qqNjwYMGDAgAEDZh1MNdBVg1v3fdUDggEDBgwYMGDuBzMVoKbh0uBXhQUDBgwYMGDAgEkHcN1BXfUcYMCAAQMGDBgwaTF0WjClga/8RYABAwYMGDBg1sJMbbj7Q59u8VT94RMYMGDAgAEDZi9Md0Pp4KxcJDX3e7k/MGDAgAEDBswaGAsMGDBgwIABs2z9AUV0ZY77KRJiAAAAAElFTkSuQmCC">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPgAAAD4CAAAAADkunTXAAACPElEQVR42u3dO27DQAwFQN3/0knvFOJvDYUadQbWEGerZ5KAr5+XPhc4ODg4OPgi+FV8Pr//5wXB89X3lesFBwcHBwdfCA8HgGAhxwJIt15wcHBwcPDF8G5gyRYcDThT9YKDg4ODg4Pnz98FnOw5cHBwcHBw8LkAMz2gmL54cHBwcHDwN8CrDf0sqNrYeMwkBRwcHBwc/EHwbuD49udyveDg4ODg4IvgUwt30cAy1fAo1wsODg4ODr4Inm0YVAf32QBSbYTcOsDBwcHBwRfBpwvKBpmpBYP0QAEcHBwcHHwRPFtAtuGQDSTH6gEHBwcHB18E7xYWLfzUuXRjBBwcHBwc/MXwqfNTDYvs98HBwcHBwd8ArzYYsosF3cXA9IADHBwcHBx8EXwqeGQvIPue6AXeXiw4ODg4OPhieLXxEA0m1aCSXfALb0SAg4ODg4MvgHcbAacHBFOLheDg4ODg4Bvh6R/0wUK6DYnoAkL4QsDBwcHBwRfBq42HagDqBpxqoAEHBwcHB98In3qmAsmpRQNwcHBwcPDN8KkGxLcW9rKLAuDg4ODg4JvhU8ElCusOBsqDEHBwcHBw8EXwbkA4NWCYWki4naSAg4ODg4MvgHcHB1MXMrWoAA4ODg4O/kZ4t3EQhWUHEWOBChwcHBwcHLx9EV1QtT5wcHBwcHDw838Ak21AhOsFBwcHBwdfDJ8qqBww/stiADg4ODg4+IPg3QZBNKBUL6474AAHBwcHB98If9sDDg4ODg6+4PkFGQnCffzEAb0AAAAASUVORK5CYII=">
           </div>
         </div>
       
@@ -627,29 +601,11 @@
         
           <div class="prev-next">
             
-              <a class='prev' href='/k8s9-upgrade.html'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Kubernetes笔记（九）：kubeadm集群升级</p>
-                <p class='content'>本文记录对使用 kubeadm 创建的 kubernetes 集群进行升级的过程。
-
-
-升级流程为：
-
-升级一个 master node
-升级其它 master node
-升级 work nod...</p>
-              </a>
             
-            
-              <a class='next' href='/mysql-i1.html'>
-                <p class='title'>MySQL:Specified key was too long<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>距上一篇更新又一个多月了，再次感觉“坚持”这个品质的不容易与可贵。
-最近没研究什么新的，这次就分享一个近期遇到的关于 MySQL 的知识点。
-
-
-
-问题
-
-某项目用到 xxl-job（一个开源的...</p>
+              <a class='next' href='/android-multi-network.html'>
+                <p class='title'>Android同时上内外网方案探索<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>前段时间“不务正业”，研究了 Android 系统同时上内外网的方案。
+业务场景需求：一个设备包含两个主板，两主板之间需实现内部通信，其中一个主板需与外部通信（通过以太网或 WIFI 连接本地局...</p>
               </a>
             
           </div>
@@ -693,7 +649,7 @@
 
   <script>
     window.subData = {
-      title: 'Android同时上内外网方案探索',
+      title: 'Kubernetes笔记（九）：kubeadm集群升级',
       tools: true
     }
   </script>
@@ -744,7 +700,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一-网络配置使用"><span class="toc-text">一. 网络配置使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-功能特性"><span class="toc-text">1. 功能特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-默认网络切换"><span class="toc-text">2. 默认网络切换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二-具体实现说明"><span class="toc-text">二. 具体实现说明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-支持多网络共存"><span class="toc-text">1. 支持多网络共存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-修改路由表"><span class="toc-text">2. 修改路由表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-制定脚本，开机执行修改路由表"><span class="toc-text">3. 制定脚本，开机执行修改路由表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-修改切换默认网络规则"><span class="toc-text">4. 修改切换默认网络规则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三-相关命令参考"><span class="toc-text">三. 相关命令参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四-总结"><span class="toc-text">四. 总结</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-升级一个-master-node"><span class="toc-text">1. 升级一个 master node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-升级其它-master-node"><span class="toc-text">2. 升级其它 master node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-升级-work-node"><span class="toc-text">3. 升级 work node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-验证与恢复"><span class="toc-text">4. 验证与恢复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-总结"><span class="toc-text">5. 总结</span></a></li></ol>
     </div>
   </section>
 
